@@ -18,6 +18,37 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bfmd.UnitTests", "tests\Bfm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bfmd.IntegrationTests", "tests\Bfmd\Bfmd.IntegrationTests\Bfmd.IntegrationTests.csproj", "{F3C91235-8961-4E3A-9427-B31D461CD728}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{EE486F34-D018-4DED-ACF5-0E94CEDE0841}"
+	ProjectSection(SolutionItems) = preProject
+		config\mapping.lineages.yaml = config\mapping.lineages.yaml
+		config\mapping.backgrounds.yaml = config\mapping.backgrounds.yaml
+		config\mapping.classes.yaml = config\mapping.classes.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "input", "input", "{29B64B28-8634-4C88-BD54-31ED5EF36E57}"
+	ProjectSection(SolutionItems) = preProject
+		input\backgrounds_and_talents\backgrounds.md = input\backgrounds_and_talents\backgrounds.md
+		input\backgrounds_and_talents\talents.md = input\backgrounds_and_talents\talents.md
+		input\lineage_and_heritage\heritage.md = input\lineage_and_heritage\heritage.md
+		input\lineage_and_heritage\.DS_Store = input\lineage_and_heritage\.DS_Store
+		input\lineage_and_heritage\lineage.md = input\lineage_and_heritage\lineage.md
+		input\classes\ranger.md = input\classes\ranger.md
+		input\classes\druid.md = input\classes\druid.md
+		input\classes\mechanist.md = input\classes\mechanist.md
+		input\classes\wizard.md = input\classes\wizard.md
+		input\classes\.DS_Store = input\classes\.DS_Store
+		input\classes\fighter.md = input\classes\fighter.md
+		input\classes\sorcerer.md = input\classes\sorcerer.md
+		input\classes\bard.md = input\classes\bard.md
+		input\classes\cleric.md = input\classes\cleric.md
+		input\classes\rogue.md = input\classes\rogue.md
+		input\classes\monk.md = input\classes\monk.md
+		input\classes\barbarian.md = input\classes\barbarian.md
+		input\classes\paladin.md = input\classes\paladin.md
+		input\classes\warlock.md = input\classes\warlock.md
+		input\intro\intro.md = input\intro\intro.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

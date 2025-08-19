@@ -17,7 +17,7 @@ Use namespaces and project names under `Bfmd.*`. Keep one public type per file n
 - Tests with coverage: `dotnet test --collect:"XPlat Code Coverage"`
 - Format (if installed): `dotnet format` (run at repo root)
 
-Target framework is `net9.0` with nullable reference types and implicit usings enabled.
+Target framework is `net8.0` with nullable reference types and implicit usings enabled.
 
 ## Coding Style & Naming Conventions
 - C#: 4‑space indentation, UTF‑8, LF line endings.

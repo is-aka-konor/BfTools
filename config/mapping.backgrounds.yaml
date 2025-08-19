@@ -1,0 +1,66 @@
+# Mapping for BACKGROUND documents (RU → canonical fields)
+titleHeaders: []  # empty → take first H1 as the title
+summaryHeaders:
+  - "Краткое описание"
+  - "Кратко"
+  - "Обзор"
+  - "Описание"
+  - "Сводка"
+  - "О предыстории"
+
+# Section headers
+skillsHeaders:
+  - "Навыки"
+  - "Владение навыками"
+  - "Профициенции навыков"
+toolsHeaders:
+  - "Инструменты"
+  - "Владение инструментами"
+  - "Профициенции инструментов"
+languagesHeaders:
+  - "Языки"
+  - "Знание языков"
+equipmentHeaders:
+  - "Снаряжение"
+  - "Начальное снаряжение"
+  - "Вы получаете"
+talentHeaders:
+  - "Таланты"
+  - "Талант"
+  - "Выберите талант"
+  - "Особая черта"
+featuresHeaders:
+  - "Особенности"
+  - "Черты"
+  - "Особенность предыстории"
+
+# Not used for backgrounds, but keep keys present
+subclassesHeaders: []
+sizeHeaders: []
+speedHeaders: []
+traitsHeaders: []
+heritagesHeaders: []
+
+# Canonicalization
+synonyms:
+  # abilities
+  "Сил": "Сила"
+  "Ловк": "Ловкость"
+  "Тел": "Телосложение"
+  "Инт": "Интеллект"
+  "Мдр": "Мудрость"
+  "Хар": "Харизма"
+  # list separators normalization
+  " либо ": " или "
+  " и/или ": " или "
+
+# Regexes used by extractor
+regexes:
+  chooseFrom: "(?i)^выберите\\s+(\\d+)\\s+из[:：]\\s*(.+)$"
+  grantedList: "(?i)^(?:получаете|даёт|дает)[:：]\\s*(.+)$"
+  # Sometimes backgrounds include mini tables named like "d8 Истории"
+  tableHeaderDice: "(?i)^d(\\d+)\\s+"
+  splitDelimiters: "(?:,|;|/|\\s+и\\s+|\\s+или\\s+)"
+
+# Units not relevant here, keep default
+unitsSpeed: "ft"
