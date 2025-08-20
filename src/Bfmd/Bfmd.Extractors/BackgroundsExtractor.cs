@@ -18,7 +18,7 @@ public class BackgroundsExtractor : IExtractor
         }
     }
 
-    private static IEnumerable<BackgroundDto> ParseBackgrounds(MarkdownDocument doc, string content, string sourcePath, MappingConfig map)
+    internal static IEnumerable<BackgroundDto> ParseBackgrounds(MarkdownDocument doc, string content, string sourcePath, MappingConfig map)
     {
         var headerLevel = map.EntryHeaderLevel;
         // Find the parent section (e.g., H2 "ПРЕДЫСТОРИИ") and restrict entries to that span
@@ -99,7 +99,7 @@ public class BackgroundsExtractor : IExtractor
         }
     }
 
-    private static (HeadingBlock? start, HeadingBlock? end) FindSection(MarkdownDocument doc, int level, IEnumerable<string> headers)
+    internal static (HeadingBlock? start, HeadingBlock? end) FindSection(MarkdownDocument doc, int level, IEnumerable<string> headers)
     {
         var all = doc.Descendants().OfType<HeadingBlock>().ToList();
         HeadingBlock? start = null;
@@ -119,7 +119,7 @@ public class BackgroundsExtractor : IExtractor
         return (start, end);
     }
 
-    private static IEnumerable<Block> NextBoundary(MarkdownDocument doc, Block start, Block? nextH3)
+    internal static IEnumerable<Block> NextBoundary(MarkdownDocument doc, Block start, Block? nextH3)
     {
         var result = new List<Block>();
         bool within = false;
@@ -137,7 +137,7 @@ public class BackgroundsExtractor : IExtractor
         return result;
     }
 
-    private static Block? NextParagraph(Block from)
+    internal static Block? NextParagraph(Block from)
     {
         if (from.Parent is not ContainerBlock container) return null;
         bool pick = false;
@@ -153,7 +153,7 @@ public class BackgroundsExtractor : IExtractor
         return null;
     }
 
-    private static SkillsPickDto ParseSkillsPick(string text)
+    internal static SkillsPickDto ParseSkillsPick(string text)
     {
         int choose = 0;
         var mNum = Regex.Match(text, "Выберите\\s+(\\d+|один|два|три)", RegexOptions.IgnoreCase);
@@ -169,14 +169,14 @@ public class BackgroundsExtractor : IExtractor
         return new SkillsPickDto { Choose = choose, From = opts, Granted = new List<string>() };
     }
 
-    private static List<string> ParseEquipment(string text)
+    internal static List<string> ParseEquipment(string text)
     {
         var idx = text.IndexOf(':');
         var s = idx >= 0 ? text[(idx + 1)..] : text;
         return SplitItems(s);
     }
 
-    private static TalentOptionsDto ParseTalentOptions(string paragraph)
+    internal static TalentOptionsDto ParseTalentOptions(string paragraph)
     {
         var idx = paragraph.LastIndexOf(':');
         var list = idx >= 0 ? paragraph[(idx + 1)..] : paragraph;
@@ -184,14 +184,14 @@ public class BackgroundsExtractor : IExtractor
         return new TalentOptionsDto { Choose = 1, From = items };
     }
 
-    private static List<string> ParseAdditional(string text)
+    internal static List<string> ParseAdditional(string text)
     {
         var idx = text.IndexOf(':');
         var s = idx >= 0 ? text[(idx + 1)..] : text;
         return SplitItems(s);
     }
 
-    private static List<string> SplitItems(string s)
+    internal static List<string> SplitItems(string s)
     {
         var replaced = s.Replace(" или ", ",", StringComparison.OrdinalIgnoreCase)
                         .Replace(" и ", ",", StringComparison.OrdinalIgnoreCase);
@@ -201,7 +201,7 @@ public class BackgroundsExtractor : IExtractor
                        .ToList();
     }
 
-    private static string Normalize(string t)
+    internal static string Normalize(string t)
     {
         var s = t.Trim();
         s = Regex.Replace(s, "^[—-]\\s*", "");
@@ -209,18 +209,18 @@ public class BackgroundsExtractor : IExtractor
         return s;
     }
 
-    private static bool HeaderMatches(HeadingBlock hb, IEnumerable<string> headers)
+    internal static bool HeaderMatches(HeadingBlock hb, IEnumerable<string> headers)
     {
         var text = InlineToText(hb.Inline);
         return headers.Any(h => text.Contains(h, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static bool HeaderTextMatches(string text, IEnumerable<string> headers)
+    internal static bool HeaderTextMatches(string text, IEnumerable<string> headers)
     {
         return headers.Any(h => text.Contains(h, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static string BlocksToMarkdown(string content, List<Block> blocks)
+    internal static string BlocksToMarkdown(string content, List<Block> blocks)
     {
         if (blocks.Count == 0) return string.Empty;
         var start = blocks.First().Span.Start;
@@ -230,7 +230,7 @@ public class BackgroundsExtractor : IExtractor
         return slice.Trim();
     }
 
-    private static string InlineToText(Markdig.Syntax.Inlines.ContainerInline? inline)
+    internal static string InlineToText(Markdig.Syntax.Inlines.ContainerInline? inline)
     {
         if (inline is null) return string.Empty;
         var sb = new StringBuilder();
@@ -255,7 +255,7 @@ public class BackgroundsExtractor : IExtractor
         return sb.ToString().Trim();
     }
 
-    private static string FlattenText(ListItemBlock li)
+    internal static string FlattenText(ListItemBlock li)
     {
         var sb = new StringBuilder();
         foreach (var b in li)
