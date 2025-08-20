@@ -2,6 +2,7 @@ namespace Bfmd.Core.Domain;
 
 public class ClassDto : BaseEntity
 {
+    public string? Description { get; set; }
     public string HitDie { get; set; } = string.Empty;
     public List<string> SavingThrows { get; set; } = new();
     public List<string>? PrimaryAbilities { get; set; }
@@ -15,9 +16,15 @@ public class ClassDto : BaseEntity
 public class ProficienciesDto
 {
     public SkillsPickDto Skills { get; set; } = new();
+    public List<string> Armor { get; set; } = new();
+    public List<string> Weapons { get; set; } = new();
+    public List<string> Tools { get; set; } = new();
 }
 
-public class StartingEquipmentDto { }
+public class StartingEquipmentDto
+{
+    public List<string> Items { get; set; } = new();
+}
 
 public class LevelRowDto
 {
@@ -26,4 +33,3 @@ public class LevelRowDto
     public Dictionary<int, int>? SpellSlots { get; set; }
     public List<string> Features { get; set; } = new();
 }
-

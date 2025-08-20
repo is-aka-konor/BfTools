@@ -52,10 +52,32 @@ public class ExpectedJsonOutputTests
             Assert.False(string.IsNullOrWhiteSpace(slugProp.GetString()));
             Assert.True(root.TryGetProperty("name", out var nameProp));
             Assert.False(string.IsNullOrWhiteSpace(nameProp.GetString()));
+            Assert.True(root.TryGetProperty("description", out var descProp));
+            Assert.False(string.IsNullOrWhiteSpace(descProp.GetString()));
             if (root.TryGetProperty("hitDie", out var hd))
             {
                 Assert.Contains(hd.GetString(), new[] { "d6", "d8", "d10", "d12" });
             }
+        }
+
+        // Spot-check Bard for proficiencies and skills parsing
+        var bard = Path.Combine(classesDir, "bard.json");
+        if (File.Exists(bard))
+        {
+            var json = File.ReadAllText(bard);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            var prof = root.GetProperty("proficiencies");
+            var skills = prof.GetProperty("skills");
+            Assert.Equal(3, skills.GetProperty("choose").GetInt32());
+            var from = skills.GetProperty("from").EnumerateArray().Select(e => e.GetString()).ToList();
+            Assert.Contains("ANY", from);
+            var armor = prof.GetProperty("armor").EnumerateArray().Select(e => e.GetString()).ToList();
+            Assert.Contains(armor, a => a!.Contains("Лёгкие", StringComparison.OrdinalIgnoreCase));
+            var weapons = prof.GetProperty("weapons").EnumerateArray().Select(e => e.GetString()).ToList();
+            Assert.Contains(weapons, w => w!.Contains("Простое оружие", StringComparison.OrdinalIgnoreCase));
+            var tools = prof.GetProperty("tools").EnumerateArray().Select(e => e.GetString()).ToList();
+            Assert.NotEmpty(tools);
         }
     }
 

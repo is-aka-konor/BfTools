@@ -1,3 +1,4 @@
+entryHeaderLevel: 2
 titleHeaders: ["# "]
 summaryHeaders: ["Описание", "Сводка"]
 featuresHeaders: ["Черты", "Особенности"]
@@ -15,4 +16,6 @@ heritagesHeaders: ["Наследия"]
 synonyms: { }
 regexes: { LevelCapture: "^Уровень\\s+(\\d+)" }
 unitsSpeed: "ft"
-
+hitsHeaders: ["ХИТЫ"]
+proficienciesHeaders: ["ВЛАДЕНИЯ"]
+startingEquipmentHeaders: ["НАЧАЛЬНОЕ СНАРЯЖЕНИЕ"]

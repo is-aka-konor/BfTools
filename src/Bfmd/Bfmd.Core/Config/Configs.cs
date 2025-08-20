@@ -44,6 +44,9 @@ public class MappingConfig
     public List<string> LanguagesHeaders { get; set; } = [];
     public List<string> EquipmentHeaders { get; set; } = [];
     public List<string> TalentHeaders { get; set; } = [];
+    public List<string> HitsHeaders { get; set; } = [];
+    public List<string> ProficienciesHeaders { get; set; } = [];
+    public List<string> StartingEquipmentHeaders { get; set; } = [];
     public List<string> SizeHeaders { get; set; } = [];
     public List<string> SpeedHeaders { get; set; } = [];
     public List<string> TraitsHeaders { get; set; } = [];
