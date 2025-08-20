@@ -28,8 +28,10 @@ public class PipelineRunner : IPipeline
         var warnings = new List<string>();
 
         var allEntities = new List<BaseEntity>();
+        var totalOutputs = 0;
         foreach (var step in cfg.Steps.Where(s => s.Enabled))
         {
+            // step handled by registered extractors
             if (!_extractors.TryGetValue(step.Type, out var extractor))
             {
                 errors.Add($"Unknown step type '{step.Type}'");
@@ -129,6 +131,7 @@ public class PipelineRunner : IPipeline
                     var typeDir = Path.Combine(paths.Out, "data", TypeToFolder(e.Type));
                     var path = Path.Combine(typeDir, $"{e.Slug}.json");
                     JsonWriter.WriteAsync(e, path).GetAwaiter().GetResult();
+                    totalOutputs++;
                 }
                 catch (Exception ex) { errors.Add($"Serialize {e.Id}: {ex.Message}"); }
             }
@@ -151,7 +154,9 @@ public class PipelineRunner : IPipeline
                         savingThrows = (e as ClassDto)?.SavingThrows,
                         concept = (e as BackgroundDto)?.Concept,
                         size = (e as LineageDto)?.Size,
-                        speed = (e as LineageDto)?.Speed
+                        speed = (e as LineageDto)?.Speed,
+                        circle = (e as SpellDto)?.Circle,
+                        school = (e as SpellDto)?.School
                     }).ToList();
                     var idxPath = Path.Combine(paths.Out, "index", $"{TypeToFolder(grp.Key)}.index.json");
                     JsonWriter.WriteAsync(list, idxPath).GetAwaiter().GetResult();
@@ -194,7 +199,7 @@ public class PipelineRunner : IPipeline
         }
         catch { /* ignore */ }
 
-        if (allEntities.Count == 0)
+        if (allEntities.Count == 0 && totalOutputs == 0)
             errors.Add("Pipeline produced 0 entities — check input and mappings.");
         if (errors.Count > 0) return 1; // validation/IO generic failure
         return 0;
@@ -205,6 +210,7 @@ public class PipelineRunner : IPipeline
         "class" => "classes",
         "background" => "backgrounds",
         "lineage" => "lineages",
+        "spell" => "spells",
         _ => type
     };
 }

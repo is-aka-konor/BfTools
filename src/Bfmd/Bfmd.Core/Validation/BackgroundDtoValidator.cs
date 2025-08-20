@@ -8,7 +8,7 @@ public class BackgroundDtoValidator
     {
         var r = new ValidationResult();
         BaseEntityValidator.Validate(b, r);
-        if (!(b.SkillProficiencies.Granted.Count > 0 || (b.SkillProficiencies.Choose.HasValue && b.SkillProficiencies.Choose.Value >= 0 && b.SkillProficiencies.From.Count > 0)))
+        if (!(b.SkillProficiencies.Granted.Count > 0 || b.SkillProficiencies is { Choose: >= 0, From.Count: > 0 }))
             r.Add("skillProficiencies", "must grant skills or have choose/from");
         if (b.TalentOptions.Choose < 0) r.Add("talentOptions.choose", ">= 0");
         return r;

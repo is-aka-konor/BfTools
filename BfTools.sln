@@ -28,9 +28,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{EE486F
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "input", "input", "{29B64B28-8634-4C88-BD54-31ED5EF36E57}"
-	ProjectSection(SolutionItems) = preProject
-		input\intro\intro.md = input\intro\intro.md
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "classes", "classes", "{78361B83-5AF0-49F3-94C9-EE9FA7763B83}"
 	ProjectSection(SolutionItems) = preProject
@@ -67,6 +64,23 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "talents", "talents", "{4A991153-5970-475D-98A0-B0688146E1C5}"
 	ProjectSection(SolutionItems) = preProject
 		input\talents\talents.md = input\talents\talents.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "spells", "spells", "{C724FFEF-B575-46A1-BA35-5E08151EBCB5}"
+	ProjectSection(SolutionItems) = preProject
+		input\spells\spells_T-Z.md = input\spells\spells_T-Z.md
+		input\spells\spells_R-S.md = input\spells\spells_R-S.md
+		input\spells\spells_P.md = input\spells\spells_P.md
+		input\spells\spells_M-N.md = input\spells\spells_M-N.md
+		input\spells\spells_H-L.md = input\spells\spells_H-L.md
+		input\spells\spells_G.md = input\spells\spells_G.md
+		input\spells\spells_F.md = input\spells\spells_F.md
+		input\spells\spells_E.md = input\spells\spells_E.md
+		input\spells\spells_D.md = input\spells\spells_D.md
+		input\spells\spells_B-C.md = input\spells\spells_B-C.md
+		input\spells\spells_A.md = input\spells\spells_A.md
+		input\spells\rituals.md = input\spells\rituals.md
+		input\spells\spell_list.md = input\spells\spell_list.md
 	EndProjectSection
 EndProject
 Global
@@ -109,5 +123,6 @@ Global
 		{874A662F-081E-453D-ABEF-5E74CB389ABC} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
 		{7DE51481-4A59-4FBC-8BEA-1B9535B8518E} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
 		{4A991153-5970-475D-98A0-B0688146E1C5} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
+		{C724FFEF-B575-46A1-BA35-5E08151EBCB5} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
 	EndGlobalSection
 EndGlobal

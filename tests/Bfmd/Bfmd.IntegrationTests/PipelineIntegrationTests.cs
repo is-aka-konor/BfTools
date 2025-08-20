@@ -18,6 +18,9 @@ public class PipelineIntegrationTests
         var sources = new YamlLoader<SourcesConfig>().Load(Path.Combine(config, "sources.yaml"));
         var pipe = new YamlLoader<PipelineConfig>().Load(Path.Combine(config, "pipeline.yaml"));
 
+        // Exclude spells step here; runner below doesn't register spells extractor
+        pipe.Steps = pipe.Steps.Where(s => !string.Equals(s.Type, "spells", StringComparison.OrdinalIgnoreCase)).ToList();
+
         var runner = new PipelineRunner(NullLogger.Instance, new FileMarkdownLoader(), p => new YamlLoader<MappingConfig>().Load(p),
         [
             ("classes", new Extractors.ClassesExtractor()),

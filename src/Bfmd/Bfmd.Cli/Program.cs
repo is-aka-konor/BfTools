@@ -55,6 +55,7 @@ void RunConvert()
         ("classes", new Bfmd.Extractors.ClassesExtractor()),
         ("backgrounds", new Bfmd.Extractors.BackgroundsExtractor()),
         ("lineages", (IExtractor)new Bfmd.Extractors.LineagesExtractor()),
+        ("spells", new Bfmd.Extractors.SpellsExtractor()),
     });
     var code = runner.Run(pipe, sources, (input, output, cfgRoot));
     if (code == 0)
@@ -67,7 +68,8 @@ void RunConvert()
         var classes = Count("classes");
         var backgrounds = Count("backgrounds");
         var lineages = Count("lineages");
-        AnsiConsole.MarkupLine($"[green]Done[/] → data: classes={classes}, backgrounds={backgrounds}, lineages={lineages}");
+        var spells = Count("spells");
+        AnsiConsole.MarkupLine($"[green]Done[/] → data: classes={classes}, backgrounds={backgrounds}, lineages={lineages}, spells={spells}");
         var manifest = Path.Combine(output, "manifest.json");
         if (File.Exists(manifest)) AnsiConsole.MarkupLine($"Manifest: [blue]{manifest}[/]");
     }

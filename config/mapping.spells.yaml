@@ -1,0 +1,2 @@
+# Spells mapping is not used by the extractor; present to satisfy pipeline config layout
+titleHeaders: ["## "]

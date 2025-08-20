@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using Bfmd.Core.Config;
 using Bfmd.Core.Domain;
 using Bfmd.Core.Pipeline;
-using Bfmd.Core.Services;
 using Markdig.Syntax;
 
 namespace Bfmd.Extractors;

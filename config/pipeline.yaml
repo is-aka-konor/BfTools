@@ -17,4 +17,9 @@ steps:
     outputData: output/data/lineages
     outputIndex: output/index/lineages.index.json
     enabled: true
-
+  - type: spells
+    input: input/spells
+    mapping: mapping.spells.yaml
+    outputData: output/data/spells
+    outputIndex: output/index/spells.index.json
+    enabled: true
