@@ -1,0 +1,7 @@
+sources:
+  - abbr: BFRD
+    name: Black Flag Reference Document
+    version: "1.0"
+    url: https://bfrd.net/
+    license: Open RPG Creative License (ORC)
+    inputRoot: input

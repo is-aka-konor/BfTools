@@ -7,9 +7,9 @@ namespace Bfmd.Extractors;
 
 public class LineagesExtractor : IExtractor
 {
-    public IEnumerable<BaseEntity> Extract(IEnumerable<(string path, MarkdownDocument doc, string sha256)> docs, SourceItem src, MappingConfig map)
+    public IEnumerable<BaseEntity> Extract(IEnumerable<(string path, string content, MarkdownDocument doc, string sha256)> docs, SourceItem src, MappingConfig map)
     {
-        foreach (var (path, doc, _) in docs)
+        foreach (var (path, _, doc, _) in docs)
         {
             var title = doc.Descendants().OfType<HeadingBlock>().FirstOrDefault(h => h.Level == 1)?.Inline?.FirstChild?.ToString();
             if (string.IsNullOrWhiteSpace(title)) continue;
@@ -25,4 +25,3 @@ public class LineagesExtractor : IExtractor
         }
     }
 }
-

@@ -22,9 +22,21 @@
         <Using Include="Xunit"/>
     </ItemGroup>
 
-    <ItemGroup>
+  <ItemGroup>
       <ProjectReference Include="..\..\..\src\Bfmd\Bfmd.Core\Bfmd.Core.csproj" />
       <ProjectReference Include="..\..\..\src\Bfmd\Bfmd.Extractors\Bfmd.Extractors.csproj" />
-    </ItemGroup>
+  </ItemGroup>
+
+  <!-- Copy real app inputs and config into test output to mirror CLI runtime layout -->
+  <ItemGroup>
+    <None Include="..\..\..\input\**\*">
+      <Link>input\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\config\**\*">
+      <Link>config\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

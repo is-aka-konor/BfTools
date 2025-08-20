@@ -23,30 +23,50 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{EE486F
 		config\mapping.lineages.yaml = config\mapping.lineages.yaml
 		config\mapping.backgrounds.yaml = config\mapping.backgrounds.yaml
 		config\mapping.classes.yaml = config\mapping.classes.yaml
+		config\pipeline.yaml = config\pipeline.yaml
+		config\sources.yaml = config\sources.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "input", "input", "{29B64B28-8634-4C88-BD54-31ED5EF36E57}"
 	ProjectSection(SolutionItems) = preProject
-		input\backgrounds_and_talents\backgrounds.md = input\backgrounds_and_talents\backgrounds.md
-		input\backgrounds_and_talents\talents.md = input\backgrounds_and_talents\talents.md
-		input\lineage_and_heritage\heritage.md = input\lineage_and_heritage\heritage.md
-		input\lineage_and_heritage\.DS_Store = input\lineage_and_heritage\.DS_Store
-		input\lineage_and_heritage\lineage.md = input\lineage_and_heritage\lineage.md
-		input\classes\ranger.md = input\classes\ranger.md
-		input\classes\druid.md = input\classes\druid.md
-		input\classes\mechanist.md = input\classes\mechanist.md
-		input\classes\wizard.md = input\classes\wizard.md
-		input\classes\.DS_Store = input\classes\.DS_Store
-		input\classes\fighter.md = input\classes\fighter.md
-		input\classes\sorcerer.md = input\classes\sorcerer.md
+		input\intro\intro.md = input\intro\intro.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "classes", "classes", "{78361B83-5AF0-49F3-94C9-EE9FA7763B83}"
+	ProjectSection(SolutionItems) = preProject
+		input\classes\barbarian.md = input\classes\barbarian.md
 		input\classes\bard.md = input\classes\bard.md
 		input\classes\cleric.md = input\classes\cleric.md
-		input\classes\rogue.md = input\classes\rogue.md
+		input\classes\druid.md = input\classes\druid.md
+		input\classes\fighter.md = input\classes\fighter.md
+		input\classes\mechanist.md = input\classes\mechanist.md
 		input\classes\monk.md = input\classes\monk.md
-		input\classes\barbarian.md = input\classes\barbarian.md
 		input\classes\paladin.md = input\classes\paladin.md
+		input\classes\ranger.md = input\classes\ranger.md
+		input\classes\rogue.md = input\classes\rogue.md
+		input\classes\sorcerer.md = input\classes\sorcerer.md
 		input\classes\warlock.md = input\classes\warlock.md
-		input\intro\intro.md = input\intro\intro.md
+		input\classes\wizard.md = input\classes\wizard.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backgrounds", "backgrounds", "{7155D383-B4C2-4C5D-8748-29BBED9E45EC}"
+	ProjectSection(SolutionItems) = preProject
+		input\backgrounds\backgrounds.md = input\backgrounds\backgrounds.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lineages", "lineages", "{874A662F-081E-453D-ABEF-5E74CB389ABC}"
+	ProjectSection(SolutionItems) = preProject
+		input\lineages\lineage.md = input\lineages\lineage.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "heritages", "heritages", "{7DE51481-4A59-4FBC-8BEA-1B9535B8518E}"
+	ProjectSection(SolutionItems) = preProject
+		input\heritage\heritage.md = input\heritage\heritage.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "talents", "talents", "{4A991153-5970-475D-98A0-B0688146E1C5}"
+	ProjectSection(SolutionItems) = preProject
+		input\talents\talents.md = input\talents\talents.md
 	EndProjectSection
 EndProject
 Global
@@ -84,5 +104,10 @@ Global
 		{6379BB80-AE79-4EE9-919B-376CB51B6863} = {86C1F2FF-0FA6-4D34-9151-7150F288F07E}
 		{5A751CF4-EEAC-4BEF-A788-EC1CA987A5F2} = {6379BB80-AE79-4EE9-919B-376CB51B6863}
 		{F3C91235-8961-4E3A-9427-B31D461CD728} = {6379BB80-AE79-4EE9-919B-376CB51B6863}
+		{78361B83-5AF0-49F3-94C9-EE9FA7763B83} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
+		{7155D383-B4C2-4C5D-8748-29BBED9E45EC} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
+		{874A662F-081E-453D-ABEF-5E74CB389ABC} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
+		{7DE51481-4A59-4FBC-8BEA-1B9535B8518E} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
+		{4A991153-5970-475D-98A0-B0688146E1C5} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
 	EndGlobalSection
 EndGlobal

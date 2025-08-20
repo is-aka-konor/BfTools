@@ -11,6 +11,7 @@ public static class MarkdownAst
             .UseYamlFrontMatter()
             .UseEmojiAndSmiley()
             .UsePipeTables()
+            .UsePreciseSourceLocation()
             .UseListExtras()
             .UseAutoIdentifiers()
             .Build());
@@ -18,6 +19,5 @@ public static class MarkdownAst
     public static MarkdownPipeline Pipeline => _pipeline.Value;
 
     public static MarkdownDocument Parse(string content)
-        => Markdig.Markdown.Parse(content, Pipeline);
+        => Markdown.Parse(content, Pipeline);
 }
-

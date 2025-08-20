@@ -1,18 +1,16 @@
 using Bfmd.Core.Domain;
-using FluentValidation;
 
 namespace Bfmd.Core.Validation;
 
-public class BaseEntityValidator<T> : AbstractValidator<T> where T : BaseEntity
+public static class BaseEntityValidator
 {
-    public BaseEntityValidator()
+    public static void Validate(BaseEntity e, ValidationResult result)
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.Slug).NotEmpty();
-        RuleFor(x => x.Name).NotEmpty();
-        RuleFor(x => x.Type).NotEmpty();
-        RuleFor(x => x.SchemaVersion).NotEmpty();
-        RuleFor(x => x.Src).SetValidator(new SourceRefValidator());
+        if (string.IsNullOrWhiteSpace(e.Id)) result.Add("id", "required");
+        if (string.IsNullOrWhiteSpace(e.Slug)) result.Add("slug", "required");
+        if (string.IsNullOrWhiteSpace(e.Name)) result.Add("name", "required");
+        if (string.IsNullOrWhiteSpace(e.Type)) result.Add("type", "required");
+        if (string.IsNullOrWhiteSpace(e.SchemaVersion)) result.Add("schemaVersion", "required");
+        SourceRefValidator.Validate(e.Src, result);
     }
 }
-

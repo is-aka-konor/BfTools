@@ -2,8 +2,6 @@ using System.Text;
 using Bfmd.Core.Config;
 using Bfmd.Core.Domain;
 using Bfmd.Core.Services;
-using Bfmd.Core.Validation;
-using FluentValidation;
 using Markdig.Syntax;
 using Microsoft.Extensions.Logging;
 
@@ -50,7 +48,9 @@ public class PipelineRunner : IPipeline
             }
             var files = Directory.Exists(inputPath)
                 ? Directory.EnumerateFiles(inputPath, "*.md", SearchOption.AllDirectories)
-                : [];
+                : Enumerable.Empty<string>();
+            if (!files.Any())
+                warnings.Add($"{step.Type}: no markdown files under '{inputPath}'");
 
             var src = sources.Sources.FirstOrDefault(s => Path.GetFullPath(inputPath).StartsWith(Path.GetFullPath(s.InputRoot), StringComparison.OrdinalIgnoreCase));
             if (src == null)
@@ -66,14 +66,14 @@ public class PipelineRunner : IPipeline
             try { map = _mapLoader(Path.Combine(paths.Config, mappingFile)); }
             catch (Exception ex) { errors.Add($"Failed to load mapping '{step.Mapping}': {ex.Message}"); continue; }
 
-            var docs = new List<(string path, MarkdownDocument doc, string sha256)>();
+            var docs = new List<(string path, string content, MarkdownDocument doc, string sha256)>();
             foreach (var f in files)
             {
                 try
                 {
                     var (content, sha) = _mdLoader.Load(f);
                     var doc = MarkdownAst.Parse(content);
-                    docs.Add((f, doc, sha));
+                    docs.Add((f, content, doc, sha));
                 }
                 catch (Exception ex)
                 {
@@ -82,6 +82,10 @@ public class PipelineRunner : IPipeline
             }
 
             var entities = extractor.Extract(docs, src, map).ToList();
+            if (docs.Count == 0)
+                warnings.Add($"{step.Type}: parsed 0 documents");
+            if (entities.Count == 0)
+                warnings.Add($"{step.Type}: extracted 0 entities");
 
             // Assign IDs, slugs, and src, normalize common
             foreach (var e in entities)
@@ -99,15 +103,15 @@ public class PipelineRunner : IPipeline
                 };
             }
 
-            // Validate per type
+            // Validate per type (custom validators)
             foreach (var e in entities)
             {
-                var vr = e switch
+                Validation.ValidationResult vr = e switch
                 {
-                    ClassDto c => new ClassDtoValidator().Validate(c),
-                    BackgroundDto b => new BackgroundDtoValidator().Validate(b),
-                    LineageDto l => new LineageDtoValidator().Validate(l),
-                    _ => new BaseEntityValidator<BaseEntity>().Validate(e)
+                    ClassDto c => new Validation.ClassDtoValidator().Validate(c),
+                    BackgroundDto b => new Validation.BackgroundDtoValidator().Validate(b),
+                    LineageDto l => new Validation.LineageDtoValidator().Validate(l),
+                    _ => new Validation.ValidationResult()
                 };
                 if (!vr.IsValid)
                 {
@@ -122,7 +126,7 @@ public class PipelineRunner : IPipeline
             {
                 try
                 {
-                    var typeDir = Path.Combine(paths.Out, "data", e.Type);
+                    var typeDir = Path.Combine(paths.Out, "data", TypeToFolder(e.Type));
                     var path = Path.Combine(typeDir, $"{e.Slug}.json");
                     JsonWriter.WriteAsync(e, path).GetAwaiter().GetResult();
                 }
@@ -149,7 +153,7 @@ public class PipelineRunner : IPipeline
                         size = (e as LineageDto)?.Size,
                         speed = (e as LineageDto)?.Speed
                     }).ToList();
-                    var idxPath = Path.Combine(paths.Out, "index", $"{grp.Key}.index.json");
+                    var idxPath = Path.Combine(paths.Out, "index", $"{TypeToFolder(grp.Key)}.index.json");
                     JsonWriter.WriteAsync(list, idxPath).GetAwaiter().GetResult();
                 }
             }
@@ -190,7 +194,17 @@ public class PipelineRunner : IPipeline
         }
         catch { /* ignore */ }
 
+        if (allEntities.Count == 0)
+            errors.Add("Pipeline produced 0 entities — check input and mappings.");
         if (errors.Count > 0) return 1; // validation/IO generic failure
         return 0;
     }
+
+    private static string TypeToFolder(string type) => type switch
+    {
+        "class" => "classes",
+        "background" => "backgrounds",
+        "lineage" => "lineages",
+        _ => type
+    };
 }

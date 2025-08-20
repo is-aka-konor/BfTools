@@ -1,139 +1,18 @@
-# Mapping for CLASS documents (RU → canonical fields)
-titleHeaders: []  # empty → take first H1 as the title
-summaryHeaders:
-  - "Краткое описание"
-  - "Кратко"
-  - "Обзор"
-  - "Описание"
-  - "Сводка"
-  - "О классе"
-featuresHeaders:
-  - "Особенности класса"
-  - "Особенности"
-  - "Черты класса"
-  - "Черты"
-  - "Классовые особенности"
-subclassesHeaders:
-  - "Подклассы"
-  - "Архетипы"
-  - "Круги"
-  - "Колледжи"
-  - "Домены"
-  - "Пути"
-  - "Школы"
-  - "Ордена"
-
-# Table column mapping for the level progression
-columnMap:
-  # level & PB
-  "Уровень": "level"
-  "Lvl": "level"
-  "Бонус мастерства": "proficiencyBonus"
-  "Бонус профиц.": "proficiencyBonus"
-  "Бонус проф.": "proficiencyBonus"
-  "ПБ": "proficiencyBonus"
-  # features column
-  "Особенности": "features"
-  "Черты": "features"
-  "Классовые особенности": "features"
-  # spell slots (1..9) — include common Russian/alt labels
-  "Ячейки 1 круга": "spellSlots.1"
-  "1 круг": "spellSlots.1"
-  "Круг 1": "spellSlots.1"
-  "Ячейки (1)": "spellSlots.1"
-  "Ячейки 2 круга": "spellSlots.2"
-  "2 круг": "spellSlots.2"
-  "Круг 2": "spellSlots.2"
-  "Ячейки (2)": "spellSlots.2"
-  "Ячейки 3 круга": "spellSlots.3"
-  "3 круг": "spellSlots.3"
-  "Круг 3": "spellSlots.3"
-  "Ячейки (3)": "spellSlots.3"
-  "Ячейки 4 круга": "spellSlots.4"
-  "4 круг": "spellSlots.4"
-  "Круг 4": "spellSlots.4"
-  "Ячейки (4)": "spellSlots.4"
-  "Ячейки 5 круга": "spellSlots.5"
-  "5 круг": "spellSlots.5"
-  "Круг 5": "spellSlots.5"
-  "Ячейки (5)": "spellSlots.5"
-  "Ячейки 6 круга": "spellSlots.6"
-  "6 круг": "spellSlots.6"
-  "Круг 6": "spellSlots.6"
-  "Ячейки (6)": "spellSlots.6"
-  "Ячейки 7 круга": "spellSlots.7"
-  "7 круг": "spellSlots.7"
-  "Круг 7": "spellSlots.7"
-  "Ячейки (7)": "spellSlots.7"
-  "Ячейки 8 круга": "spellSlots.8"
-  "8 круг": "spellSlots.8"
-  "Круг 8": "spellSlots.8"
-  "Ячейки (8)": "spellSlots.8"
-  "Ячейки 9 круга": "spellSlots.9"
-  "9 круг": "spellSlots.9"
-  "Круг 9": "spellSlots.9"
-  "Ячейки (9)": "spellSlots.9"
-
-# Optional section headers you might parse for proficiencies/equipment within class docs
-skillsHeaders:
-  - "Навыки"
-  - "Владение навыками"
-toolsHeaders:
-  - "Инструменты"
-  - "Владение инструментами"
-languagesHeaders:
-  - "Языки"
-equipmentHeaders:
-  - "Начальное снаряжение"
-  - "Стартовое снаряжение"
-  - "Снаряжение на старте"
-  - "Снаряжение"
-
-talentHeaders: []   # not typically used in class docs
-sizeHeaders:   []   # n/a for classes
-speedHeaders:  []   # n/a for classes
-traitsHeaders: []   # features section covers traits
-heritagesHeaders: []  # n/a for classes
-
-# Canonicalization map (values you normalize in text parsing)
-synonyms:
-  # abilities (normalize frequent shortenings/misspellings)
-  "Сил": "Сила"
-  "Ловк": "Ловкость"
-  "Тел": "Телосложение"
-  "Инт": "Интеллект"
-  "Мдр": "Мудрость"
-  "Хар": "Харизма"
-  # speed units
-  "фт": "ft"
-  "фут": "ft"
-  "футов": "ft"
-  "фута": "ft"
-  "метр": "m"
-  "метра": "m"
-  "метров": "m"
-  "м": "m"
-  # level wordings
-  "ур.": "уровень"
-  "уров.": "уровень"
-  # conjunctions (only for list splitting if you pre-normalize)
-  " либо ": " или "
-  " и/или ": " или "
-
-# Regex library used by extractors
-regexes:
-  # capture feature level markers like "ур. 3", "Уровень 7", "(ур. 2)"
-  levelCapture: "(?i)(?:ур\\.?|уровень)\\s*(\\d{1,2})"
-  # "Выберите 2 из: ..."  (Backgrounds also reuse this)
-  chooseFrom: "(?i)^выберите\\s+(\\d+)\\s+из[:：]\\s*(.+)$"
-  # "Получаете: ..." (granted list)
-  grantedList: "(?i)^(?:получаете|даёт|дает)[:：]\\s*(.+)$"
-  # starting equipment A/B option line (A|А) ... или ... (B|Б)
-  standardChoicesOr: "(?i)^\\((?:A|А)\\)\\s*(.+?)\\s*(?:или|/|\\|)\\s*\\((?:B|Б)\\)\\s*(.+)$"
-  # dice funds like "5d4 × 10"
-  fundsRoll: "(?i)(\\d+)d(\\d+)\\s*[×x\\*]\\s*(\\d+)"
-  # generic list split (commas/semicolons/slashes or 'и'/'или' with spaces)
-  splitDelimiters: "(?:,|;|/|\\s+и\\s+|\\s+или\\s+)"
-
-# For completeness; classes rarely use speed, but keep consistent schema knobs
+titleHeaders: ["# "]
+summaryHeaders: ["Описание", "Сводка"]
+featuresHeaders: ["Черты", "Особенности"]
+subclassesHeaders: ["Подклассы"]
+columnMap: { level: "Уровень", proficiencyBonus: "Бонус мастерства", features: "Особенности" }
+skillsHeaders: ["Навыки"]
+toolsHeaders: ["Инструменты"]
+languagesHeaders: ["Языки"]
+equipmentHeaders: ["Снаряжение"]
+talentHeaders: ["Таланты"]
+sizeHeaders: ["Размер"]
+speedHeaders: ["Скорость"]
+traitsHeaders: ["Черты"]
+heritagesHeaders: ["Наследия"]
+synonyms: { }
+regexes: { LevelCapture: "^Уровень\\s+(\\d+)" }
 unitsSpeed: "ft"
+

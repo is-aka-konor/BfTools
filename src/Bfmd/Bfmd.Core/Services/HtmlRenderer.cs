@@ -15,6 +15,6 @@ public static class HtmlRenderer
             .Build());
 
     public static string ToHtml(string markdown)
-        => Markdig.Markdown.ToHtml(markdown, _htmlPipeline.Value);
+        => Markdown.ToHtml(markdown, _htmlPipeline.Value);
 }
 

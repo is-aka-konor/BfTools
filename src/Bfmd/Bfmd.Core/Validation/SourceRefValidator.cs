@@ -1,16 +1,14 @@
 using Bfmd.Core.Domain;
-using FluentValidation;
 
 namespace Bfmd.Core.Validation;
 
-public class SourceRefValidator : AbstractValidator<SourceRef>
+public static class SourceRefValidator
 {
-    public SourceRefValidator()
+    public static void Validate(SourceRef src, ValidationResult result, string prefix = "src")
     {
-        RuleFor(x => x.Abbr).NotEmpty();
-        RuleFor(x => x.Name).NotEmpty();
-        RuleFor(x => x.Version).NotEmpty();
-        RuleFor(x => x.Hash).NotEmpty();
+        if (string.IsNullOrWhiteSpace(src.Abbr)) result.Add(prefix + ".abbr", "required");
+        if (string.IsNullOrWhiteSpace(src.Name)) result.Add(prefix + ".name", "required");
+        if (string.IsNullOrWhiteSpace(src.Version)) result.Add(prefix + ".version", "required");
+        if (string.IsNullOrWhiteSpace(src.Hash)) result.Add(prefix + ".hash", "required");
     }
 }
-

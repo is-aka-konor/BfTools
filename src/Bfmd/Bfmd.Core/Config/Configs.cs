@@ -32,6 +32,8 @@ public class PipelineStepConfig
 
 public class MappingConfig
 {
+    public int EntryHeaderLevel { get; set; } = 3;
+    public List<string> EntrySectionHeaders { get; set; } = new() { "ПРЕДЫСТОРИИ" };
     public List<string> TitleHeaders { get; set; } = [];
     public List<string> SummaryHeaders { get; set; } = [];
     public List<string> FeaturesHeaders { get; set; } = [];
@@ -50,4 +52,3 @@ public class MappingConfig
     public Dictionary<string, string> Regexes { get; set; } = new();
     public string UnitsSpeed { get; set; } = "ft";
 }
-

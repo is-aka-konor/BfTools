@@ -1,71 +1,18 @@
-# Mapping for LINEAGE documents (RU → canonical fields)
-titleHeaders: []  # empty → take first H1 as the title
-summaryHeaders:
-  - "Краткое описание"
-  - "Кратко"
-  - "Обзор"
-  - "Описание"
-  - "Сводка"
-  - "О народе"
-
-sizeHeaders:
-  - "Размер"
-  - "Габарит"
-  - "Категория размера"
-speedHeaders:
-  - "Скорость"
-  - "Скорость перемещения"
-traitsHeaders:
-  - "Черты"
-  - "Особенности"
-  - "Природные особенности"
-heritagesHeaders:
-  - "Наследия"
-  - "Происхождения"
-  - "Варианты"
-  - "Подвиды"
-  - "Культы и племена"
-
-# Unused for lineages but keep keys present
-featuresHeaders: []
-subclassesHeaders: []
-skillsHeaders: []
-toolsHeaders: []
-languagesHeaders: []
-equipmentHeaders: []
-talentHeaders: []
-
-# Canonicalization (map RU→EN where your schema expects canonical tokens)
-synonyms:
-  # size canonicalization
-  "Средний": "Medium"
-  "Средняя": "Medium"
-  "Маленький": "Small"
-  "Малый": "Small"
-  "Крошечный": "Tiny"
-  "Большой": "Large"
-  "Огромный": "Huge"
-  "Гигантский": "Gargantuan"
-  # speed units
-  "фт": "ft"
-  "фут": "ft"
-  "футов": "ft"
-  "фута": "ft"
-  "метр": "m"
-  "метра": "m"
-  "метров": "m"
-  "м": "m"
-  # list separators
-  " либо ": " или "
-  " и/или ": " или "
-
-# Regexes used by extractor
-regexes:
-  # Capture speed like "Скорость 30 фт." or "9 м"
-  speedCapture: "(?i)(\\d+)\\s*(?:фт|фут(?:ов|а)?|ft|м|метр(?:ов|а)?)"
-  # Traits and heritages use H3/H4 sections; levelCapture unused but kept for parity
-  levelCapture: "(?i)(?:ур\\.?|уровень)\\s*(\\d{1,2})"
-  splitDelimiters: "(?:,|;|/|\\s+и\\s+|\\s+или\\s+)"
-
-# Choose the canonical output unit for Speed integer
+titleHeaders: ["# "]
+summaryHeaders: ["Описание", "Сводка"]
+featuresHeaders: ["Черты", "Особенности"]
+subclassesHeaders: ["Наследия"]
+columnMap: { }
+skillsHeaders: ["Навыки"]
+toolsHeaders: ["Инструменты"]
+languagesHeaders: ["Языки"]
+equipmentHeaders: ["Снаряжение"]
+talentHeaders: ["Таланты"]
+sizeHeaders: ["Размер"]
+speedHeaders: ["Скорость"]
+traitsHeaders: ["Черты"]
+heritagesHeaders: ["Наследия"]
+synonyms: { }
+regexes: { LevelCapture: "^Уровень\\s+(\\д+)" }
 unitsSpeed: "ft"
+

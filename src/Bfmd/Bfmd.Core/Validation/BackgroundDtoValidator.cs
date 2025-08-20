@@ -1,18 +1,16 @@
 using Bfmd.Core.Domain;
-using FluentValidation;
 
 namespace Bfmd.Core.Validation;
 
-public class BackgroundDtoValidator : AbstractValidator<BackgroundDto>
+public class BackgroundDtoValidator
 {
-    public BackgroundDtoValidator()
+    public ValidationResult Validate(BackgroundDto b)
     {
-        Include(new BaseEntityValidator<BackgroundDto>());
-        RuleFor(x => x.SkillProficiencies).Must(HasPicksOrGranted).WithMessage("background must grant skills or have choose/from");
-        RuleFor(x => x.TalentOptions.Choose).GreaterThanOrEqualTo(0);
+        var r = new ValidationResult();
+        BaseEntityValidator.Validate(b, r);
+        if (!(b.SkillProficiencies.Granted.Count > 0 || (b.SkillProficiencies.Choose.HasValue && b.SkillProficiencies.Choose.Value >= 0 && b.SkillProficiencies.From.Count > 0)))
+            r.Add("skillProficiencies", "must grant skills or have choose/from");
+        if (b.TalentOptions.Choose < 0) r.Add("talentOptions.choose", ">= 0");
+        return r;
     }
-
-    private static bool HasPicksOrGranted(SkillsPickDto s)
-        => s.Granted.Count > 0 || (s.Choose.HasValue && s.Choose.Value >= 0 && s.From.Count > 0);
 }
-

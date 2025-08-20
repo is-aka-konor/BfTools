@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+        <PackageReference Include="Spectre.Console" Version="0.50.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     </ItemGroup>
 
@@ -17,5 +17,32 @@
         <ProjectReference Include="..\Bfmd.Core\Bfmd.Core.csproj" />
         <ProjectReference Include="..\Bfmd.Extractors\Bfmd.Extractors.csproj" />
     </ItemGroup>
+
+    <!-- Copy repo-level input/ and config/ into build (bin) and publish folders under the same subpaths -->
+    <Target Name="CopyInputAndConfigToOutput" AfterTargets="Build">
+        <ItemGroup>
+            <_ConfigFiles Include="$(MSBuildProjectDirectory)\..\..\..\config\**\*" />
+            <_InputFiles Include="$(MSBuildProjectDirectory)\..\..\..\input\**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(_ConfigFiles)"
+              DestinationFiles="@(_ConfigFiles->'$(OutDir)config\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(_InputFiles)"
+              DestinationFiles="@(_InputFiles->'$(OutDir)input\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+    </Target>
+
+    <Target Name="CopyInputAndConfigToPublish" AfterTargets="Publish">
+        <ItemGroup>
+            <_ConfigFilesPub Include="$(MSBuildProjectDirectory)\..\..\..\config\**\*" />
+            <_InputFilesPub Include="$(MSBuildProjectDirectory)\..\..\..\input\**\*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(_ConfigFilesPub)"
+              DestinationFiles="@(_ConfigFilesPub->'$(PublishDir)config\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" Condition=" '$(PublishDir)' != '' " />
+        <Copy SourceFiles="@(_InputFilesPub)"
+              DestinationFiles="@(_InputFilesPub->'$(PublishDir)input\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" Condition=" '$(PublishDir)' != '' " />
+    </Target>
 
 </Project>

@@ -11,16 +11,18 @@ public static class JsonWriter
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        WriteIndented = false
+        WriteIndented = true
     };
 
     public static Task WriteAsync<T>(T obj, string path, CancellationToken ct = default)
+        => WriteAsync((object?)obj!, path, ct);
+
+    public static async Task WriteAsync(object obj, string path, CancellationToken ct = default)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        using var fs = File.Create(path);
-        return JsonSerializer.SerializeAsync(fs, obj, Options, ct);
+        await using var fs = File.Create(path);
+        await JsonSerializer.SerializeAsync(fs, obj, obj.GetType(), Options, ct);
     }
 
-    public static string ToString<T>(T obj) => JsonSerializer.Serialize(obj, Options);
+    public static string ToString<T>(T obj) => JsonSerializer.Serialize(obj, obj!.GetType(), Options);
 }
-

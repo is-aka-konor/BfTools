@@ -10,9 +10,9 @@ namespace Bfmd.Extractors;
 
 public class ClassesExtractor : IExtractor
 {
-    public IEnumerable<BaseEntity> Extract(IEnumerable<(string path, MarkdownDocument doc, string sha256)> docs, SourceItem src, MappingConfig map)
+    public IEnumerable<BaseEntity> Extract(IEnumerable<(string path, string content, MarkdownDocument doc, string sha256)> docs, SourceItem src, MappingConfig map)
     {
-        foreach (var (path, doc, _) in docs)
+        foreach (var (path, _, doc, _) in docs)
         {
             var title = GetHeadingText(doc);
             if (string.IsNullOrWhiteSpace(title)) continue;
@@ -56,8 +56,8 @@ public class ClassesExtractor : IExtractor
 
     private static string GetHeadingText(MarkdownDocument doc)
     {
-        var h1 = doc.Descendants().OfType<HeadingBlock>().FirstOrDefault(h => h.Level == 1);
-        return h1 is null ? string.Empty : InlineToText(h1.Inline);
+        var h = doc.Descendants().OfType<HeadingBlock>().FirstOrDefault(h => h.Level is 1 or 2);
+        return h is null ? string.Empty : InlineToText(h.Inline);
     }
 
     private static string InlineToText(Markdig.Syntax.Inlines.ContainerInline? inline)
@@ -85,4 +85,3 @@ public class ClassesExtractor : IExtractor
         return sb.ToString().Trim();
     }
 }
-
