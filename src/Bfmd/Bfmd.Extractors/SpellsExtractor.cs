@@ -49,7 +49,7 @@ public class SpellsExtractor : IExtractor
         }
     }
 
-    private static List<Block> FindNextBreakOrH2(MarkdownDocument doc, Block start, HeadingBlock? nextH2)
+    internal static List<Block> FindNextBreakOrH2(MarkdownDocument doc, Block start, HeadingBlock? nextH2)
     {
         var result = new List<Block>();
         bool after = false;
@@ -67,14 +67,14 @@ public class SpellsExtractor : IExtractor
         return result;
     }
 
-    private static string ParseNameRu(HeadingBlock h2)
+    internal static string ParseNameRu(HeadingBlock h2)
     {
         var text = InlineToText(h2.Inline);
         var idx = text.IndexOf('(');
         return idx > 0 ? text[..idx].Trim() : text.Trim();
     }
 
-    private static (int circle, List<string> traditions, string school, string casting, string range, string components, string duration, List<string> effect)
+    internal static (int circle, List<string> traditions, string school, string casting, string range, string components, string duration, List<string> effect)
         ParseSpellBody(IReadOnlyList<Block> blocks)
     {
         int circle = 0; var traditions = new List<string>(); var school = string.Empty;
@@ -83,56 +83,25 @@ public class SpellsExtractor : IExtractor
 
         for (int bi = 0; bi < blocks.Count; bi++)
         {
-            var b = blocks[bi];
-            if (b is ListBlock list)
+            if (blocks[bi] is not ListBlock list) continue;
+
+            var labeled = ParseListBlock(list);
+
+            if (labeled.TryGetValue("уровень", out var lvlRaw))
             {
-                foreach (var item in list)
-                {
-                    if (item is not ListItemBlock li) continue;
-                    var p = li.Descendants().OfType<ParagraphBlock>().FirstOrDefault();
-                    if (p is null) continue;
-                    var (label, value) = ExtractLabeledValue(p);
-                    if (string.IsNullOrWhiteSpace(label)) continue;
-                    switch (NormalizeLabel(label))
-                    {
-                        case "уровень":
-                            var ru = value.Split('/')[0].Trim();
-                            ParseLevelLine(ru, out circle, out traditions, out school);
-                            break;
-                        case "время накладывания":
-                            casting = value.Trim();
-                            break;
-                        case "дистанция":
-                            range = value.Trim();
-                            break;
-                        case "компоненты":
-                            components = value.Trim();
-                            break;
-                        case "длительность":
-                            duration = value.Trim();
-                            break;
-                        case "эффект":
-                            if (!string.IsNullOrWhiteSpace(value)) effect.Add(value.Trim());
-                            // Collect subsequent paras/headings until thematic break or next H2 (bounded by section)
-                            for (int fj = bi + 1; fj < blocks.Count; fj++)
-                            {
-                                var f = blocks[fj];
-                                if (f is HeadingBlock { Level: 2 }) break;
-                                if (f is ThematicBreakBlock) break;
-                                if (f is ParagraphBlock pp)
-                                {
-                                    var t = InlineToText(pp.Inline);
-                                    if (!string.IsNullOrWhiteSpace(t)) effect.Add(t);
-                                }
-                                else if (f is HeadingBlock sub)
-                                {
-                                    var ht = InlineToText(sub.Inline);
-                                    if (!string.IsNullOrWhiteSpace(ht)) effect.Add(ht);
-                                }
-                            }
-                            break;
-                    }
-                }
+                var ru = lvlRaw.Split('/')[0].Trim();
+                ParseLevelLine(ru, out circle, out traditions, out school);
+            }
+            if (labeled.TryGetValue("время накладывания", out var castingRaw)) casting = castingRaw.Trim();
+            if (labeled.TryGetValue("дистанция", out var rangeRaw)) range = rangeRaw.Trim();
+            if (labeled.TryGetValue("компоненты", out var compRaw)) components = compRaw.Trim();
+            if (labeled.TryGetValue("длительность", out var durRaw)) duration = durRaw.Trim();
+
+            if (labeled.TryGetValue("эффект", out var effRaw))
+            {
+                if (!string.IsNullOrWhiteSpace(effRaw)) effect.Add(effRaw.Trim());
+                var extras = CollectEffect(blocks, bi + 1);
+                effect.AddRange(extras);
             }
         }
 
@@ -141,7 +110,7 @@ public class SpellsExtractor : IExtractor
 
     // removed FollowingBlocks to avoid multiple enumeration and improve performance
 
-    private static void ParseLevelLine(string russian, out int circle, out List<string> traditions, out string school)
+    internal static void ParseLevelLine(string russian, out int circle, out List<string> traditions, out string school)
     {
         circle = 0; traditions = new List<string>(); school = string.Empty;
         var m = Regex.Match(russian, @"(\d+)\s*-?й\s+круг", RegexOptions.IgnoreCase);
@@ -159,7 +128,7 @@ public class SpellsExtractor : IExtractor
         if (sm.Success) school = sm.Groups[1].Value.Trim();
     }
 
-    private static (string label, string value) ExtractLabeledValue(ParagraphBlock p)
+    internal static (string label, string value) ExtractLabeledValue(ParagraphBlock p)
     {
         // Find first strong label
         var label = string.Empty;
@@ -180,19 +149,19 @@ public class SpellsExtractor : IExtractor
         return (label, valueRaw);
     }
 
-    private static string NormalizeLabel(string s)
+    internal static string NormalizeLabel(string s)
     {
         s = s.Trim().TrimEnd(':', '：');
         return s.ToLowerInvariant();
     }
 
-    private static List<string> SplitList(string s)
+    internal static List<string> SplitList(string s)
     {
         var replaced = s.Replace(" и ", ",", StringComparison.OrdinalIgnoreCase);
         return replaced.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
     }
 
-    private static string InlineToText(Markdig.Syntax.Inlines.ContainerInline? inline)
+    internal static string InlineToText(Markdig.Syntax.Inlines.ContainerInline? inline)
     {
         if (inline is null) return string.Empty;
         var sb = new StringBuilder();
@@ -203,7 +172,7 @@ public class SpellsExtractor : IExtractor
         return sb.ToString().Trim();
     }
 
-    private static string InlineNodeToText(Markdig.Syntax.Inlines.Inline node)
+    internal static string InlineNodeToText(Markdig.Syntax.Inlines.Inline node)
     {
         return node switch
         {
@@ -213,5 +182,44 @@ public class SpellsExtractor : IExtractor
             Markdig.Syntax.Inlines.CodeInline code => code.Content,
             _ => string.Empty
         };
+    }
+
+    // Parse a list of labeled bullets into a normalized dictionary
+    internal static Dictionary<string, string> ParseListBlock(ListBlock list)
+    {
+        var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var item in list)
+        {
+            if (item is not ListItemBlock li) continue;
+            var p = li.Descendants().OfType<ParagraphBlock>().FirstOrDefault();
+            if (p is null) continue;
+            var (label, value) = ExtractLabeledValue(p);
+            if (string.IsNullOrWhiteSpace(label)) continue;
+            dict[NormalizeLabel(label)] = value;
+        }
+        return dict;
+    }
+
+    // Collect effect continuation blocks after the list (headings and paragraphs)
+    internal static List<string> CollectEffect(IReadOnlyList<Block> blocks, int fromIndex)
+    {
+        var effect = new List<string>();
+        for (int i = fromIndex; i < blocks.Count; i++)
+        {
+            var f = blocks[i];
+            if (f is HeadingBlock { Level: 2 }) break;
+            if (f is ThematicBreakBlock) break;
+            if (f is ParagraphBlock pp)
+            {
+                var t = InlineToText(pp.Inline);
+                if (!string.IsNullOrWhiteSpace(t)) effect.Add(t);
+            }
+            else if (f is HeadingBlock sub)
+            {
+                var ht = InlineToText(sub.Inline);
+                if (!string.IsNullOrWhiteSpace(ht)) effect.Add(ht);
+            }
+        }
+        return effect;
     }
 }

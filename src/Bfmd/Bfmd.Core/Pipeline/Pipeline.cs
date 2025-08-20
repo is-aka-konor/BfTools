@@ -147,7 +147,7 @@ public class PipelineRunner : IPipeline
                         e.Id,
                         e.Slug,
                         e.Name,
-                        src = new { abbr = e.Src.Abbr },
+                        src = new { abbr = e.Src.Abbr, name = e.Src.Name },
                         e.Summary,
                         hitDie = (e as ClassDto)?.HitDie,
                         primaryAbilities = (e as ClassDto)?.PrimaryAbilities,
