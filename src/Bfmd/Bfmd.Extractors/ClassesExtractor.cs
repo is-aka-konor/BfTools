@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 using Bfmd.Core.Config;
 using Bfmd.Core.Domain;
 using Bfmd.Core.Pipeline;
@@ -42,17 +43,32 @@ public class ClassesExtractor : IExtractor
                 SourceFile = path
             };
 
+            // Parse features from the progression table under class features
+            try
+            {
+                var featuresByLevel = ParseProgressionFeatures(sectionBlocks);
+                foreach (var (lvl, feats) in featuresByLevel)
+                {
+                    var row = cls.Levels.FirstOrDefault(r => r.Level == lvl);
+                    if (row != null) row.Features = feats;
+                }
+            }
+            catch
+            {
+                // ignore parsing errors to keep extraction resilient
+            }
+
             yield return cls;
         }
     }
 
-    private static string GetFirstParagraph(MarkdownDocument doc)
+    internal static string GetFirstParagraph(MarkdownDocument doc)
     {
         var p = doc.Descendants().OfType<ParagraphBlock>().FirstOrDefault();
         return p is null ? string.Empty : InlineToText(p.Inline);
     }
 
-    private static string GuessHitDie(IEnumerable<Block> blocks)
+    internal static string GuessHitDie(IEnumerable<Block> blocks)
     {
         var text = new StringBuilder();
         foreach (var b in blocks)
@@ -71,14 +87,14 @@ public class ClassesExtractor : IExtractor
         return m.Success ? "d" + m.Groups[1].Value : "d8";
     }
 
-    private static (string title, HeadingBlock? node) GetHeadingTextAndNode(MarkdownDocument doc, int preferredLevel)
+    internal static (string title, HeadingBlock? node) GetHeadingTextAndNode(MarkdownDocument doc, int preferredLevel)
     {
         HeadingBlock? h = doc.Descendants().OfType<HeadingBlock>().FirstOrDefault(x => x.Level == preferredLevel);
         if (h == null) h = doc.Descendants().OfType<HeadingBlock>().FirstOrDefault(x => x.Level is 1 or 2);
         return h is null ? (string.Empty, null) : (InlineToText(h.Inline), h);
     }
 
-    private static List<Block> GetSectionBlocks(MarkdownDocument doc, HeadingBlock? start)
+    internal static List<Block> GetSectionBlocks(MarkdownDocument doc, HeadingBlock? start)
     {
         var blocks = new List<Block>();
         if (start == null) return blocks;
@@ -96,7 +112,7 @@ public class ClassesExtractor : IExtractor
         return blocks;
     }
 
-    private static List<string> ParseStartingEquipment(IEnumerable<Block> blocks, MappingConfig map)
+    internal static List<string> ParseStartingEquipment(IEnumerable<Block> blocks, MappingConfig map)
     {
         var header = FindHeader(blocks, map, m => m.StartingEquipmentHeaders);
         if (header == null) return new List<string>();
@@ -124,7 +140,7 @@ public class ClassesExtractor : IExtractor
         return items;
     }
 
-    private static List<string> ParseSavingThrows(IEnumerable<Block> blocks, MappingConfig map)
+    internal static List<string> ParseSavingThrows(IEnumerable<Block> blocks, MappingConfig map)
     {
         var header = FindHeader(blocks, map, _ => map.ProficienciesHeaders);
         if (header == null) return new List<string>();
@@ -151,7 +167,7 @@ public class ClassesExtractor : IExtractor
         return new List<string>();
     }
 
-    private static List<string> SplitItems(string s)
+    internal static List<string> SplitItems(string s)
     {
         var replaced = s.Replace(" или ", ",", StringComparison.OrdinalIgnoreCase)
                         .Replace(" и ", ",", StringComparison.OrdinalIgnoreCase);
@@ -161,7 +177,7 @@ public class ClassesExtractor : IExtractor
                        .ToList();
     }
 
-    private static string Normalize(string t)
+    internal static string Normalize(string t)
     {
         var s = t.Trim();
         s = Regex.Replace(s, "^[—-]\\s*", "");
@@ -169,7 +185,7 @@ public class ClassesExtractor : IExtractor
         return s;
     }
 
-    private static string FlattenText(ListItemBlock li)
+    internal static string FlattenText(ListItemBlock li)
     {
         var sb = new StringBuilder();
         foreach (var b in li)
@@ -179,7 +195,7 @@ public class ClassesExtractor : IExtractor
         return sb.ToString();
     }
 
-    private static SkillsPickDto ParseSkills(IEnumerable<Block> blocks, MappingConfig map)
+    internal static SkillsPickDto ParseSkills(IEnumerable<Block> blocks, MappingConfig map)
     {
         var res = new SkillsPickDto { Choose = 0, From = new List<string>(), Granted = new List<string>() };
         var header = FindHeader(blocks, map, _ => map.ProficienciesHeaders);
@@ -217,16 +233,16 @@ public class ClassesExtractor : IExtractor
         return res;
     }
 
-    private static List<string> ParseArmor(IEnumerable<Block> blocks, MappingConfig map)
+    internal static List<string> ParseArmor(IEnumerable<Block> blocks, MappingConfig map)
         => ParseProfLine(blocks, map, "Доспехи");
 
-    private static List<string> ParseWeapons(IEnumerable<Block> blocks, MappingConfig map)
+    internal static List<string> ParseWeapons(IEnumerable<Block> blocks, MappingConfig map)
         => ParseProfLine(blocks, map, "Оружие");
 
-    private static List<string> ParseTools(IEnumerable<Block> blocks, MappingConfig map)
+    internal static List<string> ParseTools(IEnumerable<Block> blocks, MappingConfig map)
         => ParseProfLine(blocks, map, "Инструменты");
 
-    private static List<string> ParseProfLine(IEnumerable<Block> blocks, MappingConfig map, string label)
+    internal static List<string> ParseProfLine(IEnumerable<Block> blocks, MappingConfig map, string label)
     {
         var header = FindHeader(blocks, map, _ => map.ProficienciesHeaders);
         if (header == null) return new List<string>();
@@ -253,7 +269,7 @@ public class ClassesExtractor : IExtractor
         return new List<string>();
     }
 
-    private static int ExtractChoose(string text)
+    internal static int ExtractChoose(string text)
     {
         var m = Regex.Match(text, "Выберите\\s+(\\d+|два|три|четыре)", RegexOptions.IgnoreCase);
         if (!m.Success) m = Regex.Match(text, "Любые\\s+(\\d+|два|три|четыре)", RegexOptions.IgnoreCase);
@@ -271,7 +287,7 @@ public class ClassesExtractor : IExtractor
         return 0;
     }
 
-    private static HeadingBlock? FindHeader(IEnumerable<Block> blocks, MappingConfig map, Func<MappingConfig, IEnumerable<string>> selector)
+    internal static HeadingBlock? FindHeader(IEnumerable<Block> blocks, MappingConfig map, Func<MappingConfig, IEnumerable<string>> selector)
     {
         var headers = selector(map) ?? Array.Empty<string>();
         foreach (var b in blocks)
@@ -285,7 +301,7 @@ public class ClassesExtractor : IExtractor
         return null;
     }
 
-    private static IEnumerable<Block> EnumerateFollowingBlocks(IEnumerable<Block> all, Block header)
+    internal static IEnumerable<Block> EnumerateFollowingBlocks(IEnumerable<Block> all, Block header)
     {
         bool after = false;
         foreach (var b in all)
@@ -299,7 +315,7 @@ public class ClassesExtractor : IExtractor
         }
     }
 
-    private static string InlineToText(Markdig.Syntax.Inlines.ContainerInline? inline)
+    internal static string InlineToText(Markdig.Syntax.Inlines.ContainerInline? inline)
     {
         if (inline is null) return string.Empty;
         var sb = new StringBuilder();
@@ -323,7 +339,7 @@ public class ClassesExtractor : IExtractor
         }
         return sb.ToString().Trim();
     }
-    private static string BlocksToMarkdown(string content, List<Block> blocks)
+    internal static string BlocksToMarkdown(string content, List<Block> blocks)
     {
         if (blocks.Count == 0) return string.Empty;
         var start = blocks.First().Span.Start;
@@ -333,7 +349,7 @@ public class ClassesExtractor : IExtractor
         return slice.Trim();
     }
 
-    private static string SectionMarkdown(MarkdownDocument doc, string content, HeadingBlock? header, List<Block> blocks)
+    internal static string SectionMarkdown(MarkdownDocument doc, string content, HeadingBlock? header, List<Block> blocks)
     {
         if (header == null) return string.Empty;
         // Prefer blocks-based slice (excludes the header line)
@@ -346,5 +362,106 @@ public class ClassesExtractor : IExtractor
         var end = next != null ? next.Span.Start - 1 : content.Length - 1;
         if (start < 0 || end < start || end >= content.Length) return string.Empty;
         return content.Substring(start, end - start + 1).Trim();
+    }
+
+    // New: Parse features per level from the "ПРОГРЕССИЯ" table
+    internal static Dictionary<int, List<string>> ParseProgressionFeatures(IEnumerable<Block> blocks)
+    {
+        var result = new Dictionary<int, List<string>>();
+        var (progressHeader, table) = FindProgressionTable(blocks);
+        if (progressHeader == null || table == null) return result;
+        var idx = FindColumnIndex(table, header => NormalizeHeader(header).Contains("умения"));
+        if (idx < 0) return result;
+
+        foreach (var rowObj in table)
+        {
+            if (rowObj is not Markdig.Extensions.Tables.TableRow tr) continue;
+            // try skip header rows by reflection flag or by position
+            var rowIsHeaderProp = tr.GetType().GetProperty("IsHeader");
+            if (rowIsHeaderProp != null && rowIsHeaderProp.PropertyType == typeof(bool) && (bool)(rowIsHeaderProp.GetValue(tr) ?? false))
+                continue;
+
+            var cells = new List<Markdig.Extensions.Tables.TableCell>();
+            foreach (var cellObj in tr)
+            {
+                if (cellObj is Markdig.Extensions.Tables.TableCell cell) cells.Add(cell);
+            }
+            if (cells.Count == 0) continue;
+            var level = ParseLevelNumber(TableCellToText(cells[0]));
+            if (level < 1 || level > 20) continue;
+            if (idx >= cells.Count) continue;
+            var featsText = TableCellToText(cells[idx]);
+            var feats = SplitItems(featsText);
+            result[level] = feats;
+        }
+        return result;
+    }
+
+    internal static (HeadingBlock? header, Markdig.Extensions.Tables.Table? table) FindProgressionTable(IEnumerable<Block> blocks)
+    {
+        HeadingBlock? progress = null;
+        foreach (var b in blocks)
+        {
+            if (b is HeadingBlock hb)
+            {
+                var t = InlineToText(hb.Inline);
+                if (t.Contains("ПРОГРЕССИЯ", StringComparison.OrdinalIgnoreCase))
+                {
+                    progress = hb; break;
+                }
+            }
+        }
+        if (progress == null) return (null, null);
+        foreach (var b in EnumerateFollowingBlocks(blocks, progress))
+        {
+            if (b is HeadingBlock) break;
+            if (b is Markdig.Extensions.Tables.Table tbl) return (progress, tbl);
+        }
+        return (progress, null);
+    }
+
+    internal static int FindColumnIndex(Markdig.Extensions.Tables.Table table, Func<string, bool> predicate)
+    {
+        // find first TableRow (header)
+        Markdig.Extensions.Tables.TableRow? headerRow = null;
+        foreach (var obj in table)
+        {
+            if (obj is Markdig.Extensions.Tables.TableRow r)
+            {
+                headerRow = r; break;
+            }
+        }
+        if (headerRow == null) return -1;
+        var headerCells = new List<Markdig.Extensions.Tables.TableCell>();
+        foreach (var c in headerRow)
+        {
+            if (c is Markdig.Extensions.Tables.TableCell tc) headerCells.Add(tc);
+        }
+        for (int i = 0; i < headerCells.Count; i++)
+        {
+            var header = TableCellToText(headerCells[i]);
+            if (predicate(header)) return i;
+        }
+        return -1;
+    }
+
+    internal static string TableCellToText(Markdig.Extensions.Tables.TableCell cell)
+    {
+        var sb = new StringBuilder();
+        foreach (var b in cell)
+        {
+            if (b is ParagraphBlock p) sb.Append(InlineToText(p.Inline));
+            else if (b is HeadingBlock h) sb.Append(InlineToText(h.Inline));
+        }
+        return sb.ToString().Trim();
+    }
+
+    internal static string NormalizeHeader(string s) => Regex.Replace(s, "\\s+", " ").Trim().ToLowerInvariant();
+
+    internal static int ParseLevelNumber(string value)
+    {
+        // Expect formats like "1-й", "10-й"
+        var m = Regex.Match(value, "(\\d+)");
+        return m.Success && int.TryParse(m.Groups[1].Value, out var n) ? n : 0;
     }
 }

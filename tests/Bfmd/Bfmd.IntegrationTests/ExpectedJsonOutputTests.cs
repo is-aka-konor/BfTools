@@ -9,7 +9,7 @@ namespace Bfmd.IntegrationTests;
 public class ExpectedJsonOutputTests
 {
     [Fact]
-    public void Convert_Emits_ClassJson_WithRequiredFields()
+    public void Convert_ShouldEmitClassJsonWithRequiredFields_WhenRunningClassesStep()
     {
         var cwd = Directory.GetCurrentDirectory();
         var inputRoot = cwd; // pipeline has relative inputs (copied into test output)
@@ -82,7 +82,7 @@ public class ExpectedJsonOutputTests
     }
 
     [Fact]
-    public void Convert_Emits_Background_WithExpectedFields()
+    public void Convert_ShouldEmitBackgroundWithExpectedFields_WhenRunningBackgroundsStep()
     {
         var cwd = Directory.GetCurrentDirectory();
         var inputRoot = cwd;

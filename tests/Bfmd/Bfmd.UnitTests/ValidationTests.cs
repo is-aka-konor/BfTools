@@ -6,7 +6,7 @@ namespace Bfmd.UnitTests;
 public class ValidationTests
 {
     [Fact]
-    public void Class_InvalidHitDie_Fails()
+    public void ClassValidator_ShouldFail_WhenHitDieInvalid()
     {
         var c = new ClassDto
         {
@@ -21,7 +21,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void Background_MustHaveSkills()
+    public void BackgroundValidator_ShouldFail_WhenNoSkills()
     {
         var b = new BackgroundDto
         {
@@ -35,7 +35,7 @@ public class ValidationTests
     }
 
     [Fact]
-    public void Lineage_MustHaveTrait()
+    public void LineageValidator_ShouldFail_WhenNoTraits()
     {
         var l = new LineageDto
         {

@@ -9,7 +9,7 @@ public class SlugServiceTests
     [InlineData("Сила и Ловкость", "sila-i-lovkost")]
     [InlineData("Меч-кладенец!!!", "mech-kladenec")]
     [InlineData("йцукен", "ycuken")]
-    public void Transliteration_Works(string input, string expected)
+    public void Transliteration_ShouldProduceSlug_WhenGivenCyrillicInput(string input, string expected)
     {
         Assert.Equal(expected, SlugService.From(input));
     }

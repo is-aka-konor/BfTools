@@ -6,7 +6,7 @@ namespace Bfmd.UnitTests;
 public class BackgroundExtractorTests
 {
     [Fact]
-    public void BackgroundsExtractor_Parses_FirstEntry()
+    public void BackgroundsExtractor_ShouldParseFirstEntry_WhenGivenBackgroundsMarkdown()
     {
         var repoRoot = FindRepoRoot();
         var path = Path.Combine(repoRoot, "input", "backgrounds", "backgrounds.md");
@@ -44,4 +44,3 @@ public class BackgroundExtractorTests
         throw new DirectoryNotFoundException("Could not locate repo root");
     }
 }
-

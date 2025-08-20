@@ -7,8 +7,12 @@
         <LangVersion>12.0</LangVersion>
     </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Bfmd.Core\Bfmd.Core.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bfmd.Core\Bfmd.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.37.0" />
+  </ItemGroup>
 
 </Project>

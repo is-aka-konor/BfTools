@@ -9,7 +9,7 @@ namespace Bfmd.IntegrationTests;
 public class SpellsIntegrationTests
 {
     [Fact]
-    public void Pipeline_Extracts_Spells_And_Writes_Index()
+    public void Pipeline_ShouldExtractSpellsAndWriteIndex_WhenRunningSpellsStep()
     {
         var cwd = Directory.GetCurrentDirectory();
         var inputRoot = cwd; // copied input

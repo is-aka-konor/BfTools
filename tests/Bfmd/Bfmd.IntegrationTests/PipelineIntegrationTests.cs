@@ -8,7 +8,7 @@ namespace Bfmd.IntegrationTests;
 public class PipelineIntegrationTests
 {
     [Fact]
-    public void Pipeline_WritesOutputs()
+    public void Pipeline_ShouldWriteOutputs_WhenRunningConfiguredPipeline()
     {
         var cwd = Directory.GetCurrentDirectory();
         var input = cwd; // pipeline uses relative paths like input/classes

@@ -6,7 +6,7 @@ namespace Bfmd.UnitTests;
 public class ExtractorSmokeTests
 {
     [Fact]
-    public void ClassesExtractor_Basic()
+    public void ClassesExtractor_ShouldProduceSingleEntity_WhenMinimalHeadingProvided()
     {
         const string md = "# Воин\n\nКраткое описание.";
         var doc = MarkdownAst.Parse(md);

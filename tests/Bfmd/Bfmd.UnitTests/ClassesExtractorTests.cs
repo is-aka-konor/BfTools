@@ -6,7 +6,7 @@ namespace Bfmd.UnitTests;
 public class ClassesExtractorTests
 {
     [Fact]
-    public void ClassesExtractor_Parses_Fighter_Proficiencies_And_Skills()
+    public void ClassesExtractor_ShouldParseFighterProficienciesAndSkills_WhenGivenFighterMarkdown()
     {
         var repoRoot = Directory.GetCurrentDirectory();
         while (!string.IsNullOrEmpty(repoRoot) && !File.Exists(Path.Combine(repoRoot, "BfTools.sln")))
@@ -36,4 +36,3 @@ public class ClassesExtractorTests
         Assert.NotNull(res.Proficiencies.Tools);
     }
 }
-

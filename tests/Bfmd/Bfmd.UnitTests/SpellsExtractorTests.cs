@@ -10,7 +10,7 @@ public class SpellsExtractorTests
     [Theory]
     [InlineData("## Развеивание магии (Dispel Magic)", "Развеивание магии")]
     [InlineData("## Божественное благоволение (Divine Favor)", "Божественное благоволение")]
-    public void ParseNameRu_Extracts_Russian_Title(string h2Line, string expected)
+    public void ParseNameRu_ShouldExtractRussianTitle_WhenHeadingHasEnglishInParentheses(string h2Line, string expected)
     {
         var doc = Markdown.Parse(h2Line);
         var h2 = doc.Descendants().OfType<HeadingBlock>().First();
@@ -21,7 +21,7 @@ public class SpellsExtractorTests
     [Theory]
     [InlineData("3-й круг, Тайное и Божественное (Ограждение)", 3, new[] { "Тайное", "Божественное" }, "Ограждение")]
     [InlineData("1-й круг, Божественное (Воплощение)", 1, new[] { "Божественное" }, "Воплощение")]
-    public void ParseLevelLine_Parses_Circle_Traditions_School(string input, int expCircle, string[] expTraditions, string expSchool)
+    public void ParseLevelLine_ShouldParseCircleTraditionsAndSchool_WhenGivenRussianLine(string input, int expCircle, string[] expTraditions, string expSchool)
     {
         SpellsExtractor.ParseLevelLine(input, out var circle, out var traditions, out var school);
         Assert.Equal(expCircle, circle);
@@ -32,7 +32,7 @@ public class SpellsExtractorTests
     [Theory]
     [InlineData("- **Дистанция:** 120 футов", "Дистанция", "120 футов")]
     [InlineData("- **Компоненты:** В, С", "Компоненты", "В, С")]
-    public void ExtractLabeledValue_Parses_Label_And_Value(string md, string expLabel, string expValue)
+    public void ExtractLabeledValue_ShouldParseLabelAndValue_WhenGivenLabeledParagraph(string md, string expLabel, string expValue)
     {
         var doc = Markdown.Parse(md);
         var p = doc.Descendants().OfType<ParagraphBlock>().First();
@@ -44,7 +44,7 @@ public class SpellsExtractorTests
     [Theory]
     [InlineData("Дистанция:", "дистанция")]
     [InlineData("Длительность：", "длительность")]
-    public void NormalizeLabel_Works(string input, string expected)
+    public void NormalizeLabel_ShouldReturnLowercaseCore_WhenGivenVariousColons(string input, string expected)
     {
         Assert.Equal(expected, SpellsExtractor.NormalizeLabel(input));
     }
@@ -52,13 +52,13 @@ public class SpellsExtractorTests
     [Theory]
     [InlineData("Тайное и Божественное", new[] { "Тайное", "Божественное" })]
     [InlineData("Божественное, Потустороннее", new[] { "Божественное", "Потустороннее" })]
-    public void SplitList_Works(string input, string[] expected)
+    public void SplitList_ShouldSplitAndNormalize_WhenGivenRussianConjunctions(string input, string[] expected)
     {
         Assert.Equal(expected, SpellsExtractor.SplitList(input));
     }
 
     [Fact]
-    public void CollectEffect_Collects_Paragraphs_And_Subheadings()
+    public void CollectEffect_ShouldCollectParagraphsAndSubheadings_WhenFollowingEffectListItem()
     {
         var md = string.Join('\n', new[]
         {
@@ -81,7 +81,7 @@ public class SpellsExtractorTests
     }
 
     [Fact]
-    public void ParseSpellBody_Parses_DispelMagic_Section()
+    public void ParseSpellBody_ShouldParseDispelMagic_WhenProvidedSectionBlocks()
     {
         var md = string.Join('\n', new[]
         {
@@ -114,7 +114,7 @@ public class SpellsExtractorTests
     }
 
     [Fact]
-    public void ParseSpellBody_Parses_DivineFavor_Section()
+    public void ParseSpellBody_ShouldParseDivineFavor_WhenProvidedSectionBlocks()
     {
         var md = string.Join('\n', new[]
         {
