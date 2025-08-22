@@ -1,0 +1,29 @@
+{
+  "circle": 4,
+  "school": "Иллюзия",
+  "castingTime": "1 действие",
+  "range": "Касание",
+  "components": "В, С",
+  "duration": "Концентрация, до 1 минуты",
+  "circles": [
+    "Тайное",
+    "Потустороннее"
+  ],
+  "effect": [
+    "Вы или существо, которого вы касаетесь, становитесь невидимыми до окончания действия заклинания. Все, что цель носит или несет, невидимо, пока находится на теле цели."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/velikaya-nevidimost",
+  "slug": "velikaya-nevidimost",
+  "name": "Великая невидимость",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "28b227e68e41a7f69c294b4f37dab627fc7e1af4db1ca8f6fd7cfc84970aa135"
+  },
+  "sourceFile": "input/spells/spells_G.md"
+}

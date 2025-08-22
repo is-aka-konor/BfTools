@@ -1,0 +1,28 @@
+{
+  "circle": 6,
+  "school": "Вызов",
+  "castingTime": "1 действие",
+  "range": "10 футов",
+  "components": "В, С",
+  "duration": "1 раунд",
+  "circles": [
+    "Изначальное"
+  ],
+  "effect": [
+    "Это заклинание создает магическую связь между Большим или большим немагическим растением в пределах дистанции и другим растением на любом расстоянии на том же плане существования. Существа типа Растение не могут быть выбраны целью этого заклинания. Вы должны были видеть или касаться целевого растения хотя бы раз раньше. На время действия заклинания любое существо может шагнуть в целевое растение и выйти из целевого растения, используя 3 фута движения."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/peremeshchenie-cherez-rasteniya",
+  "slug": "peremeshchenie-cherez-rasteniya",
+  "name": "Перемещение через растения",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "65e24979b5d5e825b6ba707999d9446416378aa470284b4196bd58407cfdcb81"
+  },
+  "sourceFile": "input/spells/spells_T-Z.md"
+}

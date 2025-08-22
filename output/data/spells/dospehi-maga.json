@@ -1,0 +1,28 @@
+{
+  "circle": 1,
+  "school": "Ограждение",
+  "castingTime": "1 действие",
+  "range": "Касание",
+  "components": "В, С, М (кусочек выделанной кожи)",
+  "duration": "8 часов",
+  "circles": [
+    "Тайное"
+  ],
+  "effect": [
+    "Вы касаетесь согласного существа, не носящего доспехов, и защитная магическая сила окружает его до окончания действия заклинания. Базовый КД цели становится 13 + ее модификатор Ловкости. Заклинание заканчивается, если цель надевает доспехи или если вы прекращаете заклинание действием."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/dospehi-maga",
+  "slug": "dospehi-maga",
+  "name": "Доспехи мага",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "c8de2c7ab4bc33d250858deca29df5607ccb0543271077ba59d3eded3f38ba84"
+  },
+  "sourceFile": "input/spells/spells_M-N.md"
+}

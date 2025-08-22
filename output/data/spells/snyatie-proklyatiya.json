@@ -1,0 +1,29 @@
+{
+  "circle": 3,
+  "school": "Ограждение",
+  "castingTime": "1 действие",
+  "range": "Касание",
+  "components": "В, С",
+  "duration": "Мгновенная",
+  "circles": [
+    "Божественное",
+    "Потустороннее"
+  ],
+  "effect": [
+    "При вашем прикосновении все проклятия, действующие на одно существо или предмет, заканчиваются. Если предмет является проклятым магическим предметом, его проклятие остается, но заклинание разрывает настройку его владельца на предмет, так что его можно снять или выбросить."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/snyatie-proklyatiya",
+  "slug": "snyatie-proklyatiya",
+  "name": "Снятие проклятия",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "cb5b54ed293754daae8f9feac0527000438ae6a946bc6af32cf9fb5ba2045a4b"
+  },
+  "sourceFile": "input/spells/spells_R-S.md"
+}

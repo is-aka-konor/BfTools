@@ -1,0 +1,30 @@
+{
+  "circle": 4,
+  "school": "Преобразование",
+  "castingTime": "1 действие",
+  "range": "300 футов",
+  "components": "В, С, М (капля воды и щепотка пыли)",
+  "duration": "Концентрация, до 10 минут",
+  "circles": [
+    "Божественное",
+    "Изначальное"
+  ],
+  "effect": [
+    "До окончания действия заклинания вы контролируете любую свободно стоящую воду внутри выбранной вами области, представляющей собой куб со стороной до 100 футов. Вы можете выбрать любой из следующих эффектов при накладывании этого заклинания. Действием в свой ход вы можете повторить тот же эффект или выбрать другой.",
+    "Эффекты (Effects)"
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/upravlenie-vodoy",
+  "slug": "upravlenie-vodoy",
+  "name": "Управление водой",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "8e7f121c5c3e87eecb3f475f0323ee518d38c67feb7a2b91cc42944ea7e95c53"
+  },
+  "sourceFile": "input/spells/spells_B-C.md"
+}

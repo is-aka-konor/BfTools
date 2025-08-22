@@ -1,0 +1,30 @@
+{
+  "circle": 3,
+  "school": "Некромантия",
+  "castingTime": "1 бонусное действие",
+  "range": "60 футов",
+  "components": "В",
+  "duration": "Мгновенная",
+  "circles": [
+    "Божественное"
+  ],
+  "effect": [
+    "Когда вы произносите слова восстановления, до шести существ по вашему выбору, которых вы можете видеть в пределах дистанции, восстанавливают хиты, равные 1к4 + ваш модификатор заклинательной характеристики. Это заклинание не действует на Конструктов или Нежить.",
+    "На более высоких кругах.",
+    "Когда вы накладываете это заклинание, используя ячейку заклинания 4-го круга или выше, исцеление увеличивается на 1к4 за каждый круг ячейки выше 3-го."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/massovoe-iscelyayushchee-slovo",
+  "slug": "massovoe-iscelyayushchee-slovo",
+  "name": "Массовое исцеляющее слово",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "c8de2c7ab4bc33d250858deca29df5607ccb0543271077ba59d3eded3f38ba84"
+  },
+  "sourceFile": "input/spells/spells_M-N.md"
+}

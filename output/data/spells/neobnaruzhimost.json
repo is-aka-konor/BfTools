@@ -1,0 +1,29 @@
+{
+  "circle": 3,
+  "school": "Ограждение",
+  "castingTime": "1 действие",
+  "range": "Касание",
+  "components": "В, С, М (щепотка алмазной пыли стоимостью 25 зм, посыпанная на цель, которую заклинание поглощает)",
+  "duration": "8 часов",
+  "circles": [
+    "Тайное",
+    "Потустороннее"
+  ],
+  "effect": [
+    "На время действия заклинания вы скрываете цель, которой касаетесь, от магии прорицания. Целью может быть согласное существо, место или предмет размером не более 10 футов в любом измерении. Цель не может быть выбрана целью какой-либо магии прорицания или воспринята через магические сенсоры наблюдения."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/neobnaruzhimost",
+  "slug": "neobnaruzhimost",
+  "name": "Необнаружимость",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "c8de2c7ab4bc33d250858deca29df5607ccb0543271077ba59d3eded3f38ba84"
+  },
+  "sourceFile": "input/spells/spells_M-N.md"
+}

@@ -1,0 +1,31 @@
+{
+  "circle": 2,
+  "school": "Преобразование",
+  "castingTime": "1 бонусное действие",
+  "range": "Касание",
+  "components": "В, С",
+  "duration": "Концентрация, до 1 часа",
+  "circles": [
+    "Тайное",
+    "Потустороннее"
+  ],
+  "effect": [
+    "Вы касаетесь немагического оружия. До окончания действия заклинания это оружие становится магическим оружием с бонусом +1 к броскам атаки и урона.",
+    "На более высоких кругах.",
+    "Когда вы накладываете это заклинание, используя ячейку заклинания 4-го круга или выше, бонус увеличивается до +2. Когда вы используете ячейку заклинания 6-го круга или выше, бонус увеличивается до +3."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/volshebnoe-oruzhie",
+  "slug": "volshebnoe-oruzhie",
+  "name": "Волшебное оружие",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "c8de2c7ab4bc33d250858deca29df5607ccb0543271077ba59d3eded3f38ba84"
+  },
+  "sourceFile": "input/spells/spells_M-N.md"
+}

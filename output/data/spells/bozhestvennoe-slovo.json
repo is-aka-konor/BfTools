@@ -1,0 +1,28 @@
+{
+  "circle": 7,
+  "school": "Воплощение",
+  "castingTime": "1 бонусное действие",
+  "range": "30 футов",
+  "components": "В",
+  "duration": "Мгновенная",
+  "circles": [
+    "Божественное"
+  ],
+  "effect": [
+    "Вы произносите божественное слово, наделенное силой, которая формировала мир на заре творения. Выберите любое количество существ, которых вы можете видеть в пределах дистанции. Каждое существо, которое может вас слышать, должно совершить спасбросок Харизмы. При проваленном спасброске существо страдает от эффекта, зависящего от его текущих хитов:"
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/bozhestvennoe-slovo",
+  "slug": "bozhestvennoe-slovo",
+  "name": "Божественное слово",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "82cda61575960bebd33c77b125344679c7c41c29e7ddcd1837e4c2f73e00dd29"
+  },
+  "sourceFile": "input/spells/spells_D.md"
+}

@@ -1,0 +1,30 @@
+{
+  "circle": 2,
+  "school": "Преобразование",
+  "castingTime": "1 действие",
+  "range": "Касание",
+  "components": "В, С, М (мех или перо зверя)",
+  "duration": "Концентрация, до 1 часа",
+  "circles": [
+    "Изначальное"
+  ],
+  "effect": [
+    "Вы касаетесь существа и даруете ему один из следующих эффектов. Он получает этот эффект до окончания действия заклинания.",
+    "На более высоких кругах.",
+    "Когда вы накладываете это заклинание, используя ячейку заклинания 3-го круга или выше, вы можете выбрать целью одно дополнительное существо за каждый круг ячейки выше 2-го."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/uluchshenie-harakteristiki",
+  "slug": "uluchshenie-harakteristiki",
+  "name": "Улучшение характеристики",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "8de771cfb6721e1977db49a832f7a8a34c3e7930815091bed7ca64db1776de25"
+  },
+  "sourceFile": "input/spells/spells_E.md"
+}

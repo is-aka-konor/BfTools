@@ -1,0 +1,30 @@
+{
+  "circle": 2,
+  "school": "Воплощение",
+  "castingTime": "1 действие",
+  "range": "120 футов",
+  "components": "В, С",
+  "duration": "Мгновенная",
+  "circles": [
+    "Тайное"
+  ],
+  "effect": [
+    "Вы создаете три луча огня и метаете их в цели в пределах дистанции. Вы можете метнуть их в одну цель или в несколько. Совершите дальнобойную атаку заклинанием для каждого луча. При попадании цель получает 2к6 урона огнем.",
+    "На более высоких кругах.",
+    "Когда вы накладываете это заклинание, используя ячейку заклинания 3-го круга или выше, вы создаете один дополнительный луч за каждый круг ячейки выше 2-го."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/opalyayushchiy-luch",
+  "slug": "opalyayushchiy-luch",
+  "name": "Опаляющий луч",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "cb5b54ed293754daae8f9feac0527000438ae6a946bc6af32cf9fb5ba2045a4b"
+  },
+  "sourceFile": "input/spells/spells_R-S.md"
+}

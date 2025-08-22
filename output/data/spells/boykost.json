@@ -1,0 +1,29 @@
+{
+  "circle": 8,
+  "school": "Преобразование",
+  "castingTime": "1 действие",
+  "range": "На себя",
+  "components": "В",
+  "duration": "Концентрация, до 1 часа",
+  "circles": [
+    "Тайное",
+    "Божественное"
+  ],
+  "effect": [
+    "До окончания действия заклинания, когда вы совершаете проверку характеристики Харизмы или спасбросок Харизмы, вы можете заменить выпавшее число на 15. Кроме того, независимо от того, что вы говорите, магия, которая определила бы, говорите ли вы правду, указывает, что вы говорите правду."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/boykost",
+  "slug": "boykost",
+  "name": "Бойкость",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "28b227e68e41a7f69c294b4f37dab627fc7e1af4db1ca8f6fd7cfc84970aa135"
+  },
+  "sourceFile": "input/spells/spells_G.md"
+}

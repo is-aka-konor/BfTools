@@ -1,0 +1,30 @@
+{
+  "circle": 1,
+  "school": "Некромантия",
+  "castingTime": "1 бонусное действие",
+  "range": "60 футов",
+  "components": "В",
+  "duration": "Мгновенная",
+  "circles": [
+    "Божественное"
+  ],
+  "effect": [
+    "Существо по вашему выбору, которое вы можете видеть в пределах дистанции, восстанавливает хиты, равные 1к4 + ваш модификатор заклинательной характеристики. Это заклинание не действует на Конструктов или Нежить.",
+    "На более высоких кругах.",
+    "Когда вы накладываете это заклинание, используя ячейку заклинания 2-го круга или выше, исцеление увеличивается на 1к4 за каждый круг ячейки выше 1-го."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/iscelyayushchee-slovo",
+  "slug": "iscelyayushchee-slovo",
+  "name": "Исцеляющее слово",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "5b5eee61ebecd24d7d85daaed8304503b141800461bfec5b4a51e5724a546441"
+  },
+  "sourceFile": "input/spells/spells_H-L.md"
+}

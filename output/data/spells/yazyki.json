@@ -1,0 +1,29 @@
+{
+  "circle": 3,
+  "school": "Прорицание",
+  "castingTime": "1 действие",
+  "range": "Касание",
+  "components": "В, С, М (маленькая глиняная модель зиккурата)",
+  "duration": "1 час",
+  "circles": [
+    "Тайное",
+    "Божественное"
+  ],
+  "effect": [
+    "Это заклинание дает существу, которого вы касаетесь, способность понимать любой разговорный язык, который оно слышит. Более того, когда цель говорит, любое существо, знающее хотя бы один язык и способное слышать цель, понимает, что она говорит."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/yazyki",
+  "slug": "yazyki",
+  "name": "Языки",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "65e24979b5d5e825b6ba707999d9446416378aa470284b4196bd58407cfdcb81"
+  },
+  "sourceFile": "input/spells/spells_T-Z.md"
+}

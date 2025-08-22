@@ -1,0 +1,28 @@
+{
+  "circle": 1,
+  "school": "Прорицание",
+  "castingTime": "1 действие",
+  "range": "На себя",
+  "components": "В, С",
+  "duration": "10 минут",
+  "circles": [
+    "Изначальное"
+  ],
+  "effect": [
+    "Вы получаете способность понимать и словесно общаться со Зверями и существами с меткой \"Животное\" на время действия заклинания. Знания и осведомленность таких существ ограничены их Интеллектом, но как минимум, цели могут дать вам информацию о ближайших локациях и монстрах, включая все, что они могут воспринимать или воспринимали в течение последнего дня. Вы можете убедить цель оказать вам небольшую услугу, по усмотрению Мастера."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/razgovor-s-zhivotnymi",
+  "slug": "razgovor-s-zhivotnymi",
+  "name": "Разговор с животными",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "cb5b54ed293754daae8f9feac0527000438ae6a946bc6af32cf9fb5ba2045a4b"
+  },
+  "sourceFile": "input/spells/spells_R-S.md"
+}

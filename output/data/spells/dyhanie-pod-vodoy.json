@@ -1,0 +1,29 @@
+{
+  "circle": 3,
+  "school": "Преобразование",
+  "castingTime": "1 действие",
+  "range": "30 футов",
+  "components": "В, С, М (короткая тростинка или соломинка)",
+  "duration": "24 часа",
+  "circles": [
+    "Тайное",
+    "Изначальное"
+  ],
+  "effect": [
+    "Это заклинание дает до десяти согласным существам, которых вы можете видеть в пределах дистанции, способность дышать под водой до окончания действия заклинания. Затронутые существа также сохраняют свой обычный способ дыхания."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/dyhanie-pod-vodoy",
+  "slug": "dyhanie-pod-vodoy",
+  "name": "Дыхание под водой",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "65e24979b5d5e825b6ba707999d9446416378aa470284b4196bd58407cfdcb81"
+  },
+  "sourceFile": "input/spells/spells_T-Z.md"
+}

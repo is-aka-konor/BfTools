@@ -1,0 +1,28 @@
+{
+  "circle": 8,
+  "school": "Ограждение",
+  "castingTime": "1 действие",
+  "range": "Касание",
+  "components": "В, С",
+  "duration": "24 часа",
+  "circles": [
+    "Тайное"
+  ],
+  "effect": [
+    "До окончания действия заклинания одно согласное существо, которого вы касаетесь, иммунно к психическому урону, любому эффекту, который ощущал бы его эмоции или читал его мысли, заклинаниям прорицания и состоянию \"очарованный\". Заклинание даже обманывает заклинания желание и заклинания или эффекты подобной силы, используемые для воздействия на разум цели или получения информации о цели."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/opustoshenie-razuma",
+  "slug": "opustoshenie-razuma",
+  "name": "Опустошение разума",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "c8de2c7ab4bc33d250858deca29df5607ccb0543271077ba59d3eded3f38ba84"
+  },
+  "sourceFile": "input/spells/spells_M-N.md"
+}

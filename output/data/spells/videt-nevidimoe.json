@@ -1,0 +1,30 @@
+{
+  "circle": 2,
+  "school": "Прорицание",
+  "castingTime": "1 действие",
+  "range": "На себя",
+  "components": "В, С, М (щепотка талька и небольшая щепотка порошкового серебра)",
+  "duration": "1 час",
+  "circles": [
+    "Тайное",
+    "Божественное",
+    "Потустороннее"
+  ],
+  "effect": [
+    "На время действия заклинания вы видите невидимых существ и предметы так, как если бы они были видимы, и вы можете видеть в Эфирный План. Эфирные существа и предметы кажутся призрачными и полупрозрачными."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/videt-nevidimoe",
+  "slug": "videt-nevidimoe",
+  "name": "Видеть невидимое",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "cb5b54ed293754daae8f9feac0527000438ae6a946bc6af32cf9fb5ba2045a4b"
+  },
+  "sourceFile": "input/spells/spells_R-S.md"
+}

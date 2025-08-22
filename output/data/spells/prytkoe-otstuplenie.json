@@ -1,0 +1,29 @@
+{
+  "circle": 1,
+  "school": "Преобразование",
+  "castingTime": "1 бонусное действие",
+  "range": "На себя",
+  "components": "В, С",
+  "duration": "Концентрация, до 1 минуты",
+  "circles": [
+    "Тайное",
+    "Изначальное"
+  ],
+  "effect": [
+    "Это заклинание позволяет вам двигаться с невероятной скоростью. Когда вы впервые накладываете это заклинание, а затем бонусным действием в каждый свой ход до окончания действия заклинания, вы можете совершить действие Рывок."
+  ],
+  "type": "spell",
+  "id": "BFRD:spell/prytkoe-otstuplenie",
+  "slug": "prytkoe-otstuplenie",
+  "name": "Прыткое отступление",
+  "schemaVersion": "1.0.0",
+  "src": {
+    "abbr": "BFRD",
+    "name": "Black Flag Reference Document",
+    "version": "1.0",
+    "url": "https://bfrd.net/",
+    "license": "Open RPG Creative License (ORC)",
+    "hash": "8de771cfb6721e1977db49a832f7a8a34c3e7930815091bed7ca64db1776de25"
+  },
+  "sourceFile": "input/spells/spells_E.md"
+}

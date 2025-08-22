@@ -1,0 +1,29 @@
+[
+  {
+    "id": "BFRD:background/prestupnik",
+    "slug": "prestupnik",
+    "name": "ПРЕСТУПНИК",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    }
+  },
+  {
+    "id": "BFRD:background/uchenyy",
+    "slug": "uchenyy",
+    "name": "УЧЕНЫЙ",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    }
+  },
+  {
+    "id": "BFRD:background/soldat",
+    "slug": "soldat",
+    "name": "СОЛДАТ",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    }
+  }
+]

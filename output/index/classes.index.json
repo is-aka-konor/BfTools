@@ -1,0 +1,197 @@
+[
+  {
+    "id": "BFRD:class/sledopyt",
+    "slug": "sledopyt",
+    "name": "СЛЕДОПЫТ",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как следопыт, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "СИЛ",
+      "ЛОВ"
+    ]
+  },
+  {
+    "id": "BFRD:class/druid",
+    "slug": "druid",
+    "name": "ДРУИД",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как друид, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "ИНТ",
+      "МДР"
+    ]
+  },
+  {
+    "id": "BFRD:class/mehanik",
+    "slug": "mehanik",
+    "name": "МЕХАНИК",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как механик, вы обладаете следующими особенностями класса.",
+    "hitDie": "d10",
+    "savingThrows": [
+      "ТЕЛ",
+      "ИНТ"
+    ]
+  },
+  {
+    "id": "BFRD:class/volshebnik",
+    "slug": "volshebnik",
+    "name": "ВОЛШЕБНИК",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как волшебник, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "ИНТ",
+      "МДР"
+    ]
+  },
+  {
+    "id": "BFRD:class/voin",
+    "slug": "voin",
+    "name": "ВОИН",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как воин, вы обладаете следующими особенностями класса.",
+    "hitDie": "d10",
+    "savingThrows": [
+      "СИЛ",
+      "ТЕЛ"
+    ]
+  },
+  {
+    "id": "BFRD:class/charodey-sorcerer",
+    "slug": "charodey-sorcerer",
+    "name": "ЧАРОДЕЙ (SORCERER)",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как чародей, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "Телосложение (ТЕЛ)",
+      "Харизма (ХАР)"
+    ]
+  },
+  {
+    "id": "BFRD:class/bard",
+    "slug": "bard",
+    "name": "БАРД",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как бард, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "ЛОВ",
+      "ХАР"
+    ]
+  },
+  {
+    "id": "BFRD:class/zhrec",
+    "slug": "zhrec",
+    "name": "ЖРЕЦ",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как жрец, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "МДР",
+      "ХАР"
+    ]
+  },
+  {
+    "id": "BFRD:class/plut",
+    "slug": "plut",
+    "name": "ПЛУТ",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как плут, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "ЛОВ",
+      "ИНТ"
+    ]
+  },
+  {
+    "id": "BFRD:class/monah",
+    "slug": "monah",
+    "name": "МОНАХ",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как монах, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "СИЛ",
+      "ЛОВ"
+    ]
+  },
+  {
+    "id": "BFRD:class/varvar",
+    "slug": "varvar",
+    "name": "ВАРВАР",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как варвар, вы обладаете следующими особенностями класса.",
+    "hitDie": "d12",
+    "savingThrows": [
+      "СИЛ",
+      "ТЕЛ"
+    ]
+  },
+  {
+    "id": "BFRD:class/paladin",
+    "slug": "paladin",
+    "name": "ПАЛАДИН",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как паладин, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "МДР",
+      "ХАР"
+    ]
+  },
+  {
+    "id": "BFRD:class/koldun",
+    "slug": "koldun",
+    "name": "КОЛДУН",
+    "src": {
+      "abbr": "BFRD",
+      "name": "Black Flag Reference Document"
+    },
+    "summary": "Как колдун, вы обладаете следующими особенностями класса.",
+    "hitDie": "d8",
+    "savingThrows": [
+      "МДР",
+      "ХАР"
+    ]
+  }
+]
