@@ -11,6 +11,12 @@ steps:
     outputData: output/data/backgrounds
     outputIndex: output/index/backgrounds.index.json
     enabled: true
+  - type: talents
+    input: input/talents
+    mapping: mapping.talents.yaml
+    outputData: output/data/talents
+    outputIndex: output/index/talents.index.json
+    enabled: true
   - type: lineages
     input: input/lineages
     mapping: mapping.lineages.yaml

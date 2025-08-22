@@ -1,0 +1,62 @@
+# TALENTS mapping (RU) — simple & strict for your sample format
+
+mode: "collection"                   # one file contains many categories and many talents
+collectionRootHeaders:
+  - "ТАЛАНТЫ"                        # scope the extractor to this H2
+
+# Document hierarchy
+categoryHeaderLevel: 3               # "### МАГИЧЕСКИЕ ТАЛАНТЫ", "### ВОИНСКИЕ ТАЛАНТЫ", ...
+entryHeaderLevel: 4                  # "#### Арканист", "#### Атлетичный", ...
+
+# Category name normalization (optional; keep as-is if not needed)
+categorySynonyms:
+  "МАГИЧЕСКИЕ ТАЛАНТЫ": "Магические"
+  "ВОИНСКИЕ ТАЛАНТЫ": "Воинские"
+  "ТЕХНИЧЕСКИЕ ТАЛАНТЫ": "Технические"
+
+# --- Inside a talent entry ----------------------------------------------------
+# Requirement line (optional). Capture group 1 = requirement text.
+requirementLineRegex: "^\\*\\s*\\*\\*Требовани[её]\\*\\*[:：]\\s*(.+)$"
+
+# Benefit bullet lines (advantages/mechanics).
+# We purposefully EXCLUDE the requirement line via a negative lookahead for "**Требование**".
+# Group 1 = entire text after bullet mark.
+benefitBulletRegex: "^\\*\\s*(?!\\*\\*Требовани[её]\\*\\*[:：])\\s*(.+)$"
+
+# Some talents have an "intro sentence" like:
+#   "Вы получаете следующие преимущества:" or "Вы получаете одно из следующих преимуществ:"
+# Treat such lines as plain paragraphs (they go to Description), not as Benefits.
+benefitIntroRegex:
+  - "(?i)^вы\\s+получаете\\s+следующие\\s+преимуществ[ао]:"
+  - "(?i)^вы\\s+получаете\\s+одно\\s+из\\s+следующих\\s+преимуществ:"
+
+# Repeatability hints (optional). If any matches, set TalentDto.Repeatable=true.
+repeatableRegex:
+  - "(?i)вы\\s+можете\\s+выбирать\\s+этот\\s+талант\\s+несколько\\s+раз"
+  - "(?i)можно\\s+брать\\s+несколько\\s+раз"
+
+# Choice-intro hints (optional; lets the extractor group the next bullet list as a choice group)
+# Example: "Вы получаете одно из следующих преимуществ:"
+choiceIntroRegex:
+  - "(?i)одно\\s+из\\s+следующих\\s+преимуществ"
+  - "(?i)выберите\\s+один\\s+из\\s+следующих"
+choiceModeDefault: "chooseOne"       # default mode if a choice-intro is detected
+
+# Description capture:
+# Everything from the entry H4 line until the next H4 (or next category H3 / EOF)
+# is the talent's markdown Description. The extractor should:
+#  - Keep raw markdown (for rendering)
+#  - Also parse Requirement/Benefits using the regexes above
+captureDescription: true
+
+# --- Text normalization -------------------------------------------------------
+synonyms:
+  " либо ": " или "
+  " и/или ": " или "
+
+# Split short comma/и lists (used if you need to split options inline; optional)
+listSplitRegex: "(?:,|;|\\s+и\\s+|\\s+или\\s+)"
+
+# --- Safety guards ------------------------------------------------------------
+# Strip obvious heading-like separators (e.g., lone lines with '—' or '---') from Description if needed.
+stripThematicBreaksInDescription: false

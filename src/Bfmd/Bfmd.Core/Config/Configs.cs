@@ -33,7 +33,8 @@ public class PipelineStepConfig
 public class MappingConfig
 {
     public int EntryHeaderLevel { get; set; } = 3;
-    public List<string> EntrySectionHeaders { get; set; } = new() { "ПРЕДЫСТОРИИ" };
+    public List<string> EntrySectionHeaders { get; set; } = ["ПРЕДЫСТОРИИ"];
+    public List<string> CollectionRootHeaders { get; set; } = [];
     public List<string> TitleHeaders { get; set; } = [];
     public List<string> SummaryHeaders { get; set; } = [];
     public List<string> FeaturesHeaders { get; set; } = [];

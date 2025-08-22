@@ -55,6 +55,7 @@ void RunConvert()
         ("classes", new Bfmd.Extractors.ClassesExtractor()),
         ("backgrounds", new Bfmd.Extractors.BackgroundsExtractor()),
         ("lineages", (IExtractor)new Bfmd.Extractors.LineagesExtractor()),
+        ("talents", new Bfmd.Extractors.TalentsExtractor()),
         ("spells", new Bfmd.Extractors.SpellsExtractor()),
     });
     var code = runner.Run(pipe, sources, (input, output, cfgRoot));
@@ -68,8 +69,9 @@ void RunConvert()
         var classes = Count("classes");
         var backgrounds = Count("backgrounds");
         var lineages = Count("lineages");
+        var talents = Count("talents");
         var spells = Count("spells");
-        AnsiConsole.MarkupLine($"[green]Done[/] → data: classes={classes}, backgrounds={backgrounds}, lineages={lineages}, spells={spells}");
+        AnsiConsole.MarkupLine($"[green]Done[/] → data: classes={classes}, backgrounds={backgrounds}, lineages={lineages}, talents={talents}, spells={spells}");
         var manifest = Path.Combine(output, "manifest.json");
         if (File.Exists(manifest)) AnsiConsole.MarkupLine($"Manifest: [blue]{manifest}[/]");
     }
@@ -99,7 +101,7 @@ void RunValidate()
             catch (Exception ex) { errors.Add($"{file}: {ex.Message}"); }
         }
     }
-    foreach (var t in new[] { "classes", "backgrounds", "lineages" }) CheckDir(t);
+    foreach (var t in new[] { "classes", "backgrounds", "lineages", "talents" }) CheckDir(t);
     if (errors.Count == 0) AnsiConsole.MarkupLine("[green]Validation passed[/]");
     else { AnsiConsole.MarkupLine($"[red]{errors.Count} errors[/]"); foreach (var e in errors) AnsiConsole.WriteLine(e); }
 }

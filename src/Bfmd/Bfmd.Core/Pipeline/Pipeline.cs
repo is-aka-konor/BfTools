@@ -34,7 +34,8 @@ public class PipelineRunner : IPipeline
             // step handled by registered extractors
             if (!_extractors.TryGetValue(step.Type, out var extractor))
             {
-                errors.Add($"Unknown step type '{step.Type}'");
+                // Treat unknown step as a warning to allow partial pipelines
+                warnings.Add($"Unknown step type '{step.Type}' — skipping");
                 continue;
             }
 
@@ -168,7 +169,14 @@ public class PipelineRunner : IPipeline
         // Manifest
         try
         {
-            var counts = new { classes = allEntities.Count(e => e is ClassDto), backgrounds = allEntities.Count(e => e is BackgroundDto), lineages = allEntities.Count(e => e is LineageDto) };
+            var counts = new
+            {
+                classes = allEntities.Count(e => e is ClassDto),
+                backgrounds = allEntities.Count(e => e is BackgroundDto),
+                lineages = allEntities.Count(e => e is LineageDto),
+                talents = allEntities.Count(e => e is TalentDto),
+                spells = allEntities.Count(e => e is SpellDto)
+            };
             var manifest = new
             {
                 schemaVersion = "1.0.0",
@@ -211,6 +219,7 @@ public class PipelineRunner : IPipeline
         "background" => "backgrounds",
         "lineage" => "lineages",
         "spell" => "spells",
+        "talent" => "talents",
         _ => type
     };
 }

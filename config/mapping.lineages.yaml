@@ -1,18 +1,74 @@
-titleHeaders: ["# "]
-summaryHeaders: ["Описание", "Сводка"]
-featuresHeaders: ["Черты", "Особенности"]
-subclassesHeaders: ["Наследия"]
-columnMap: { }
-skillsHeaders: ["Навыки"]
-toolsHeaders: ["Инструменты"]
-languagesHeaders: ["Языки"]
-equipmentHeaders: ["Снаряжение"]
-talentHeaders: ["Таланты"]
-sizeHeaders: ["Размер"]
-speedHeaders: ["Скорость"]
-traitsHeaders: ["Черты"]
-heritagesHeaders: ["Наследия"]
-synonyms: { }
-regexes: { LevelCapture: "^Уровень\\s+(\\д+)" }
+# LINEAGES mapping (RU) — simple & strict for your sample
+
+mode: "collection"                 # one file contains many lineages
+# Optional root header (not required, but helps narrow scope)
+collectionRootHeaders:
+  - "ПРОИСХОЖДЕНИЕ И НАСЛЕДИЕ"
+
+entryHeaderLevel: 2                # each lineage starts at H2
+# Extract lineage name from H2 "ЧЕРТЫ ПРОИСХОЖДЕНИЯ <NAME>"
+entryHeaderRegex: "(?i)^черт[ы|а]\\s+происхождени[я|е]\\s+(.+)$"
+
+# ---- Bullets recognized as base fields --------------------------------------
+sections:
+  # Matches: "* **Возраст.** <text>"
+  ageBullet: "^\\*\\s*\\*\\*Возраст\\.?\\*\\*[:\\s]+(.+)$"
+
+  # Matches: "* **Размер.** <text>"
+  sizeBullet: "^\\*\\s*\\*\\*Размер\\.?\\*\\*[:\\s]+(.+)$"
+
+  # Matches: "* **Скорость.** <text>"
+  speedBullet: "^\\*\\s*\\*\\*Скорость\\.?\\*\\*[:\\s]+(.+)$"
+
+  # Optional. If missing => no darkvision field in output
+  # Matches: "* **Темное Зрение.** <text>" or "Тёмное"
+  darkvisionBullet: "^\\*\\s*\\*\\*Т[её]мное\\s+Зрение\\.?\\*\\*[:\\s]+(.+)$"
+
+  # Any other bullet becomes a trait: name = bold label (till dot), description = rest
+  # Matches: "* **Животный Инстинкт.** <text>", "* **Естественная Адаптация.** <text>"
+  traitBullet: "^\\*\\s*\\*\\*(.+?)\\.?\\*\\*[:\\s]*(.*)$"
+
+# ---- Nested subtraits inside a trait (one level deeper) ---------------------
+# Example: within "Естественная Адаптация" → list of "**Птичьи.** ...", "**Ловкие.** ..."
+nestedTraitBullet: "^\\*\\s*\\*\\*(.+?)\\.?\\*\\*[:\\s]*(.*)$"
+# Parent trait names that typically contain subtraits (case-insensitive)
+compositeTraitNames:
+  - "Естественная Адаптация"
+
+# ---- Regex helpers ----------------------------------------------------------
+regexes:
+  # Extract numeric speed from a sentence like "Ваша базовая скорость ходьбы составляет 30 футов."
+  speedCapture: "(?i)(\\d+)\\s*(?:фт|фут(?:ов|а)?|ft|м|метр(?:ов|а)?)"
+
+  # Split choices: "Средний или Маленький" / "Средний, Маленький"
+  sizeSplit: "(?:,|\\s+или\\s+)"
+
+  # Generic list splitter (used for any comma/«и/или» separated values if needed)
+  listSplit: "(?:,|;|\\s+и\\s+|\\s+или\\s+)"
+
+# ---- Canonicalization (light) ----------------------------------------------
+synonyms:
+  # Units
+  "фт": "ft"
+  "фут": "ft"
+  "фута": "ft"
+  "футов": "ft"
+  "м": "m"
+  "метр": "m"
+  "метра": "m"
+  "метров": "m"
+
+  # Size wording normalization (keep Russian output, just unify spelling/case)
+  "средний": "Средний"
+  "маленький": "Маленький"
+
+  # Conjunctions
+  " либо ": " или "
+  " и/или ": " или "
+
+# ---- Output unit for speed integer -----------------------------------------
 unitsSpeed: "ft"
 
+# ---- Behavior flags ---------------------------------------------------------
+# If darkvision bullet is not present, do not emit darkvision field (treat as none)
+allowMissingDarkvision: true

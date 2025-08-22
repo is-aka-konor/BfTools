@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{EE486F
 		config\mapping.classes.yaml = config\mapping.classes.yaml
 		config\pipeline.yaml = config\pipeline.yaml
 		config\sources.yaml = config\sources.yaml
+		config\mapping.talents.yaml = config\mapping.talents.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "input", "input", "{29B64B28-8634-4C88-BD54-31ED5EF36E57}"
