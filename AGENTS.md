@@ -1,42 +1,41 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- `src/Bfmd/Bfmd.Cli`: Console entry point (`Program.cs`).
-- `src/Bfmd/Bfmd.Core`: Core domain logic and public APIs.
-- `src/Bfmd/Bfmd.Extractors`: Pluggable extractors and adapters.
-- `tests/Bfmd/Bfmd.UnitTests`: Unit tests (xUnit).
-- `tests/Bfmd/Bfmd.IntegrationTests`: Integration tests (xUnit).
-- `docs/`: Project docs and design notes.
-
-Use namespaces and project names under `Bfmd.*`. Keep one public type per file named after the type.
+- `src/`
+  - `BfSiteGen.Core`: C# models, IO reader/validation, canonical JSON, indexing, bundling.
+  - `BfSiteGen.Cli`: CLI entry to build site bundles and manifest.
+  - `Bfmd.Core` / `Bfmd.Extractors` / `Bfmd.Cli`: Markdown tooling and extractors.
+- `frontend/`: Vite + Lit SPA (Tailwind + DaisyUI), offline search, service worker.
+- `tests/`: C# unit/integration; `frontend/tests`: Vitest unit + Playwright e2e.
+- Generated output: `dist-site/` (immutable data/index files, manifest), `output/` (source JSON).
 
 ## Build, Test, and Development Commands
-- Restore/build: `dotnet build BfTools.sln -c Debug`
-- Run CLI: `dotnet run --project src/Bfmd/Bfmd.Cli`
-- All tests: `dotnet test BfTools.sln -c Debug`
-- Tests with coverage: `dotnet test --collect:"XPlat Code Coverage"`
-- Format (if installed): `dotnet format` (run at repo root)
-
-Target framework is `net8.0` with nullable reference types and implicit usings enabled.
+- Backend
+  - `dotnet build` — build all projects.
+  - `dotnet test` — run all C# unit/integration tests.
+  - `dotnet run --project src/BfSiteGen/BfSiteGen.Cli -- [outputRoot] [distRoot]` — produce bundles and manifest.
+- Frontend (in `frontend/`)
+  - `npm run dev` — Vite dev server.
+  - `npm run build` / `npm run preview` — build and preview.
+  - `npm run test:unit` — Vitest (jsdom) unit tests with coverage.
+  - `npm run test:e2e` — Playwright smoke e2e (Node ≥ 18.19; install browsers).
 
 ## Coding Style & Naming Conventions
-- C#: 4‑space indentation, UTF‑8, LF line endings.
-- Braces on new lines; prefer expression-bodied members when clear.
-- Naming: `PascalCase` for types/methods, `camelCase` for locals/params, `_camelCase` for private fields, `I*` for interfaces.
-- Folders mirror namespaces (e.g., `Bfmd.Core.Parsing` → `src/Bfmd/Bfmd.Core/Parsing`).
-- Keep CLI concerns in `Bfmd.Cli`; shared logic lives in `Bfmd.Core`; concrete extractors in `Bfmd.Extractors`.
+- C#: PascalCase types/members; camelCase locals/params; 4‑space indent; favor explicit, readable code. Keep category folders plural and files slug-driven.
+- TypeScript: typed props, small Lit components, kebab‑case custom elements (e.g., `search-modal`).
+- Central package versions: managed in `Directory.Packages.props`. Do not set `Version` on `PackageReference`s.
 
 ## Testing Guidelines
-- Framework: xUnit with `Microsoft.NET.Test.Sdk` and `coverlet.collector`.
-- Naming: `MethodName_ShouldExpected_WhenCondition` for tests; file/class mirrors SUT.
-- Place unit tests under a matching namespace path in `Bfmd.UnitTests`; broader end‑to‑end flows in `Bfmd.IntegrationTests`.
-- Run: `dotnet test` from repo root. Coverage artifacts are written under `TestResults/`.
+- Backend: xUnit v3 + NSubstitute. Place unit tests under `*.Tests.Unit`, integration under `*.Tests.Integration`.
+- Frontend: Vitest + Testing Library + MSW + fake-indexeddb (`frontend/tests/unit/*.spec.ts`); Playwright in `frontend/tests/e2e/`.
+- Coverage: Vitest uses V8 coverage; keep tests deterministic via fixtures/MSW.
 
 ## Commit & Pull Request Guidelines
-- Commits: prefer Conventional Commits (e.g., `feat(core): add parser`), small, and scoped.
-- PRs: include a clear description, linked issues, how-to-test steps, and notes on risks/rollout. Add tests for new behavior and update docs under `docs/` when relevant.
-- Ensure CI/build and `dotnet test` pass locally before requesting review.
+- Commits: imperative mood, focused scope (e.g., "Add canonical hash for spells").
+- PRs: include summary, linked issues, test plan, and screenshots/GIFs for UI changes. Ensure `dotnet test` and `npm run test:unit` pass.
 
 ## Security & Configuration Tips
-- Do not commit secrets or local config; honor `.gitignore`.
-- Keep public surface area in `Bfmd.Core` minimal and documented. Validate untrusted inputs in extractors.
+- Dependencies are centrally pinned; upgrade via `Directory.Packages.props` (e.g., `System.Text.Json`).
+- Unit tests must not hit the network; MSW mirrors `/dist-site/*` endpoints.
+- Static bundling assumes immutable filenames (`<category>-<hash>.json`); avoid mutating existing hashes.
+

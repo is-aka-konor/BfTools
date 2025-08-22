@@ -4,9 +4,19 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   use: {
+    baseURL: 'http://localhost:4173'
+  },
+  webServer: {
+    command: 'npm run build && npm run preview',
+    url: 'http://localhost:4173',
+    reuseExistingServer: true,
+    timeout: 120_000
+  },
+  use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure'
+    video: 'retain-on-failure',
+    baseURL: 'http://localhost:4173'
   },
   projects: [
     {
@@ -19,4 +29,3 @@ export default defineConfig({
     }
   ]
 });
-

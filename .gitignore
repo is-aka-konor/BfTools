@@ -433,5 +433,6 @@ FodyWeavers.xsd
 
 # Frontend exclusions
 src/frontend/coverage/
+src/frontend/test-results/
 src/frontend/dist/
 dist-site/

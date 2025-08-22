@@ -20,14 +20,35 @@ export class SearchModal extends LitElement {
     this.searching = false;
   }
 
+  private lastFocus: HTMLElement | null = null;
+  // Optional opener element provided by parent for focus restore
+  public openerEl?: HTMLElement | null;
+
   async show() {
+    this.lastFocus = (this.getRootNode() as Document | ShadowRoot).activeElement as HTMLElement | null;
     this.open = true;
     await this.updateComplete;
     const input = this.renderRoot?.querySelector('input[name="q"]') as HTMLInputElement | null;
     input?.focus();
   }
 
-  hide() { this.open = false; }
+  hide() { 
+    this.open = false; 
+    const target = this.openerEl ?? this.lastFocus;
+    queueMicrotask(() => target?.focus?.());
+  }
+
+  protected updated(changed: Map<string, unknown>) {
+    if (changed.has('open')) {
+      const wasOpen = changed.get('open') as boolean | undefined;
+      if (this.open && !wasOpen) {
+        // Property-driven open: capture focus and focus input
+        this.lastFocus = (this.getRootNode() as Document | ShadowRoot).activeElement as HTMLElement | null;
+        const input = this.renderRoot?.querySelector('input[name="q"]') as HTMLInputElement | null;
+        input?.focus?.();
+      }
+    }
+  }
 
   private async onInput(e: Event) {
     this.q = (e.target as HTMLInputElement).value;

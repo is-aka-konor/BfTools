@@ -24,7 +24,9 @@ export class AppRoot extends LitElement {
     lists: { state: true },
     talents: { state: true },
     talentFilters: { state: true },
-    currentItem: { state: true }
+    currentItem: { state: true },
+    spells: { state: true },
+    spellsFilters: { state: true }
   } as any;
 
   private router = new Navigo('/');
@@ -40,6 +42,8 @@ export class AppRoot extends LitElement {
   declare private talents: Talent[] | undefined;
   declare private talentFilters: { magical: boolean; martial: boolean; src: Set<string> };
   declare private currentItem?: Entry;
+  declare private spells: Array<Entry & { circle:number; school:string; isRitual:boolean; circleType:string }> | undefined;
+  declare private spellsFilters: { circle?: number|null; school?: string|null; ritual?: boolean|null; circleType?: string|null; src: Set<string>; sort: 'name-asc'|'name-desc'|'circle-asc'|'circle-desc' };
 
   constructor() {
     super();
@@ -55,6 +59,8 @@ export class AppRoot extends LitElement {
     this.talents = undefined;
     this.talentFilters = { magical: true, martial: true, src: new Set() };
     this.currentItem = undefined;
+    this.spells = undefined;
+    this.spellsFilters = { circle: null, school: null, ritual: null, circleType: null, src: new Set(), sort: 'name-asc' };
   }
   private listScroll: Record<string, number> = {};
 
@@ -112,6 +118,7 @@ export class AppRoot extends LitElement {
     if (name === 'search') this.doSearchFromLocation();
     if (name === 'classes' || name === 'lineages' || name === 'backgrounds') this.loadList(name);
     if (name === 'talents') this.loadTalents();
+    if (name === 'spells') this.loadSpells();
     if (name === 'class' && params?.slug) this.loadDetail('classes', params.slug);
     if (name === 'lineage' && params?.slug) this.loadDetail('lineages', params.slug);
     if (name === 'background' && params?.slug) this.loadDetail('backgrounds', params.slug);
@@ -165,12 +172,7 @@ export class AppRoot extends LitElement {
       case 'lineages': return shell('Lineages', this.renderList('lineages'));
       case 'backgrounds': return shell('Backgrounds', this.renderList('backgrounds'));
       case 'spells':
-        return shell('Spells', html`
-          <div role="tablist" class="tabs tabs-bordered mt-4">
-            <a role="tab" class="tab tab-active">All</a>
-            <a role="tab" class="tab">Circles</a>
-            <a role="tab" class="tab">Schools</a>
-          </div>`);
+        return shell('Spells', this.renderSpells());
       case 'spell': return this.renderSpellDetail();
       case 'talent': return this.renderTalentDetail();
       case 'class': return this.renderDetail('classes');
@@ -295,6 +297,152 @@ export class AppRoot extends LitElement {
       const y = this.listScroll['talents'];
       if (typeof y === 'number') queueMicrotask(() => window.scrollTo({ top: y }));
     }
+  }
+
+  private async loadSpells() {
+    this.parseSpellsFiltersFromLocation();
+    if (!this.spells) {
+      const data = await getDataset('spells');
+      this.spells = data as any;
+      const y = this.listScroll['spells'];
+      if (typeof y === 'number') queueMicrotask(() => window.scrollTo({ top: y }));
+    }
+  }
+
+  private parseSpellsFiltersFromLocation() {
+    const p = new URLSearchParams(location.search);
+    const circle = p.get('circle');
+    const school = p.get('school');
+    const ritual = p.get('ritual');
+    const ct = p.get('circleType');
+    const src = p.get('src');
+    const sort = (p.get('sort') as any) || this.spellsFilters.sort;
+    this.spellsFilters = {
+      circle: circle !== null ? (circle === '' ? null : Number(circle)) : this.spellsFilters.circle,
+      school: school !== null ? (school || null) : this.spellsFilters.school,
+      ritual: ritual !== null ? (ritual === '' ? null : ritual === '1') : this.spellsFilters.ritual,
+      circleType: ct !== null ? (ct || null) : this.spellsFilters.circleType,
+      src: src ? new Set(src.split(',').filter(Boolean)) : this.spellsFilters.src,
+      sort: sort ?? 'name-asc'
+    } as any;
+  }
+
+  private updateSpellsFilters(patch: Partial<{ circle?: number|null; school?: string|null; ritual?: boolean|null; circleType?: string|null; src?: Set<string>; sort?: 'name-asc'|'name-desc'|'circle-asc'|'circle-desc' }>) {
+    const next = { ...this.spellsFilters } as any;
+    for (const [k, v] of Object.entries(patch)) (next as any)[k] = v;
+    this.spellsFilters = next;
+    const sp = new URLSearchParams();
+    if (next.circle !== null && next.circle !== undefined) sp.set('circle', String(next.circle));
+    if (next.school) sp.set('school', next.school);
+    if (next.ritual !== null && next.ritual !== undefined) sp.set('ritual', next.ritual ? '1' : '0');
+    if (next.circleType) sp.set('circleType', next.circleType);
+    if (next.src?.size > 0) sp.set('src', Array.from(next.src).join(','));
+    if (next.sort) sp.set('sort', next.sort);
+    history.replaceState(null, '', `/spells?${sp.toString()}`);
+  }
+
+  private renderSpells() {
+    const items = this.spells;
+    if (!items) return html`<span class="loading loading-spinner"></span>`;
+    const f = this.spellsFilters;
+    const allSchools = Array.from(new Set(items.map((s: any) => s.school))).sort();
+    const allSources: Array<{ abbr: string; name: string }> = [];
+    const seen = new Set<string>();
+    for (const it of items) for (const s of it.sources ?? []) if (!seen.has(s.abbr)) { seen.add(s.abbr); allSources.push({ abbr: s.abbr, name: s.name }); }
+    const selectedSrc = f.src;
+
+    let filtered = items.filter((it: any) => {
+      const cOk = f.circle == null || it.circle === f.circle;
+      const sOk = !f.school || it.school === f.school;
+      const rOk = f.ritual == null || it.isRitual === f.ritual;
+      const ctOk = !f.circleType || it.circleType === f.circleType;
+      const srcOk = selectedSrc.size === 0 || (it.sources?.some((s: any) => selectedSrc.has(s.abbr)) ?? false);
+      return cOk && sOk && rOk && ctOk && srcOk;
+    });
+
+    const cmpName = (a:any,b:any) => a.name.localeCompare(b.name);
+    const cmpCircle = (a:any,b:any) => (a.circle - b.circle) || cmpName(a,b) || a.slug.localeCompare(b.slug);
+    switch (f.sort) {
+      case 'name-desc': filtered = [...filtered].sort((a,b)=>-cmpName(a,b)); break;
+      case 'circle-asc': filtered = [...filtered].sort(cmpCircle); break;
+      case 'circle-desc': filtered = [...filtered].sort((a,b)=>-cmpCircle(a,b)); break;
+      default: filtered = [...filtered].sort((a,b)=>cmpName(a,b) || a.slug.localeCompare(b.slug));
+    }
+
+    const toggleSrc = (abbr: string) => {
+      const next = new Set(selectedSrc);
+      if (next.has(abbr)) next.delete(abbr); else next.add(abbr);
+      this.updateSpellsFilters({ src: next });
+    };
+
+    const clearAll = () => this.updateSpellsFilters({ circle: null, school: null, ritual: null, circleType: null, src: new Set(), sort: 'name-asc' });
+
+    return html`
+      <div class="mt-4 flex flex-col gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <label class="form-control w-40">
+            <div class="label"><span class="label-text">Circle</span></div>
+            <select class="select select-bordered"
+              @change=${(e:Event)=> this.updateSpellsFilters({ circle: (e.target as HTMLSelectElement).value === '' ? null : Number((e.target as HTMLSelectElement).value) })}>
+              <option value="" ?selected=${f.circle==null}>All</option>
+              ${[0,1,2,3,4,5,6,7,8,9].map(c => html`<option .selected=${f.circle===c} value=${c}>${c}</option>`)}
+            </select>
+          </label>
+          <label class="form-control w-52">
+            <div class="label"><span class="label-text">School</span></div>
+            <select class="select select-bordered"
+              @change=${(e:Event)=> this.updateSpellsFilters({ school: (e.target as HTMLSelectElement).value || null })}>
+              <option value="" ?selected=${!f.school}>All</option>
+              ${allSchools.map(s => html`<option .selected=${f.school===s} value=${s}>${s}</option>`)}
+            </select>
+          </label>
+          <label class="label cursor-pointer gap-2">
+            <span>Ritual</span>
+            <input type="checkbox" class="toggle" .checked=${f.ritual===true}
+              indeterminate=${String(f.ritual==null)}
+              @change=${(e:Event)=> this.updateSpellsFilters({ ritual: (e.target as HTMLInputElement).checked ? true : null })} />
+          </label>
+          <label class="form-control w-44">
+            <div class="label"><span class="label-text">Circle Type</span></div>
+            <select class="select select-bordered"
+              @change=${(e:Event)=> this.updateSpellsFilters({ circleType: (e.target as HTMLSelectElement).value || null })}>
+              <option value="" ?selected=${!f.circleType}>All</option>
+              ${Array.from(new Set(items.map((x:any)=>x.circleType))).sort().map(ct => html`<option .selected=${f.circleType===ct} value=${ct}>${ct}</option>`)}
+            </select>
+          </label>
+          <label class="form-control w-52">
+            <div class="label"><span class="label-text">Sort</span></div>
+            <select class="select select-bordered" @change=${(e:Event)=> this.updateSpellsFilters({ sort: (e.target as HTMLSelectElement).value as any })}>
+              ${['name-asc','name-desc','circle-asc','circle-desc'].map(k => html`<option .selected=${f.sort===k} value=${k}>${k}</option>`)}
+            </select>
+          </label>
+          <button class="btn btn-sm" @click=${clearAll}>Clear All</button>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          ${allSources.map(s => html`
+            <div class="tooltip" data-tip=${s.name}>
+              <button class="btn btn-xs" data-active=${selectedSrc.has(s.abbr)?'1':'0'} @click=${() => toggleSrc(s.abbr)}>
+                <span class="badge ${selectedSrc.has(s.abbr)?'badge-primary':'badge-outline'}">${s.abbr}</span>
+              </button>
+            </div>`)}
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          ${filtered.map(it => html`
+            <a href="/spells/${(it as any).slug}" data-navigo class="app-card card" @click=${() => this.rememberScroll('spells')}>
+              <div class="card-body p-4">
+                <div class="flex items-center gap-2">
+                  <h3 class="card-title m-0">${(it as any).name}</h3>
+                  <span class="badge badge-sm">${(it as any).circle}</span>
+                  <div class="flex gap-1 flex-wrap">
+                    ${it.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
+                  </div>
+                </div>
+              </div>
+            </a>
+          `)}
+        </div>
+      </div>
+    `;
   }
 
   private parseTalentFiltersFromLocation() {
@@ -449,6 +597,8 @@ export class AppRoot extends LitElement {
   }
 
   private openSearchModal() {
+    const modal = this.renderRoot?.querySelector('search-modal') as any;
+    if (modal) modal.openerEl = (this.getRootNode() as Document | ShadowRoot).activeElement as HTMLElement | null;
     this.searchOpen = true;
   }
 
