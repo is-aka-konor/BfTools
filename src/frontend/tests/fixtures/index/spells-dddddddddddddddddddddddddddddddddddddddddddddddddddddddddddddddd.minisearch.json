@@ -1,0 +1,11 @@
+{
+  "options": {
+    "fields": ["name","descriptionHtml"],
+    "storeFields": ["slug","category","sources","circle","circleType","school","isRitual","type","name"],
+    "searchOptions": { "boost": { "name": 3, "descriptionHtml": 1 }, "fuzzy": 0.2 }
+  },
+  "documents": [
+    {"name":"Spark","descriptionHtml":"<p>Ignite.</p>","slug":"spark","category":"spells","sources":[{"abbr":"BF","name":"Black Flag Core"}],"circle":0,"circleType":"Arcane","school":"Evocation","isRitual":false}
+  ]
+}
+

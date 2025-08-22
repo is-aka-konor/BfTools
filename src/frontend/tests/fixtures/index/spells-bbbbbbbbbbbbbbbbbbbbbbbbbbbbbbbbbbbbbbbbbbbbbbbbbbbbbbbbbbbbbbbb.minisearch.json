@@ -1,0 +1,18 @@
+{
+  "options": {
+    "fields": ["name","descriptionHtml"],
+    "storeFields": ["slug","category","sources","circle","circleType","school","isRitual","type","name"],
+    "searchOptions": { "boost": { "name": 3, "descriptionHtml": 1 }, "fuzzy": 0.2 }
+  },
+  "documents": [
+    {"name":"Spark","descriptionHtml":"<p>Ignite.</p>","slug":"spark","category":"spells","sources":[{"abbr":"BF","name":"Black Flag Core"}],"circle":0,"circleType":"Arcane","school":"Evocation","isRitual":false},
+    {"name":"Ward","descriptionHtml":"<p>Protect.</p>","slug":"ward","category":"spells","sources":[{"abbr":"BF","name":"Black Flag Core"},{"abbr":"TC","name":"Tales Companion"}],"circle":1,"circleType":"Divine","school":"Abjuration","isRitual":true},
+    {"name":"Veil","descriptionHtml":"<p>Hide.</p>","slug":"veil","category":"spells","sources":[{"abbr":"TC","name":"Tales Companion"}],"circle":2,"circleType":"Arcane","school":"Illusion","isRitual":false},
+    {"name":"Mend","descriptionHtml":"<p>Repair.</p>","slug":"mend","category":"spells","sources":[{"abbr":"BF","name":"Black Flag Core"}],"circle":3,"circleType":"Divine","school":"Transmutation","isRitual":true},
+    {"name":"Sight","descriptionHtml":"<p>See.</p>","slug":"sight","category":"spells","sources":[{"abbr":"BF","name":"Black Flag Core"}],"circle":4,"circleType":"Arcane","school":"Divination","isRitual":false},
+    {"name":"Raise","descriptionHtml":"<p>Life.</p>","slug":"raise","category":"spells","sources":[{"abbr":"TC","name":"Tales Companion"}],"circle":5,"circleType":"Divine","school":"Necromancy","isRitual":true},
+    {"name":"Gate","descriptionHtml":"<p>Teleport.</p>","slug":"gate","category":"spells","sources":[{"abbr":"BF","name":"Black Flag Core"}],"circle":6,"circleType":"Arcane","school":"Conjuration","isRitual":false},
+    {"name":"Storm","descriptionHtml":"<p>Thunder.</p>","slug":"storm","category":"spells","sources":[{"abbr":"BF","name":"Black Flag Core"},{"abbr":"TC","name":"Tales Companion"}],"circle":7,"circleType":"Divine","school":"Evocation","isRitual":false}
+  ]
+}
+

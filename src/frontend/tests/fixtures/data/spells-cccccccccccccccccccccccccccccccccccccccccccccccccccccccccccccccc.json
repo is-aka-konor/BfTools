@@ -1,0 +1,11 @@
+[
+  {"slug":"spark","name":"Spark","descriptionMd":"","descriptionHtml":"<p>Ignite.</p>","circle":0,"school":"Evocation","isRitual":false,"circleType":"Arcane","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
+  {"slug":"ward","name":"Ward","descriptionMd":"","descriptionHtml":"<p>Protect.</p>","circle":1,"school":"Abjuration","isRitual":true,"circleType":"Divine","sources":[{"abbr":"BF","name":"Black Flag Core"},{"abbr":"TC","name":"Tales Companion"}]},
+  {"slug":"veil","name":"Veil","descriptionMd":"","descriptionHtml":"<p>Hide.</p>","circle":2,"school":"Illusion","isRitual":false,"circleType":"Arcane","sources":[{"abbr":"TC","name":"Tales Companion"}]},
+  {"slug":"mend","name":"Mend","descriptionMd":"","descriptionHtml":"<p>Repair.</p>","circle":3,"school":"Transmutation","isRitual":true,"circleType":"Divine","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
+  {"slug":"sight","name":"Sight","descriptionMd":"","descriptionHtml":"<p>See.</p>","circle":4,"school":"Divination","isRitual":false,"circleType":"Arcane","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
+  {"slug":"raise","name":"Raise","descriptionMd":"","descriptionHtml":"<p>Life.</p>","circle":5,"school":"Necromancy","isRitual":true,"circleType":"Divine","sources":[{"abbr":"TC","name":"Tales Companion"}]},
+  {"slug":"gate","name":"Gate","descriptionMd":"","descriptionHtml":"<p>Teleport.</p>","circle":6,"school":"Conjuration","isRitual":false,"circleType":"Arcane","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
+  {"slug":"storm","name":"Storm","descriptionMd":"","descriptionHtml":"<p>Thunder.</p>","circle":7,"school":"Evocation","isRitual":false,"circleType":"Divine","sources":[{"abbr":"BF","name":"Black Flag Core"},{"abbr":"TC","name":"Tales Companion"}]}
+]
+
