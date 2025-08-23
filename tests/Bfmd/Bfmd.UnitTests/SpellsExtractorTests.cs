@@ -1,4 +1,3 @@
-using System.Linq;
 using Bfmd.Extractors;
 using Markdig;
 using Markdig.Syntax;

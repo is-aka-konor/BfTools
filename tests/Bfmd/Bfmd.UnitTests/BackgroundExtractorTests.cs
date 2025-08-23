@@ -1,3 +1,4 @@
+using BfCommon.Domain.Models;
 using Bfmd.Core.Config;
 using Bfmd.Core.Services;
 
@@ -17,7 +18,7 @@ public class BackgroundExtractorTests
         var map = new YamlLoader<MappingConfig>().Load(Path.Combine(repoRoot, "config", "mapping.backgrounds.yaml"));
 
         var ex = new Bfmd.Extractors.BackgroundsExtractor();
-        var res = ex.Extract([(path: path, content: content, doc, sha256: "deadbeef")], src, map).OfType<Bfmd.Core.Domain.BackgroundDto>().ToList();
+        var res = ex.Extract([(path: path, content: content, doc, sha256: "deadbeef")], src, map).OfType<BackgroundDto>().ToList();
         Assert.True(res.Count >= 1);
         var first = res[0];
         Assert.Equal("ПРЕСТУПНИК", first.Name);

@@ -1,4 +1,3 @@
-using System.Linq;
 using Bfmd.Core.Config;
 using Bfmd.Core.Services;
 using Bfmd.Extractors;

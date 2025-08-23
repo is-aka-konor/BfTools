@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Bfmd.Core.Config;
-using Bfmd.Core.Domain;
+using BfCommon.Domain.Models;
 using Bfmd.Core.Pipeline;
 using Markdig.Syntax;
 

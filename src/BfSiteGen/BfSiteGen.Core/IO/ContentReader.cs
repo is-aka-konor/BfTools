@@ -49,11 +49,11 @@ public sealed class ContentReader : IContentReader
                 using var stream = File.OpenRead(file);
                 using var doc = JsonDocument.Parse(stream);
                 var root = doc.RootElement;
-
+                
                 var talent = new Talent
                 {
-                    Slug = GetString(root, "slug"),
-                    Name = GetString(root, "name"),
+                    Slug = GetString(root, "slug") ?? string.Empty,
+                    Name = GetString(root, "name") ?? string.Empty,
                     DescriptionMd = GetString(root, "descriptionMd") ?? GetString(root, "description") ?? string.Empty,
                     Type = GetString(root, "type") ?? string.Empty,
                     Sources = ReadSources(root)
@@ -94,8 +94,8 @@ public sealed class ContentReader : IContentReader
 
                 var spell = new Spell
                 {
-                    Slug = GetString(root, "slug"),
-                    Name = GetString(root, "name"),
+                    Slug = GetString(root, "slug") ?? string.Empty,
+                    Name = GetString(root, "name") ?? string.Empty,
                     DescriptionMd = GetString(root, "descriptionMd") ?? GetString(root, "description") ?? string.Empty,
                     Circle = GetInt(root, "circle"),
                     School = GetString(root, "school") ?? string.Empty,
@@ -135,8 +135,8 @@ public sealed class ContentReader : IContentReader
 
                 var item = new Background
                 {
-                    Slug = GetString(root, "slug"),
-                    Name = GetString(root, "name"),
+                    Slug = GetString(root, "slug") ?? string.Empty,
+                    Name = GetString(root, "name") ?? string.Empty,
                     DescriptionMd = GetString(root, "descriptionMd") ?? GetString(root, "description") ?? string.Empty,
                     Sources = ReadSources(root)
                 };
@@ -165,8 +165,8 @@ public sealed class ContentReader : IContentReader
 
                 var item = new Class
                 {
-                    Slug = GetString(root, "slug"),
-                    Name = GetString(root, "name"),
+                    Slug = GetString(root, "slug") ?? string.Empty,
+                    Name = GetString(root, "name") ?? string.Empty,
                     DescriptionMd = GetString(root, "descriptionMd") ?? GetString(root, "description") ?? string.Empty,
                     Sources = ReadSources(root)
                 };
@@ -195,8 +195,8 @@ public sealed class ContentReader : IContentReader
 
                 var item = new Lineage
                 {
-                    Slug = GetString(root, "slug"),
-                    Name = GetString(root, "name"),
+                    Slug = GetString(root, "slug") ?? string.Empty,
+                    Name = GetString(root, "name") ?? string.Empty,
                     DescriptionMd = GetString(root, "descriptionMd") ?? GetString(root, "description") ?? string.Empty,
                     Sources = ReadSources(root)
                 };

@@ -14,4 +14,12 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Console" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Domain\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\BfCommon\BfCommon.Domain\BfCommon.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

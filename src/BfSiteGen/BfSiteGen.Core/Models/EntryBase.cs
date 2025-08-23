@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace BfSiteGen.Core.Models;
 
 public abstract class EntryBase

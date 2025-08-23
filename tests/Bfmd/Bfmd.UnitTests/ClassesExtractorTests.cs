@@ -1,3 +1,4 @@
+using BfCommon.Domain.Models;
 using Bfmd.Core.Config;
 using Bfmd.Core.Services;
 
@@ -20,7 +21,7 @@ public class ClassesExtractorTests
         var map = new YamlLoader<MappingConfig>().Load(Path.Combine(repoRoot, "config", "mapping.classes.yaml"));
         var ex = new Bfmd.Extractors.ClassesExtractor();
 
-        var res = ex.Extract([(path: path, content: content, doc, sha256: "abc")], src, map).OfType<Bfmd.Core.Domain.ClassDto>().Single();
+        var res = ex.Extract([(path: path, content: content, doc, sha256: "abc")], src, map).OfType<ClassDto>().Single();
         Assert.Equal("ВОИН", res.Name);
         Assert.False(string.IsNullOrWhiteSpace(res.Description));
         Assert.Equal("d10", res.HitDie);

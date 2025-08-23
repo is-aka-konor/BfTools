@@ -1,4 +1,4 @@
-using Bfmd.Core.Domain;
+using BfCommon.Domain.Models;
 using Bfmd.Core.Validation;
 
 namespace Bfmd.UnitTests;

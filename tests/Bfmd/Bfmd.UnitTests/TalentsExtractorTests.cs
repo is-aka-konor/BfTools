@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.RegularExpressions;
 using Bfmd.Core.Config;
 using Bfmd.Extractors;

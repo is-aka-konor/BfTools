@@ -1,6 +1,6 @@
 using System.Text;
+using BfCommon.Domain.Models;
 using Bfmd.Core.Config;
-using Bfmd.Core.Domain;
 using Bfmd.Core.Services;
 using Markdig.Syntax;
 using Microsoft.Extensions.Logging;

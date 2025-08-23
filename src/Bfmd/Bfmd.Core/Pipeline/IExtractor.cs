@@ -1,5 +1,5 @@
+using BfCommon.Domain.Models;
 using Bfmd.Core.Config;
-using Bfmd.Core.Domain;
 using Markdig.Syntax;
 
 namespace Bfmd.Core.Pipeline;

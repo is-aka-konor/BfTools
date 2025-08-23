@@ -1,4 +1,4 @@
-namespace Bfmd.Core.Domain;
+namespace BfCommon.Domain.Models;
 
 public class LineageDto : BaseEntity
 {
