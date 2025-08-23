@@ -1,7 +1,8 @@
 using System.Text.Json;
+using BfCommon.Domain.Models;
 using BfSiteGen.Core.IO;
-using BfSiteGen.Core.Models;
 using BfSiteGen.Core.Publishing;
+using BfSiteGen.Core.Services;
 using Xunit;
 
 namespace BfSiteGen.Tests.Unit;
@@ -12,14 +13,14 @@ public class IndexBuilderTests
     public void Builds_Index_With_Fuzzy_And_Documents()
     {
         var load = new ContentLoadResult();
-        load.Talents.Add(new Talent { Slug = "tal1", Name = "Mage Hand", Type = "Magical", DescriptionMd = "desc", DescriptionHtml = "<p>desc</p>", Sources = [ new SourceRef { Abbr = "BF", Name = "Black Flag" } ] });
-        load.Spells.Add(new Spell { Slug = "spell1", Name = "Fireball", Circle = 3, School = "Evocation", CircleType = "Arcane", IsRitual = false, DescriptionMd = "explosion", DescriptionHtml = "<p>explosion</p>", Sources = [ new SourceRef { Abbr = "BF", Name = "Black Flag" } ] });
+        load.Talents.Add(new TalentDto { Slug = "tal1", Name = "Mage Hand", Category = "Magical", Description = "desc", Src = new SourceRef { Abbr = "BF", Name = "Black Flag" } });
+        load.Spells.Add(new SpellDto { Slug = "spell1", Name = "Fireball", Circle = 3, School = "Evocation", Src = new SourceRef { Abbr = "BF", Name = "Black Flag" } });
 
         var dist = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(dist);
         try
         {
-            var map = new IndexBuilder().BuildIndexes(load, dist);
+            var map = new IndexBuilder(new MarkdownRenderer()).BuildIndexes(load, dist);
             var tal = map["talents"].hash;
             var path = Path.Combine(dist, "index", $"talents-{tal}.minisearch.json");
             Assert.True(File.Exists(path));
@@ -41,4 +42,3 @@ public class IndexBuilderTests
         }
     }
 }
-

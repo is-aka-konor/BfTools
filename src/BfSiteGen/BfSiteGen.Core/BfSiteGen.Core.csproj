@@ -12,4 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Options" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BfCommon\BfCommon.Domain\BfCommon.Domain.csproj" />
+  </ItemGroup>
 </Project>

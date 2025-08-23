@@ -1,5 +1,5 @@
+using BfCommon.Domain.Models;
 using BfSiteGen.Core.IO;
-using BfSiteGen.Core.Models;
 using BfSiteGen.Core.Publishing;
 using NSubstitute;
 using System.Text.Json;
@@ -13,9 +13,9 @@ public class BundlerTests
     public void Bundler_Emits_Bundles_Manifest_And_Stubs()
     {
         var load = new ContentLoadResult();
-        load.Talents.Add(new Talent { Slug = "tal1", Name = "Talent 1", Type = "Magical", DescriptionMd = "md", DescriptionHtml = "<p>md</p>", Sources = [ new SourceRef { Abbr = "BF", Name = "Black Flag" } ] });
-        load.Talents.Add(new Talent { Slug = "tal2", Name = "Talent 2", Type = "Martial", DescriptionMd = "md", DescriptionHtml = "<p>md</p>", Sources = [ new SourceRef { Abbr = "BF", Name = "Black Flag" } ] });
-        load.Spells.Add(new Spell { Slug = "spell1", Name = "Spell 1", Circle = 1, School = "Evocation", CircleType = "Arcane", IsRitual = false, DescriptionMd = "md", DescriptionHtml = "<p>md</p>", Sources = [ new SourceRef { Abbr = "BF", Name = "Black Flag" } ] });
+        load.Talents.Add(new TalentDto { Slug = "tal1", Name = "Talent 1", Category = "Magical", Description = "md", Src = new SourceRef { Abbr = "BF", Name = "Black Flag" } });
+        load.Talents.Add(new TalentDto { Slug = "tal2", Name = "Talent 2", Category = "Martial", Description = "md", Src = new SourceRef { Abbr = "BF", Name = "Black Flag" } });
+        load.Spells.Add(new SpellDto { Slug = "spell1", Name = "Spell 1", Circle = 1, School = "Evocation", Src = new SourceRef { Abbr = "BF", Name = "Black Flag" } });
 
         var reader = Substitute.For<IContentReader>();
         reader.LoadAll(Arg.Any<string>()).Returns(load);
@@ -47,4 +47,3 @@ public class BundlerTests
         }
     }
 }
-

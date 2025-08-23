@@ -1,6 +1,7 @@
 using System.Text.Json;
+using BfCommon.Domain.Models;
 using BfSiteGen.Core.IO;
-using BfSiteGen.Core.Models;
+using BfSiteGen.Core.Services;
 
 namespace BfSiteGen.Core.Publishing;
 
@@ -64,7 +65,7 @@ public sealed class SiteBundler
         categories["lineages"] = (lineagesHash, lineagesSorted.Count);
 
         // Build search indexes
-        var indexBuilder = new IndexBuilder();
+        var indexBuilder = new IndexBuilder(new MarkdownRenderer());
         var indexMap = indexBuilder.BuildIndexes(load, distRoot);
 
         // Route stubs for static hosts (deep links)
@@ -93,11 +94,11 @@ public sealed class SiteBundler
 
             // Aggregate unique sources across categories
             var allSources = new List<SourceRef>();
-            allSources.AddRange(talentsSorted.SelectMany(t => t.Sources));
-            allSources.AddRange(spellsSorted.SelectMany(s => s.Sources));
-            allSources.AddRange(backgroundsSorted.SelectMany(b => b.Sources));
-            allSources.AddRange(classesSorted.SelectMany(c => c.Sources));
-            allSources.AddRange(lineagesSorted.SelectMany(l => l.Sources));
+            allSources.AddRange(talentsSorted.Select(t => t.Src));
+            allSources.AddRange(spellsSorted.Select(s => s.Src));
+            allSources.AddRange(backgroundsSorted.Select(b => b.Src));
+            allSources.AddRange(classesSorted.Select(c => c.Src));
+            allSources.AddRange(lineagesSorted.Select(l => l.Src));
             var distinct = allSources
                 .GroupBy(s => (s.Abbr, s.Name))
                 .Select(g => g.First())

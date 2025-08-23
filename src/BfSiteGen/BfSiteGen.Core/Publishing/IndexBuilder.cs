@@ -1,6 +1,7 @@
 using System.Text.Json;
+using BfCommon.Domain.Models;
 using BfSiteGen.Core.IO;
-using BfSiteGen.Core.Models;
+using BfSiteGen.Core.Services;
 
 namespace BfSiteGen.Core.Publishing;
 
@@ -15,9 +16,11 @@ public sealed class IndexBuilder
     }
 
     private readonly IndexConfig _config;
+    private readonly IMarkdownRenderer _markdown;
 
-    public IndexBuilder(IndexConfig? config = null)
+    public IndexBuilder(IMarkdownRenderer markdown, IndexConfig? config = null)
     {
+        _markdown = markdown;
         _config = config ?? new IndexConfig();
     }
 
@@ -92,65 +95,67 @@ public sealed class IndexBuilder
         w.WriteEndObject();
     }
 
-    private static void WriteSourcesArray(Utf8JsonWriter w, List<SourceRef> sources)
+    private static void WriteSourcesArray(Utf8JsonWriter w, SourceRef src)
     {
         w.WritePropertyName("sources");
         w.WriteStartArray();
-        foreach (var s in sources.OrderBy(x => x.Abbr, StringComparer.Ordinal).ThenBy(x => x.Name, StringComparer.Ordinal))
-        {
-            w.WriteStartObject();
-            w.WriteString("abbr", s.Abbr);
-            w.WriteString("name", s.Name);
-            w.WriteEndObject();
-        }
+        w.WriteStartObject();
+        w.WriteString("abbr", src.Abbr);
+        w.WriteString("name", src.Name);
+        w.WriteEndObject();
         w.WriteEndArray();
     }
 
-    private static void WriteCommonDocStart(Utf8JsonWriter w, string category, EntryBase e)
+    private static void WriteCommonDocStart(Utf8JsonWriter w, string category, BaseEntity e, string descriptionHtml, SourceRef src)
     {
         w.WriteStartObject();
         // Indexed fields first
         w.WriteString("name", e.Name);
-        w.WriteString("descriptionHtml", e.DescriptionHtml);
+        w.WriteString("descriptionHtml", descriptionHtml);
         // Stored fields
         w.WriteString("slug", e.Slug);
         w.WriteString("category", category);
-        WriteSourcesArray(w, e.Sources);
+        WriteSourcesArray(w, src);
     }
 
-    private static void WriteSpellDoc(Utf8JsonWriter w, string category, Spell s)
+    private void WriteSpellDoc(Utf8JsonWriter w, string category, SpellDto s)
     {
-        WriteCommonDocStart(w, category, s);
+        var md = s.Effect is null ? string.Empty : string.Join("\n\n", s.Effect);
+        var html = _markdown.ToHtml(md);
+        WriteCommonDocStart(w, category, s, html, s.Src);
         w.WriteNumber("circle", s.Circle);
-        w.WriteString("circleType", s.CircleType);
         w.WriteString("school", s.School);
-        w.WriteBoolean("isRitual", s.IsRitual);
         w.WriteEndObject();
     }
 
-    private static void WriteTalentDoc(Utf8JsonWriter w, string category, Talent t)
+    private void WriteTalentDoc(Utf8JsonWriter w, string category, TalentDto t)
     {
-        WriteCommonDocStart(w, category, t);
-        w.WriteString("type", t.Type);
+        var extra = (t.Benefits is { Count: > 0 }) ? ("\n\n" + string.Join("\n", t.Benefits.Select(b => "* " + b))) : string.Empty;
+        var html = _markdown.ToHtml((t.Description ?? string.Empty) + extra);
+        WriteCommonDocStart(w, category, t, html, t.Src);
+        w.WriteString("type", t.Category);
         w.WriteEndObject();
     }
 
-    private static void WriteBackgroundDoc(Utf8JsonWriter w, string category, Background b)
+    private void WriteBackgroundDoc(Utf8JsonWriter w, string category, BackgroundDto b)
     {
-        WriteCommonDocStart(w, category, b);
+        var html = _markdown.ToHtml(b.Description ?? string.Empty);
+        WriteCommonDocStart(w, category, b, html, b.Src);
         w.WriteEndObject();
     }
 
-    private static void WriteClassDoc(Utf8JsonWriter w, string category, Class c)
+    private void WriteClassDoc(Utf8JsonWriter w, string category, ClassDto c)
     {
-        WriteCommonDocStart(w, category, c);
+        var html = _markdown.ToHtml(c.Description ?? string.Empty);
+        WriteCommonDocStart(w, category, c, html, c.Src);
         w.WriteEndObject();
     }
 
-    private static void WriteLineageDoc(Utf8JsonWriter w, string category, Lineage l)
+    private void WriteLineageDoc(Utf8JsonWriter w, string category, LineageDto l)
     {
-        WriteCommonDocStart(w, category, l);
+        var md = (l.Traits is null) ? string.Empty : string.Join("\n\n", l.Traits.Select(t => $"#### {t.Name}\n\n{t.Description}"));
+        var html = _markdown.ToHtml(md);
+        WriteCommonDocStart(w, category, l, html, l.Src);
         w.WriteEndObject();
     }
 }
-

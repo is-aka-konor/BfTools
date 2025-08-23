@@ -43,7 +43,7 @@ public class GenerationIntegrationTests
         var dist2 = Path.Combine(Path.GetTempPath(), "bfdist2-" + Guid.NewGuid().ToString("N"));
         try
         {
-            var bundler = new SiteBundler(new ContentReader(new MarkdownRenderer()));
+            var bundler = new SiteBundler(new ContentReader());
             var res1 = bundler.Build(mini, dist1);
 
             // Assert manifest and bundle files exist
@@ -59,11 +59,11 @@ public class GenerationIntegrationTests
 
             // Mutate the spell file to trigger only spells changes
             var spellPath = Directory.EnumerateFiles(Path.Combine(mini, "data", "spells"), "*.json").First();
-            // Mutate content semantically so canonical hash changes: tweak descriptionMd
+            // Mutate content semantically so canonical hash changes: tweak school
             var txt = File.ReadAllText(spellPath);
             var node = System.Text.Json.Nodes.JsonNode.Parse(txt)!.AsObject();
-            var md = node["descriptionMd"]?.GetValue<string>() ?? string.Empty;
-            node["descriptionMd"] = md + " ";
+            var school = node["school"]?.GetValue<string>() ?? string.Empty;
+            node["school"] = school + " ";
             File.WriteAllText(spellPath, node.ToJsonString(new JsonSerializerOptions { WriteIndented = false }));
 
             var res2 = bundler.Build(mini, dist2);

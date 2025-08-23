@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using BfSiteGen.Core.Models;
+using BfCommon.Domain.Models;
 
 namespace BfSiteGen.Core.Publishing;
 
@@ -41,79 +41,207 @@ public static class CanonicalJson
         return ms.ToArray();
     }
 
-    public static void WriteCanonicalSpell(Utf8JsonWriter w, Spell s)
+    public static void WriteCanonicalSpell(Utf8JsonWriter w, SpellDto s)
     {
-        // Properties written in lexicographic order of property names
         w.WriteStartObject();
         w.WriteNumber("circle", s.Circle);
-        w.WriteString("circleType", s.CircleType);
-        w.WriteString("descriptionHtml", s.DescriptionHtml);
-        w.WriteString("descriptionMd", s.DescriptionMd);
-        w.WriteBoolean("isRitual", s.IsRitual);
+        w.WriteString("castingTime", s.CastingTime);
+        w.WriteString("components", s.Components);
+        if (s.Circles is { Count: > 0 })
+        {
+            w.WritePropertyName("circles");
+            w.WriteStartArray();
+            foreach (var c in s.Circles) w.WriteStringValue(c);
+            w.WriteEndArray();
+        }
+        if (s.Effect is { Count: > 0 })
+        {
+            w.WritePropertyName("effect");
+            w.WriteStartArray();
+            foreach (var e in s.Effect) w.WriteStringValue(e);
+            w.WriteEndArray();
+        }
+        w.WriteString("duration", s.Duration);
         w.WriteString("name", s.Name);
+        w.WriteString("range", s.Range);
         w.WriteString("school", s.School);
         w.WriteString("slug", s.Slug);
-        WriteSources(w, s.Sources);
+        WriteSrc(w, s.Src);
         w.WriteEndObject();
     }
 
-    public static void WriteCanonicalTalent(Utf8JsonWriter w, Talent t)
+    public static void WriteCanonicalTalent(Utf8JsonWriter w, TalentDto t)
     {
         w.WriteStartObject();
-        w.WriteString("descriptionHtml", t.DescriptionHtml);
-        w.WriteString("descriptionMd", t.DescriptionMd);
+        if (t.Benefits is { Count: > 0 })
+        {
+            w.WritePropertyName("benefits");
+            w.WriteStartArray();
+            foreach (var b in t.Benefits) w.WriteStringValue(b);
+            w.WriteEndArray();
+        }
+        w.WriteString("category", t.Category);
+        w.WriteString("description", t.Description);
         w.WriteString("name", t.Name);
         w.WriteString("slug", t.Slug);
-        WriteSources(w, t.Sources);
-        w.WriteString("type", t.Type);
+        w.WriteString("requirement", t.Requirement);
+        WriteSrc(w, t.Src);
         w.WriteEndObject();
     }
 
-    public static void WriteCanonicalBackground(Utf8JsonWriter w, Background b)
+    public static void WriteCanonicalBackground(Utf8JsonWriter w, BackgroundDto b)
     {
         w.WriteStartObject();
-        w.WriteString("descriptionHtml", b.DescriptionHtml);
-        w.WriteString("descriptionMd", b.DescriptionMd);
+        if (b.Description is not null) w.WriteString("description", b.Description);
         w.WriteString("name", b.Name);
         w.WriteString("slug", b.Slug);
-        WriteSources(w, b.Sources);
+        // skills
+        w.WritePropertyName("skillProficiencies");
+        WriteSkillsPick(w, b.SkillProficiencies);
+        w.WritePropertyName("toolProficiencies");
+        WriteSkillsPick(w, b.ToolProficiencies);
+        w.WritePropertyName("languages");
+        WriteSkillsPick(w, b.Languages);
+        if (b.Equipment is { Count: > 0 })
+        {
+            w.WritePropertyName("equipment");
+            w.WriteStartArray();
+            foreach (var e in b.Equipment) w.WriteStringValue(e);
+            w.WriteEndArray();
+        }
+        if (b.Additional is { Count: > 0 })
+        {
+            w.WritePropertyName("additional");
+            w.WriteStartArray();
+            foreach (var e in b.Additional) w.WriteStringValue(e);
+            w.WriteEndArray();
+        }
+        w.WritePropertyName("talentOptions");
+        w.WriteStartObject();
+        w.WriteNumber("choose", b.TalentOptions.Choose);
+        w.WritePropertyName("from");
+        w.WriteStartArray();
+        foreach (var f in b.TalentOptions.From) w.WriteStringValue(f);
+        w.WriteEndArray();
+        w.WriteEndObject();
+        if (b.TalentDescription is not null) w.WriteString("talentDescription", b.TalentDescription);
+        if (b.Concept is not null) w.WriteString("concept", b.Concept);
+        WriteSrc(w, b.Src);
         w.WriteEndObject();
     }
 
-    public static void WriteCanonicalClass(Utf8JsonWriter w, Class c)
+    private static void WriteSkillsPick(Utf8JsonWriter w, SkillsPickDto s)
     {
         w.WriteStartObject();
-        w.WriteString("descriptionHtml", c.DescriptionHtml);
-        w.WriteString("descriptionMd", c.DescriptionMd);
+        w.WritePropertyName("granted");
+        w.WriteStartArray(); foreach (var g in s.Granted) w.WriteStringValue(g); w.WriteEndArray();
+        if (s.Choose.HasValue) w.WriteNumber("choose", s.Choose.Value);
+        w.WritePropertyName("from");
+        w.WriteStartArray(); foreach (var g in s.From) w.WriteStringValue(g); w.WriteEndArray();
+        w.WriteEndObject();
+    }
+
+    public static void WriteCanonicalClass(Utf8JsonWriter w, ClassDto c)
+    {
+        w.WriteStartObject();
+        if (c.Description is not null) w.WriteString("description", c.Description);
         w.WriteString("name", c.Name);
         w.WriteString("slug", c.Slug);
-        WriteSources(w, c.Sources);
+        w.WriteString("hitDie", c.HitDie);
+        if (c.SavingThrows is { Count: > 0 })
+        {
+            w.WritePropertyName("savingThrows");
+            w.WriteStartArray();
+            foreach (var s in c.SavingThrows) w.WriteStringValue(s);
+            w.WriteEndArray();
+        }
+        if (c.PrimaryAbilities is { Count: > 0 })
+        {
+            w.WritePropertyName("primaryAbilities");
+            w.WriteStartArray();
+            foreach (var s in c.PrimaryAbilities) w.WriteStringValue(s);
+            w.WriteEndArray();
+        }
+        w.WritePropertyName("proficiencies");
+        w.WriteStartObject();
+        w.WritePropertyName("skills");
+        WriteSkillsPick(w, c.Proficiencies.Skills);
+        w.WritePropertyName("armor");
+        w.WriteStartArray(); foreach (var a in c.Proficiencies.Armor) w.WriteStringValue(a); w.WriteEndArray();
+        w.WritePropertyName("weapons");
+        w.WriteStartArray(); foreach (var a in c.Proficiencies.Weapons) w.WriteStringValue(a); w.WriteEndArray();
+        w.WritePropertyName("tools");
+        w.WriteStartArray(); foreach (var a in c.Proficiencies.Tools) w.WriteStringValue(a); w.WriteEndArray();
+        w.WriteEndObject();
+        w.WritePropertyName("startingEquipment");
+        w.WriteStartObject();
+        w.WritePropertyName("items");
+        w.WriteStartArray(); foreach (var it in c.StartingEquipment.Items) w.WriteStringValue(it); w.WriteEndArray();
+        w.WriteEndObject();
+        if (c.Levels is { Count: > 0 })
+        {
+            w.WritePropertyName("levels");
+            w.WriteStartArray();
+            foreach (var lv in c.Levels)
+            {
+                w.WriteStartObject();
+                w.WriteNumber("level", lv.Level);
+                w.WriteString("proficiencyBonus", lv.ProficiencyBonus);
+                if (lv.SpellSlots is { Count: > 0 })
+                {
+                    w.WritePropertyName("spellSlots");
+                    w.WriteStartObject();
+                    foreach (var kv in lv.SpellSlots.OrderBy(k => k.Key))
+                        w.WriteNumber(kv.Key.ToString(), kv.Value);
+                    w.WriteEndObject();
+                }
+                w.WritePropertyName("features");
+                w.WriteStartArray(); foreach (var f in lv.Features) w.WriteStringValue(f); w.WriteEndArray();
+                w.WriteEndObject();
+            }
+            w.WriteEndArray();
+        }
+        if (c.Features is { Count: > 0 }) { w.WritePropertyName("features"); w.WriteStartArray(); foreach (var f in c.Features) w.WriteStringValue(f); w.WriteEndArray(); }
+        if (c.Subclasses is { Count: > 0 }) { w.WritePropertyName("subclasses"); w.WriteStartArray(); foreach (var f in c.Subclasses) w.WriteStringValue(f); w.WriteEndArray(); }
+        WriteSrc(w, c.Src);
         w.WriteEndObject();
     }
 
-    public static void WriteCanonicalLineage(Utf8JsonWriter w, Lineage l)
+    public static void WriteCanonicalLineage(Utf8JsonWriter w, LineageDto l)
     {
         w.WriteStartObject();
-        w.WriteString("descriptionHtml", l.DescriptionHtml);
-        w.WriteString("descriptionMd", l.DescriptionMd);
+        w.WriteString("size", l.Size);
+        w.WriteNumber("speed", l.Speed);
+        if (l.Traits is { Count: > 0 })
+        {
+            w.WritePropertyName("traits");
+            w.WriteStartArray();
+            foreach (var t in l.Traits)
+            {
+                w.WriteStartObject();
+                w.WriteString("name", t.Name);
+                w.WriteString("description", t.Description);
+                w.WriteEndObject();
+            }
+            w.WriteEndArray();
+        }
         w.WriteString("name", l.Name);
         w.WriteString("slug", l.Slug);
-        WriteSources(w, l.Sources);
+        WriteSrc(w, l.Src);
         w.WriteEndObject();
     }
 
-    private static void WriteSources(Utf8JsonWriter w, List<SourceRef> sources)
+    private static void WriteSrc(Utf8JsonWriter w, SourceRef src)
     {
-        w.WritePropertyName("sources");
-        w.WriteStartArray();
-        foreach (var s in sources.OrderBy(x => x.Abbr, StringComparer.Ordinal).ThenBy(x => x.Name, StringComparer.Ordinal))
-        {
-            w.WriteStartObject();
-            w.WriteString("abbr", s.Abbr);
-            w.WriteString("name", s.Name);
-            w.WriteEndObject();
-        }
-        w.WriteEndArray();
+        w.WritePropertyName("src");
+        w.WriteStartObject();
+        w.WriteString("abbr", src.Abbr);
+        w.WriteString("name", src.Name);
+        if (!string.IsNullOrEmpty(src.Version)) w.WriteString("version", src.Version);
+        if (!string.IsNullOrEmpty(src.Url)) w.WriteString("url", src.Url);
+        if (!string.IsNullOrEmpty(src.License)) w.WriteString("license", src.License);
+        if (!string.IsNullOrEmpty(src.Hash)) w.WriteString("hash", src.Hash);
+        w.WriteEndObject();
     }
 
     public static string Sha256Hex(byte[] bytes)
