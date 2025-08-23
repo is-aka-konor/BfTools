@@ -28,6 +28,15 @@ public class BundlerTests
             // Data files exist
             var talentsEntry = res.Categories["talents"]; Assert.True(File.Exists(Path.Combine(dist, "data", $"talents-{talentsEntry.hash}.json")));
             var spellsEntry = res.Categories["spells"]; Assert.True(File.Exists(Path.Combine(dist, "data", $"spells-{spellsEntry.hash}.json")));
+            // Bundles contain descriptionHtml generated at write-time
+            var talentsJson = File.ReadAllText(Path.Combine(dist, "data", $"talents-{talentsEntry.hash}.json"));
+            using (var td = JsonDocument.Parse(talentsJson))
+            {
+                var arr = td.RootElement;
+                Assert.True(arr.ValueKind == JsonValueKind.Array && arr.GetArrayLength() >= 1);
+                var first = arr.EnumerateArray().First();
+                Assert.True(first.TryGetProperty("descriptionHtml", out var dh) && !string.IsNullOrWhiteSpace(dh.GetString()));
+            }
             // Index files exist
             var talentsIdx = res.Indexes["talents"]; Assert.True(File.Exists(Path.Combine(dist, "index", $"talents-{talentsIdx.hash}.minisearch.json")));
             // Manifest has categories
