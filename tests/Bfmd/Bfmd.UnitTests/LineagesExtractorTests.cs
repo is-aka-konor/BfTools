@@ -36,6 +36,19 @@ public class LineagesExtractorTests
         Assert.Contains("Птичьи", adapt.Description);
     }
 
+    [Fact]
+    public void LineagesExtractor_ShouldPopulateDescription_WithFullMarkdown()
+    {
+        var (content, doc, map, repo) = Load();
+        var list = LineagesExtractor.ParseLineages(doc, content, map, Path.Combine(repo, "input", "lineages", "lineage.md")).ToList();
+        Assert.True(list.Count > 0);
+        foreach (var lin in list)
+        {
+            Assert.False(string.IsNullOrWhiteSpace(lin.Description));
+            Assert.Equal(content, lin.Description);
+        }
+    }
+
     private static string FindRepoRoot()
     {
         var dir = Directory.GetCurrentDirectory();

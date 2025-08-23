@@ -140,4 +140,27 @@ public class SpellsExtractorTests
         Assert.True(effect.Count >= 1);
         Assert.StartsWith("Ваша молитва", effect[0]);
     }
+
+    [Fact]
+    public void Extract_ShouldPopulateDescription_WithFullMarkdown()
+    {
+        var content = string.Join('\n', new[]
+        {
+            "## Божественное благоволение (Divine Favor)",
+            "- **Уровень**: **1-й круг, Божественное (Воплощение)** / 1st-Circle Divine (Evocation)",
+            "- **Время накладывания:** 1 бонусное действие",
+            "- **Дистанция:** На себя",
+            "- **Компоненты:** В, С",
+            "- **Длительность:** Концентрация, до 1 минуты",
+            "- **Эффект**: Ваша молитва наделяет вас божественным сиянием..."
+        });
+        var doc = Markdown.Parse(content);
+        var tuple = (path: "spells_test.md", content, doc, sha256: "sha");
+        var src = new Bfmd.Core.Config.SourceItem { Abbr = "BFRD", Name = "Black Flag", InputRoot = "/" };
+        var map = new Bfmd.Core.Config.MappingConfig();
+
+        var list = new SpellsExtractor().Extract(new[] { tuple }, src, map).ToList();
+        Assert.Single(list);
+        Assert.Equal(content, list[0].Description);
+    }
 }

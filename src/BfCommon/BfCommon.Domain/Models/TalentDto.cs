@@ -16,9 +16,4 @@ public class TalentDto : BaseEntity
     /// Full list of parsed bullet-point features (advantages, mechanics).
     /// </summary>
     public List<string> Benefits { get; init; } = new();
-
-    /// <summary>
-    /// Full raw markdown block of the talent (for rendering in the UI).
-    /// </summary>
-    public string Description { get; init; } = string.Empty;
 }

@@ -2,7 +2,6 @@ namespace BfCommon.Domain.Models;
 
 public class ClassDto : BaseEntity
 {
-    public string? Description { get; set; }
     public string HitDie { get; set; } = string.Empty;
     public List<string> SavingThrows { get; set; } = new();
     public List<string>? PrimaryAbilities { get; set; }

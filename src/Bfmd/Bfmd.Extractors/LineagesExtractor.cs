@@ -39,6 +39,7 @@ public class LineagesExtractor : IExtractor
                 Size = string.Empty,
                 Speed = 0,
                 Traits = new List<TraitDto>(),
+                Description = content,
                 SourceFile = sourcePath
             };
 

@@ -2,7 +2,6 @@ namespace BfCommon.Domain.Models;
 
 public class BackgroundDto : BaseEntity
 {
-    public string? Description { get; set; }
     public SkillsPickDto SkillProficiencies { get; set; } = new();
     public SkillsPickDto ToolProficiencies { get; set; } = new();
     public SkillsPickDto Languages { get; set; } = new();

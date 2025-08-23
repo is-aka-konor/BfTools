@@ -11,7 +11,7 @@ public class SpellsExtractor : IExtractor
 {
     public IEnumerable<BaseEntity> Extract(IEnumerable<(string path, string content, MarkdownDocument doc, string sha256)> docs, SourceItem src, MappingConfig map)
     {
-        foreach (var (path, _, doc, _) in docs)
+        foreach (var (path, content, doc, _) in docs)
         {
             // Only process files starting with spells_
             var file = Path.GetFileName(path);
@@ -43,6 +43,7 @@ public class SpellsExtractor : IExtractor
                     Components = components,
                     Duration = duration,
                     Effect = effect,
+                    Description = content,
                     SourceFile = path
                 };
             }
