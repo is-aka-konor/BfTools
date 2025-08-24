@@ -35,10 +35,23 @@ public class ContentReaderTests
             name = "Sample Spell",
             circle = 1,
             school = "Evocation",
+            description = "Spell md",
             effect = new[] { "Boom" },
             src = new { abbr = "BFRD", name = "Black Flag Reference Document" }
         };
         File.WriteAllText(Path.Combine(spellsDir, "spell.json"), JsonSerializer.Serialize(spell));
+
+        // Invalid spell missing circle
+        var badSpell = new
+        {
+            slug = "bad-spell",
+            name = "Bad Spell",
+            school = "Evocation",
+            description = "Bad md",
+            effect = new[] { "Fizz" },
+            src = new { abbr = "BFRD", name = "Black Flag Reference Document" }
+        };
+        File.WriteAllText(Path.Combine(spellsDir, "bad.json"), JsonSerializer.Serialize(badSpell));
 
         var reader = new ContentReader();
 
@@ -47,7 +60,7 @@ public class ContentReaderTests
 
         // Assert
         Assert.Single(result.Talents);
-        Assert.Single(result.Spells);
-        Assert.Empty(result.Errors);
+        Assert.Equal(2, result.Spells.Count);
+        Assert.Contains(result.Errors, e => e.Category == "spells" && e.Field == "circle" && e.Slug == "bad-spell");
     }
 }

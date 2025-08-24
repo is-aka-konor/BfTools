@@ -5,6 +5,7 @@ import { searchService } from '../data/searchService';
 @customElement('search-modal')
 export class SearchModal extends LitElement {
   static styles = css`:host{display:block}`;
+  protected createRenderRoot() { return this; }
   static properties = {
     open: { type: Boolean, reflect: true },
     q: { state: true },

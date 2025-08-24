@@ -5,6 +5,7 @@ import './SourceTag';
 @customElement('item-card')
 export class ItemCard extends LitElement {
   static styles = css`:host{display:block}`;
+  protected createRenderRoot() { return this; }
   static properties = {
     name: { type: String },
     slug: { type: String },
@@ -51,4 +52,3 @@ export class ItemCard extends LitElement {
       </button>`;
   }
 }
-

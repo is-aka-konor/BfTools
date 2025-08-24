@@ -6,24 +6,25 @@ const fixtures = (p: string) => path.join(process.cwd(), 'tests', 'fixtures', p)
 
 test.describe('Core Journeys', () => {
   test('filters, search, offline, update flow, deep links', async ({ page, context, baseURL }) => {
-    // Intercept manifest/data/index to serve from fixtures, to enable update swapping later
+    // Intercept manifest/data/index to serve from real dist-site; swap manifest later to alt
+    const rootDist = path.join(process.cwd(), '..', '..', 'dist-site');
     let manifestMode: 'primary'|'alt' = 'primary';
-    await page.route('**/dist-site/site-manifest.json', async (route) => {
-      const file = manifestMode === 'primary' ? fixtures('site-manifest.json') : fixtures('site-manifest-alt.json');
+    await page.route('**/site-manifest.json', async (route) => {
+      const file = manifestMode === 'primary' ? path.join(rootDist, 'site-manifest.json') : fixtures('site-manifest-alt.json');
       const body = fs.readFileSync(file, 'utf-8');
       await route.fulfill({ body, contentType: 'application/json' });
     });
-    await page.route('**/dist-site/data/*', async (route) => {
+    await page.route('**/data/*', async (route) => {
       const url = new URL(route.request().url());
       const name = path.basename(url.pathname);
-      const file = fixtures(path.join('data', name));
+      const file = path.join(rootDist, 'data', name);
       const body = fs.readFileSync(file, 'utf-8');
       await route.fulfill({ body, contentType: 'application/json' });
     });
-    await page.route('**/dist-site/index/*', async (route) => {
+    await page.route('**/index/*', async (route) => {
       const url = new URL(route.request().url());
       const name = path.basename(url.pathname);
-      const file = fixtures(path.join('index', name));
+      const file = path.join(rootDist, 'index', name);
       const body = fs.readFileSync(file, 'utf-8');
       await route.fulfill({ body, contentType: 'application/json' });
     });
@@ -31,7 +32,7 @@ test.describe('Core Journeys', () => {
     // First run
     await page.goto(baseURL!);
     // Wait for manifest to be requested and fulfilled (mocked route)
-    await page.waitForResponse((resp) => resp.url().includes('/dist-site/site-manifest.json'));
+    await page.waitForResponse((resp) => resp.url().includes('/site-manifest.json'));
     // Tiles present
     await expect(page.getByRole('heading', { name: 'Home' })).toBeVisible();
     await expect(page.locator('a[href="/spells"] .badge')).toBeVisible({ timeout: 15000 });

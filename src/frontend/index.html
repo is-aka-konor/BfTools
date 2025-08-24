@@ -1,11 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BfSiteGen</title>
+    <!-- Ensure relative asset URLs resolve from the site root on deep routes -->
+    <base href="/" />
   </head>
-  <body data-theme="totv">
+  <body>
     <div id="app" class="min-h-screen">
       <app-root></app-root>
     </div>

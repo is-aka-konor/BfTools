@@ -3,7 +3,7 @@ import { db } from './db';
 
 export type SearchDoc = {
   name: string;
-  descriptionHtml?: string;
+  description?: string;
   slug: string;
   category: string;
   sources?: Array<{ abbr: string; name: string }>;
@@ -21,7 +21,7 @@ class SearchService {
   async ensureReady(): Promise<void> {
     if (this.ready && this.ms) return;
     const active = (await db.meta.get('active'))?.value as Record<string, { indexHash?: string }> | undefined;
-    if (!active) { this.ms = new MiniSearch({ fields: ['name', 'descriptionHtml'] }); this.ready = true; return; }
+    if (!active) { this.ms = new MiniSearch({ fields: ['name', 'description'] }); this.ready = true; return; }
 
     const docs: SearchDoc[] = [];
     for (const [cat, { indexHash }] of Object.entries(active)) {
@@ -33,7 +33,7 @@ class SearchService {
     }
 
     const ms = new MiniSearch<SearchDoc>({
-      fields: ['name', 'descriptionHtml'],
+      fields: ['name', 'description'],
       storeFields: ['slug', 'category', 'sources', 'circle', 'circleType', 'school', 'isRitual', 'type', 'name'],
       idField: 'id'
     });
@@ -46,7 +46,7 @@ class SearchService {
   async search(query: string): Promise<Array<{ doc: SearchDoc; score: number }>> {
     await this.ensureReady();
     if (!this.ms || !query.trim()) return [];
-    const results = this.ms.search(query, { boost: { name: 3, descriptionHtml: 1 }, fuzzy: 0.2, prefix: true, combineWith: 'AND' });
+    const results = this.ms.search(query, { boost: { name: 3, description: 1 }, fuzzy: 0.2, prefix: true, combineWith: 'AND' });
     return results.map(r => ({ doc: r as unknown as SearchDoc, score: r.score ?? 0 }));
   }
 }

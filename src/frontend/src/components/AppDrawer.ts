@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators.js';
 @customElement('app-drawer')
 export class AppDrawer extends LitElement {
   static styles = css`:host{display:block}`;
+  protected createRenderRoot() { return this; }
 
   render() {
     return html`
@@ -30,4 +31,3 @@ export class AppDrawer extends LitElement {
       </div>`;
   }
 }
-

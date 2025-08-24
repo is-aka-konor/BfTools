@@ -4,7 +4,7 @@ import { db } from './db';
 export interface SearchDoc {
   id?: string;
   name: string;
-  descriptionHtml?: string;
+  description?: string;
   slug: string;
   category: string;
   sources?: Array<{ abbr: string; name: string }>;
@@ -32,7 +32,7 @@ export async function searchAll(query: string, opts?: { fuzzy?: boolean; combine
   if (docs.length === 0) return [];
 
   const ms = new MiniSearch<SearchDoc>({
-    fields: ['name', 'descriptionHtml'],
+    fields: ['name', 'description'],
     storeFields: ['slug', 'category', 'sources', 'circle', 'circleType', 'school', 'isRitual', 'type', 'name'],
     idField: 'id'
   });
@@ -40,7 +40,7 @@ export async function searchAll(query: string, opts?: { fuzzy?: boolean; combine
   ms.addAll(prepared);
   const fuzzyOpt: false | number = opts?.fuzzy === false ? false : 0.2;
   let results = ms.search(query, {
-    boost: { name: 3, descriptionHtml: 1 },
+    boost: { name: 3, description: 1 },
     fuzzy: fuzzyOpt,
     combineWith: opts?.combineWith ?? 'AND',
     // When fuzzy search is on, disable prefix to avoid conflicts; otherwise enable prefix for snappy partials
@@ -90,7 +90,7 @@ export async function searchAll(query: string, opts?: { fuzzy?: boolean; combine
     const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
     const strip = (s?: string) => (s ?? '').replace(/<[^>]*>/g, ' ').toLowerCase();
     const filtered = mapped.filter(r => {
-      const hay = `${(r.doc.name ?? '').toLowerCase()} ${strip(r.doc.descriptionHtml)}`;
+      const hay = `${(r.doc.name ?? '').toLowerCase()} ${strip(r.doc.description)}`;
       return terms.every(t => hay.includes(t));
     });
     if (filtered.length > 0) return filtered;
@@ -98,7 +98,7 @@ export async function searchAll(query: string, opts?: { fuzzy?: boolean; combine
     const all = docs
       .map(d => ({ doc: d, score: 0 }))
       .filter(r => {
-        const hay = `${(r.doc.name ?? '').toLowerCase()} ${strip(r.doc.descriptionHtml)}`;
+        const hay = `${(r.doc.name ?? '').toLowerCase()} ${strip(r.doc.description)}`;
         return terms.every(t => hay.includes(t));
       });
     return all as any;

@@ -127,17 +127,15 @@ public sealed class BuildResult
 // Helpers for streaming, on-the-fly HTML generation
 partial class SiteBundler
 {
-    private static void WriteSrc(Utf8JsonWriter w, SourceRef src)
+    private static void WriteSources(Utf8JsonWriter w, SourceRef src)
     {
-        w.WritePropertyName("src");
+        w.WritePropertyName("sources");
+        w.WriteStartArray();
         w.WriteStartObject();
         w.WriteString("abbr", src.Abbr);
         w.WriteString("name", src.Name);
-        if (!string.IsNullOrEmpty(src.Version)) w.WriteString("version", src.Version);
-        if (!string.IsNullOrEmpty(src.Url)) w.WriteString("url", src.Url);
-        if (!string.IsNullOrEmpty(src.License)) w.WriteString("license", src.License);
-        if (!string.IsNullOrEmpty(src.Hash)) w.WriteString("hash", src.Hash);
         w.WriteEndObject();
+        w.WriteEndArray();
     }
 
     private (string hash, int count) WriteCategory<T>(string dataDir, string category, IReadOnlyList<T> items, Action<Utf8JsonWriter, T> writeItem)
@@ -147,7 +145,7 @@ partial class SiteBundler
         var tmp = Path.Combine(dataDir, $"{category}-tmp-{Guid.NewGuid():N}.json");
 
         using (var fs = File.Create(tmp))
-        using (var w = new Utf8JsonWriter(fs, new JsonWriterOptions { Indented = false, SkipValidation = false }))
+        using (var w = new Utf8JsonWriter(fs, new JsonWriterOptions { Indented = false, SkipValidation = false, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }))
         {
             w.WriteStartArray();
             foreach (var it in items)
@@ -177,27 +175,19 @@ partial class SiteBundler
     {
         var r = new MarkdownRenderer();
         w.WriteStartObject();
-        w.WriteNumber("circle", s.Circle);
-        w.WriteString("school", s.School);
+        // Alphabetical order of properties
         w.WriteString("castingTime", s.CastingTime);
-        w.WriteString("range", s.Range);
-        w.WriteString("components", s.Components);
-        w.WriteString("duration", s.Duration);
+        w.WriteNumber("circle", s.Circle);
         if (s.Circles is { Count: > 0 }) { w.WritePropertyName("circles"); w.WriteStartArray(); foreach (var c in s.Circles) w.WriteStringValue(c); w.WriteEndArray(); }
+        w.WriteString("components", s.Components);
+        w.WriteString("description", s.ToHtml(r));
+        w.WriteString("duration", s.Duration);
         if (s.Effect is { Count: > 0 }) { w.WritePropertyName("effect"); w.WriteStartArray(); foreach (var e in s.Effect) w.WriteStringValue(e); w.WriteEndArray(); }
-
-        // Rendered HTML from structured Effect or fallback Description
-        w.WriteString("descriptionHtml", s.ToHtml(r));
-
-        // Common
-        w.WriteString("type", s.Type);
-        w.WriteString("id", s.Id);
-        w.WriteString("slug", s.Slug);
         w.WriteString("name", s.Name);
-        w.WriteString("schemaVersion", s.SchemaVersion);
-        WriteSrc(w, s.Src);
-        if (!string.IsNullOrWhiteSpace(s.Summary)) w.WriteString("summary", s.Summary);
-        if (!string.IsNullOrWhiteSpace(s.SourceFile)) w.WriteString("sourceFile", s.SourceFile);
+        w.WriteString("range", s.Range);
+        w.WriteString("school", s.School);
+        w.WriteString("slug", s.Slug);
+        WriteSources(w, s.Src);
         w.WriteEndObject();
     }
 
@@ -205,21 +195,13 @@ partial class SiteBundler
     {
         var r = new MarkdownRenderer();
         w.WriteStartObject();
-        // Rendered HTML from description + benefits
-        w.WriteString("descriptionHtml", t.ToHtml(r));
-        // Talent-specific fields
-        if (!string.IsNullOrWhiteSpace(t.Category)) w.WriteString("category", t.Category);
-        if (!string.IsNullOrWhiteSpace(t.Requirement)) w.WriteString("requirement", t.Requirement);
         if (t.Benefits is { Count: > 0 }) { w.WritePropertyName("benefits"); w.WriteStartArray(); foreach (var b in t.Benefits) w.WriteStringValue(b); w.WriteEndArray(); }
-        // Common
-        w.WriteString("type", t.Type);
-        w.WriteString("id", t.Id);
-        w.WriteString("slug", t.Slug);
+        if (!string.IsNullOrWhiteSpace(t.Category)) w.WriteString("category", t.Category);
+        w.WriteString("description", t.ToHtml(r));
         w.WriteString("name", t.Name);
-        w.WriteString("schemaVersion", t.SchemaVersion);
-        WriteSrc(w, t.Src);
-        if (!string.IsNullOrWhiteSpace(t.Summary)) w.WriteString("summary", t.Summary);
-        if (!string.IsNullOrWhiteSpace(t.SourceFile)) w.WriteString("sourceFile", t.SourceFile);
+        if (!string.IsNullOrWhiteSpace(t.Requirement)) w.WriteString("requirement", t.Requirement);
+        w.WriteString("slug", t.Slug);
+        WriteSources(w, t.Src);
         w.WriteEndObject();
     }
 
@@ -227,17 +209,44 @@ partial class SiteBundler
     {
         var r = new MarkdownRenderer();
         w.WriteStartObject();
-        w.WriteString("descriptionHtml", b.ToHtml(r));
-        // Keep DTO fields
-        if (!string.IsNullOrWhiteSpace(b.Description)) w.WriteString("description", b.Description);
-        w.WriteString("type", b.Type);
-        w.WriteString("id", b.Id);
-        w.WriteString("slug", b.Slug);
+        if (b.Additional is { Count: > 0 }) { w.WritePropertyName("additional"); w.WriteStartArray(); foreach (var a in b.Additional) w.WriteStringValue(a); w.WriteEndArray(); }
+        w.WriteString("description", b.ToHtml(r));
+        if (b.Equipment is { Count: > 0 }) { w.WritePropertyName("equipment"); w.WriteStartArray(); foreach (var a in b.Equipment) w.WriteStringValue(a); w.WriteEndArray(); }
+        // Languages object (granted/from)
+        w.WritePropertyName("languages");
+        w.WriteStartObject();
+        if (b.Languages.Granted is { Count: > 0 }) { w.WritePropertyName("granted"); w.WriteStartArray(); foreach (var g in b.Languages.Granted) w.WriteStringValue(g); w.WriteEndArray(); }
+        if (b.Languages.From is { Count: > 0 }) { w.WritePropertyName("from"); w.WriteStartArray(); foreach (var g in b.Languages.From) w.WriteStringValue(g); w.WriteEndArray(); }
+        if (b.Languages.Choose.HasValue) w.WriteNumber("choose", b.Languages.Choose.Value);
+        w.WriteEndObject();
         w.WriteString("name", b.Name);
-        w.WriteString("schemaVersion", b.SchemaVersion);
-        WriteSrc(w, b.Src);
-        if (!string.IsNullOrWhiteSpace(b.Summary)) w.WriteString("summary", b.Summary);
-        if (!string.IsNullOrWhiteSpace(b.SourceFile)) w.WriteString("sourceFile", b.SourceFile);
+        // Skills object
+        w.WritePropertyName("skillProficiencies");
+        w.WriteStartObject();
+        if (b.SkillProficiencies.Granted is { Count: > 0 }) { w.WritePropertyName("granted"); w.WriteStartArray(); foreach (var g in b.SkillProficiencies.Granted) w.WriteStringValue(g); w.WriteEndArray(); }
+        if (b.SkillProficiencies.From is { Count: > 0 }) { w.WritePropertyName("from"); w.WriteStartArray(); foreach (var g in b.SkillProficiencies.From) w.WriteStringValue(g); w.WriteEndArray(); }
+        if (b.SkillProficiencies.Choose.HasValue) w.WriteNumber("choose", b.SkillProficiencies.Choose.Value);
+        w.WriteEndObject();
+        w.WriteString("slug", b.Slug);
+        WriteSources(w, b.Src);
+        // TalentDescription rendered to HTML
+        if (!string.IsNullOrWhiteSpace(b.TalentDescription)) w.WriteString("talentDescription", r.RenderBlock(b.TalentDescription));
+        // Talent options
+        w.WritePropertyName("talentOptions");
+        w.WriteStartObject();
+        w.WriteNumber("choose", b.TalentOptions.Choose);
+        w.WritePropertyName("from"); w.WriteStartArray(); foreach (var f in b.TalentOptions.From) w.WriteStringValue(f); w.WriteEndArray();
+        w.WriteEndObject();
+        // toolProficiencies
+        if (b.ToolProficiencies is not null)
+        {
+            w.WritePropertyName("toolProficiencies");
+            w.WriteStartObject();
+            if (b.ToolProficiencies.Granted is { Count: > 0 }) { w.WritePropertyName("granted"); w.WriteStartArray(); foreach (var g in b.ToolProficiencies.Granted) w.WriteStringValue(g); w.WriteEndArray(); }
+            if (b.ToolProficiencies.From is { Count: > 0 }) { w.WritePropertyName("from"); w.WriteStartArray(); foreach (var g in b.ToolProficiencies.From) w.WriteStringValue(g); w.WriteEndArray(); }
+            if (b.ToolProficiencies.Choose.HasValue) w.WriteNumber("choose", b.ToolProficiencies.Choose.Value);
+            w.WriteEndObject();
+        }
         w.WriteEndObject();
     }
 
@@ -245,16 +254,53 @@ partial class SiteBundler
     {
         var r = new MarkdownRenderer();
         w.WriteStartObject();
-        w.WriteString("descriptionHtml", c.ToHtml(r));
-        if (!string.IsNullOrWhiteSpace(c.Description)) w.WriteString("description", c.Description);
-        w.WriteString("type", c.Type);
-        w.WriteString("id", c.Id);
-        w.WriteString("slug", c.Slug);
+        // Alphabetical properties
+        w.WriteString("description", c.ToHtml(r));
+        if (c.Features is { Count: > 0 }) { w.WritePropertyName("features"); w.WriteStartArray(); foreach (var f in c.Features) w.WriteStringValue(f); w.WriteEndArray(); }
+        w.WriteString("hitDie", c.HitDie);
+        if (c.Levels is { Count: > 0 })
+        {
+            w.WritePropertyName("levels");
+            w.WriteStartArray();
+            foreach (var lv in c.Levels)
+            {
+                w.WriteStartObject();
+                w.WriteNumber("level", lv.Level);
+                w.WriteString("proficiencyBonus", lv.ProficiencyBonus);
+                if (lv.SpellSlots is { Count: > 0 })
+                {
+                    w.WritePropertyName("slots");
+                    w.WriteStartObject();
+                    foreach (var kv in lv.SpellSlots.OrderBy(k => k.Key)) w.WriteNumber(kv.Key.ToString(), kv.Value);
+                    w.WriteEndObject();
+                }
+                if (lv.Features is { Count: > 0 }) { w.WritePropertyName("features"); w.WriteStartArray(); foreach (var f in lv.Features) w.WriteStringValue(f); w.WriteEndArray(); }
+                w.WriteEndObject();
+            }
+            w.WriteEndArray();
+        }
         w.WriteString("name", c.Name);
-        w.WriteString("schemaVersion", c.SchemaVersion);
-        WriteSrc(w, c.Src);
-        if (!string.IsNullOrWhiteSpace(c.Summary)) w.WriteString("summary", c.Summary);
-        if (!string.IsNullOrWhiteSpace(c.SourceFile)) w.WriteString("sourceFile", c.SourceFile);
+        if (c.PrimaryAbilities is { Count: > 0 }) { w.WritePropertyName("primaryAbilities"); w.WriteStartArray(); foreach (var a in c.PrimaryAbilities) w.WriteStringValue(a); w.WriteEndArray(); }
+        // Proficiencies
+        w.WritePropertyName("proficiencies");
+        w.WriteStartObject();
+        w.WritePropertyName("armor"); w.WriteStartArray(); foreach (var a in c.Proficiencies.Armor) w.WriteStringValue(a); w.WriteEndArray();
+        w.WritePropertyName("skills");
+        w.WriteStartObject();
+        if (c.Proficiencies.Skills.Granted is { Count: > 0 }) { w.WritePropertyName("granted"); w.WriteStartArray(); foreach (var g in c.Proficiencies.Skills.Granted) w.WriteStringValue(g); w.WriteEndArray(); }
+        if (c.Proficiencies.Skills.From is { Count: > 0 }) { w.WritePropertyName("from"); w.WriteStartArray(); foreach (var g in c.Proficiencies.Skills.From) w.WriteStringValue(g); w.WriteEndArray(); }
+        if (c.Proficiencies.Skills.Choose.HasValue) w.WriteNumber("choose", c.Proficiencies.Skills.Choose.Value);
+        w.WriteEndObject();
+        w.WritePropertyName("tools"); w.WriteStartArray(); foreach (var a in c.Proficiencies.Tools) w.WriteStringValue(a); w.WriteEndArray();
+        w.WritePropertyName("weapons"); w.WriteStartArray(); foreach (var a in c.Proficiencies.Weapons) w.WriteStringValue(a); w.WriteEndArray();
+        w.WriteEndObject();
+        // Saving throws
+        if (c.SavingThrows is { Count: > 0 }) { w.WritePropertyName("savingThrows"); w.WriteStartArray(); foreach (var s in c.SavingThrows) w.WriteStringValue(s); w.WriteEndArray(); }
+        w.WriteString("slug", c.Slug);
+        WriteSources(w, c.Src);
+        // startingEquipment as array
+        if (c.StartingEquipment.Items is { Count: > 0 }) { w.WritePropertyName("startingEquipment"); w.WriteStartArray(); foreach (var it in c.StartingEquipment.Items) w.WriteStringValue(it); w.WriteEndArray(); }
+        if (c.Subclasses is { Count: > 0 }) { w.WritePropertyName("subclasses"); w.WriteStartArray(); foreach (var s in c.Subclasses) w.WriteStringValue(s); w.WriteEndArray(); }
         w.WriteEndObject();
     }
 
@@ -262,8 +308,11 @@ partial class SiteBundler
     {
         var r = new MarkdownRenderer();
         w.WriteStartObject();
-        w.WriteString("descriptionHtml", l.ToHtml(r));
+        w.WriteString("description", l.ToHtml(r));
+        w.WriteString("name", l.Name);
         w.WriteString("size", l.Size);
+        w.WriteString("slug", l.Slug);
+        WriteSources(w, l.Src);
         w.WriteNumber("speed", l.Speed);
         if (l.Traits is { Count: > 0 })
         {
@@ -278,14 +327,6 @@ partial class SiteBundler
             }
             w.WriteEndArray();
         }
-        w.WriteString("type", l.Type);
-        w.WriteString("id", l.Id);
-        w.WriteString("slug", l.Slug);
-        w.WriteString("name", l.Name);
-        w.WriteString("schemaVersion", l.SchemaVersion);
-        WriteSrc(w, l.Src);
-        if (!string.IsNullOrWhiteSpace(l.Summary)) w.WriteString("summary", l.Summary);
-        if (!string.IsNullOrWhiteSpace(l.SourceFile)) w.WriteString("sourceFile", l.SourceFile);
         w.WriteEndObject();
     }
 }

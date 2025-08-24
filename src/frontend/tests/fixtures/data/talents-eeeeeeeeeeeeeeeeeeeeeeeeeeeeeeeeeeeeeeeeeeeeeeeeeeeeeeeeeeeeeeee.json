@@ -1,9 +1,8 @@
 [
-  {"slug":"keen-mind","name":"Keen Mind","descriptionMd":"","descriptionHtml":"<p>Memory.</p>","type":"Magical","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
-  {"slug":"heavy-arms","name":"Heavy Arms","descriptionMd":"","descriptionHtml":"<p>Big weapons.</p>","type":"Martial","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
-  {"slug":"swift-step","name":"Swift Step","descriptionMd":"","descriptionHtml":"<p>Speed.</p>","type":"Martial","sources":[{"abbr":"TC","name":"Tales Companion"}]},
-  {"slug":"mystic-ward","name":"Mystic Ward","descriptionMd":"","descriptionHtml":"<p>Shield.</p>","type":"Magical","sources":[{"abbr":"BF","name":"Black Flag Core"},{"abbr":"TC","name":"Tales Companion"}]},
-  {"slug":"sharp-shooter","name":"Sharp Shooter","descriptionMd":"","descriptionHtml":"<p>Aim.</p>","type":"Martial","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
-  {"slug":"arcane-apt","name":"Arcane Apt","descriptionMd":"","descriptionHtml":"<p>Study.</p>","type":"Magical","sources":[{"abbr":"TC","name":"Tales Companion"}]}
+  {"slug":"keen-mind","name":"Keen Mind","description":"<p>Memory.</p>","type":"Magical","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
+  {"slug":"heavy-arms","name":"Heavy Arms","description":"<p>Big weapons.</p>","type":"Martial","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
+  {"slug":"swift-step","name":"Swift Step","description":"<p>Speed.</p>","type":"Martial","sources":[{"abbr":"TC","name":"Tales Companion"}]},
+  {"slug":"mystic-ward","name":"Mystic Ward","description":"<p>Shield.</p>","type":"Magical","sources":[{"abbr":"BF","name":"Black Flag Core"},{"abbr":"TC","name":"Tales Companion"}]},
+  {"slug":"sharp-shooter","name":"Sharp Shooter","description":"<p>Aim.</p>","type":"Martial","sources":[{"abbr":"BF","name":"Black Flag Core"}]},
+  {"slug":"arcane-apt","name":"Arcane Apt","description":"<p>Study.</p>","type":"Magical","sources":[{"abbr":"TC","name":"Tales Companion"}]}
 ]
-

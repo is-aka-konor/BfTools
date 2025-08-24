@@ -17,7 +17,7 @@ public class MarkdownRendererTests
         var md = new MarkdownRenderer();
         var input = "# Title\n\n<script>alert('x')</script>Text with <b>bold</b> and *emphasis*.\n\n| H | I |\n|---|---|\n| 1 | 2 |";
 
-        var html = md.ToHtml(input);
+        var html = md.RenderBlock(input);
         _output.WriteLine(html);
 
         Assert.Contains("<h1", html);

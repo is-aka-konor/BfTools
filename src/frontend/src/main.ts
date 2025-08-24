@@ -9,6 +9,8 @@ import { getDataset, getBySlug, type Entry, type Talent } from './data/repo';
 import { searchAll } from './data/search';
 
 export class AppRoot extends LitElement {
+  // Render into light DOM so Tailwind/DaisyUI global styles apply
+  protected createRenderRoot() { return this; }
   static styles = css`
     :host { display: block; }
   `;
@@ -100,9 +102,10 @@ export class AppRoot extends LitElement {
     window.addEventListener('keydown', this.onKeydown);
 
     // Register service worker
-    if ('serviceWorker' in navigator) {
+    // Register service worker only in production build; in dev, /sw.js does not exist
+    if (import.meta.env.PROD && 'serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js');
+        navigator.serviceWorker.register('/sw.js', { type: 'module' });
       });
       navigator.serviceWorker.addEventListener('message', (event) => {
         if ((event.data as any)?.type === 'sw-updated') {
@@ -171,8 +174,7 @@ export class AppRoot extends LitElement {
       case 'talents': return shell('Talents', this.renderTalents());
       case 'lineages': return shell('Lineages', this.renderList('lineages'));
       case 'backgrounds': return shell('Backgrounds', this.renderList('backgrounds'));
-      case 'spells':
-        return shell('Spells', this.renderSpells());
+      case 'spells': return shell('Spells', this.renderSpells());
       case 'spell': return this.renderSpellDetail();
       case 'talent': return this.renderTalentDetail();
       case 'class': return this.renderDetail('classes');
@@ -233,7 +235,7 @@ export class AppRoot extends LitElement {
             ${item.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
           </div>
         </div>
-        <article class="prose max-w-none mt-4" .innerHTML=${item.descriptionHtml ?? ''}></article>
+        <article class="prose max-w-none mt-4" .innerHTML=${(item as any).description ?? ''}></article>
       </div>`;
   }
 
@@ -486,7 +488,8 @@ export class AppRoot extends LitElement {
 
     const selectedSrc = this.talentFilters.src;
     const filtered = items.filter(it => {
-      const typeOk = (this.talentFilters.magical && /magical/i.test((it as any).type)) || (this.talentFilters.martial && /martial/i.test((it as any).type));
+      const t = (it as any).type ?? (it as any).category;
+      const typeOk = (this.talentFilters.magical && /magical/i.test(t)) || (this.talentFilters.martial && /martial/i.test(t));
       const srcOk = selectedSrc.size === 0 || (it.sources?.some(s => selectedSrc.has(s.abbr)) ?? false);
       return typeOk && srcOk;
     });
@@ -559,7 +562,7 @@ export class AppRoot extends LitElement {
             ${item.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
           </div>
         </div>
-        <article class="prose max-w-none mt-4" .innerHTML=${item.descriptionHtml ?? ''}></article>
+        <article class="prose max-w-none mt-4" .innerHTML=${(item as any).description ?? ''}></article>
       </div>`;
   }
 
@@ -573,14 +576,14 @@ export class AppRoot extends LitElement {
             <h3 class="card-title m-0">${d.name}</h3>
             <span class="app-badge badge-sm">${d.category}</span>
           </div>
-          ${d.descriptionHtml ? html`<p class="line-clamp-2 opacity-80" .innerHTML=${d.descriptionHtml}></p>` : ''}
+          ${(d as any).description ? html`<p class="line-clamp-2 opacity-80" .innerHTML=${(d as any).description}></p>` : ''}
         </div>
       </a>`;
   }
 
   private async sync() {
     try {
-      const res = await syncContent('/dist-site');
+      const res = await syncContent();
       await this.loadCounts();
       // If we are on a detail route that relies on datasets, retry loading now that sync completed
       if (this.route.name === 'spell' && this.route.params?.slug && !this.currentItem) {
@@ -637,7 +640,7 @@ export class AppRoot extends LitElement {
             ${item.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
           </div>
         </div>
-        <article class="prose max-w-none mt-4" .innerHTML=${item.descriptionHtml ?? ''}></article>
+        <article class="prose max-w-none mt-4" .innerHTML=${(item as any).description ?? ''}></article>
       </div>`;
   }
 

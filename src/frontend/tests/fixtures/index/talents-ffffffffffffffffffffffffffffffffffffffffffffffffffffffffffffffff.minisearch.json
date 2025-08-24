@@ -1,12 +1,11 @@
 {
   "options": {
-    "fields": ["name","descriptionHtml"],
+    "fields": ["name","description"],
     "storeFields": ["slug","category","sources","type","name"],
-    "searchOptions": { "boost": { "name": 3, "descriptionHtml": 1 }, "fuzzy": 0.2 }
+    "searchOptions": { "boost": { "name": 3, "description": 1 }, "fuzzy": 0.2 }
   },
   "documents": [
-    {"name":"Keen Mind","descriptionHtml":"<p>Memory.</p>","slug":"keen-mind","category":"talents","sources":[{"abbr":"BF","name":"Black Flag Core"}],"type":"Magical"},
-    {"name":"Heavy Arms","descriptionHtml":"<p>Big weapons.</p>","slug":"heavy-arms","category":"talents","sources":[{"abbr":"BF","name":"Black Flag Core"}],"type":"Martial"}
+    {"name":"Keen Mind","description":"<p>Memory.</p>","slug":"keen-mind","category":"talents","sources":[{"abbr":"BF","name":"Black Flag Core"}],"type":"Magical"},
+    {"name":"Heavy Arms","description":"<p>Big weapons.</p>","slug":"heavy-arms","category":"talents","sources":[{"abbr":"BF","name":"Black Flag Core"}],"type":"Martial"}
   ]
 }
-

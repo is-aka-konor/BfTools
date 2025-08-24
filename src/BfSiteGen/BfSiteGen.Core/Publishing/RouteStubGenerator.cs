@@ -35,14 +35,37 @@ public static class RouteStubGenerator
         "    <title>BfTools</title>\n" +
         "    <script>\n" +
         "    (function(){\n" +
-        "      // Load main app assets from root index.html without changing the URL\n" +
-        "      fetch('/index.html').then(function(r){return r.text()}).then(function(txt){\n" +
-        "        var doc = new DOMParser().parseFromString(txt, 'text/html');\n" +
+        "      // Try to load app index.html from a list of candidate paths to support file:// and nested routes\n" +
+        "      var candidates = ['../../index.html','../index.html','index.html','/index.html'];\n" +
+        "      function tryNext(i){\n" +
+        "        if(i>=candidates.length){ console.error('Failed to locate app index.html'); return; }\n" +
+        "        fetch(candidates[i]).then(function(r){ if(!r.ok) throw new Error(r.status); return r.text().then(function(txt){ return { txt: txt, url: r.url }; }); }).then(function(payload){\n" +
+        "        var doc = new DOMParser().parseFromString(payload.txt, 'text/html');\n" +
+        "        var baseUrl = new URL(payload.url);\n" +
+        "        // Apply theme from the real index.html if present\n" +
+        "        var theme = (doc.documentElement && doc.documentElement.getAttribute('data-theme')) || (doc.body && doc.body.getAttribute('data-theme'));\n" +
+        "        if(theme && !document.documentElement.getAttribute('data-theme')) document.documentElement.setAttribute('data-theme', theme);\n" +
+        "        // Copy styles with absolute URLs resolved against the fetched index location\n" +
         "        var links = doc.querySelectorAll('link[rel=\\\'stylesheet\\\']');\n" +
-        "        links.forEach(function(l){ document.head.appendChild(l.cloneNode(true)); });\n" +
+        "        links.forEach(function(l){\n" +
+        "          var href = l.getAttribute('href'); if(!href) return;\n" +
+        "          var abs = new URL(href, baseUrl).toString();\n" +
+        "          var tag = document.createElement('link'); tag.rel='stylesheet'; tag.href=abs;\n" +
+        "          var cs = l.getAttribute('crossorigin'); if(cs) tag.setAttribute('crossorigin', cs);\n" +
+        "          document.head.appendChild(tag);\n" +
+        "        });\n" +
+        "        // Copy module scripts with absolute URLs\n" +
         "        var scripts = doc.querySelectorAll('script[type=\\\'module\\\']');\n" +
-        "        scripts.forEach(function(s){ var c=s.cloneNode(true); document.body.appendChild(c); });\n" +
-        "      }).catch(function(e){ console.error('Failed to bootstrap SPA from stub', e); });\n" +
+        "        scripts.forEach(function(s){\n" +
+        "          var src = s.getAttribute('src'); if(!src) return;\n" +
+        "          var abs = new URL(src, baseUrl).toString();\n" +
+        "          var tag = document.createElement('script'); tag.type='module'; tag.src=abs;\n" +
+        "          var cs = s.getAttribute('crossorigin'); if(cs) tag.setAttribute('crossorigin', cs);\n" +
+        "          document.body.appendChild(tag);\n" +
+        "        });\n" +
+        "      }).catch(function(){ tryNext(i+1); });\n" +
+        "      }\n" +
+        "      tryNext(0);\n" +
         "    })();\n" +
         "    </script>\n" +
         "  </head>\n" +
@@ -51,4 +74,3 @@ public static class RouteStubGenerator
         "  </body>\n" +
         "</html>\n";
 }
-

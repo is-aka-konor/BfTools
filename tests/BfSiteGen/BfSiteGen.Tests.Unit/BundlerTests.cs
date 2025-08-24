@@ -35,7 +35,8 @@ public class BundlerTests
                 var arr = td.RootElement;
                 Assert.True(arr.ValueKind == JsonValueKind.Array && arr.GetArrayLength() >= 1);
                 var first = arr.EnumerateArray().First();
-                Assert.True(first.TryGetProperty("descriptionHtml", out var dh) && !string.IsNullOrWhiteSpace(dh.GetString()));
+                Assert.True(first.TryGetProperty("description", out var dh) && !string.IsNullOrWhiteSpace(dh.GetString()));
+                Assert.True(first.TryGetProperty("sources", out var srcArr) && srcArr.ValueKind == JsonValueKind.Array);
             }
             // Index files exist
             var talentsIdx = res.Indexes["talents"]; Assert.True(File.Exists(Path.Combine(dist, "index", $"talents-{talentsIdx.hash}.minisearch.json")));
@@ -46,6 +47,11 @@ public class BundlerTests
             var root = doc.RootElement;
             Assert.True(root.GetProperty("categories").TryGetProperty("talents", out var tEl));
             Assert.Equal(2, tEl.GetProperty("count").GetInt32());
+            Assert.False(string.IsNullOrWhiteSpace(tEl.GetProperty("hash").GetString()));
+            Assert.False(string.IsNullOrWhiteSpace(tEl.GetProperty("indexHash").GetString()));
+            // Sources list present
+            var sources = root.GetProperty("sources");
+            Assert.True(sources.ValueKind == JsonValueKind.Array);
             // Route stubs
             Assert.True(File.Exists(Path.Combine(dist, "spells", "spell1", "index.html")));
             Assert.True(File.Exists(Path.Combine(dist, "talents", "tal1", "index.html")));

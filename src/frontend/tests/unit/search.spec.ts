@@ -14,7 +14,7 @@ describe('Search Logic (MiniSearch)', () => {
   beforeEach(async () => {
     await resetDb();
     usePrimaryManifest();
-    await syncContent('/dist-site');
+    await syncContent();
   });
 
   it('index loads and queries quickly (<50ms, fake timers)', async () => {
@@ -81,4 +81,3 @@ describe('Search Logic (MiniSearch)', () => {
     expect(noFuzzy.some(r => r.doc.slug === 'spark')).toBe(false);
   });
 });
-

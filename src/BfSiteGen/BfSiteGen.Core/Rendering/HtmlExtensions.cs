@@ -20,17 +20,17 @@ public static class HtmlExtensions
             }
             md = sb.ToString();
         }
-        return renderer.ToHtml(md);
+        return renderer.RenderBlock(md);
     }
 
     public static string ToHtml(this BackgroundDto b, IMarkdownRenderer renderer)
-        => renderer.ToHtml(b.Description ?? string.Empty);
+        => renderer.RenderBlock(b.Description ?? string.Empty);
 
     public static string ToHtml(this ClassDto c, IMarkdownRenderer renderer)
-        => renderer.ToHtml(c.Description ?? string.Empty);
+        => renderer.RenderBlock(c.Description ?? string.Empty);
 
     public static string ToHtml(this LineageDto l, IMarkdownRenderer renderer)
-        => renderer.ToHtml(l.Description ?? string.Empty);
+        => renderer.RenderBlock(l.Description ?? string.Empty);
 
     public static string ToHtml(this SpellDto s, IMarkdownRenderer renderer)
     {
@@ -38,9 +38,8 @@ public static class HtmlExtensions
         if (s.Effect is { Count: > 0 })
         {
             var md = string.Join("\n\n", s.Effect);
-            return renderer.ToHtml(md);
+            return renderer.RenderBlock(md);
         }
-        return renderer.ToHtml(s.Description ?? string.Empty);
+        return renderer.RenderBlock(s.Description ?? string.Empty);
     }
 }
-

@@ -37,8 +37,12 @@ void RunConvert()
     var input = AnsiConsole.Prompt(new TextPrompt<string>("Input folder [grey](default: input)[/]").AllowEmpty());
     if (string.IsNullOrWhiteSpace(input)) input = "input";
     var output = AnsiConsole.Prompt(new TextPrompt<string>("Output folder [grey](default: output)[/]").AllowEmpty());
+    #if DEBUG
+    // In the Debug build, we want to save to the root of the repo.
+    if (string.IsNullOrWhiteSpace(output)) output = "../../../../../../output";
+    #else
     if (string.IsNullOrWhiteSpace(output)) output = "output";
-
+    #endif
     // Validate config presence
     var cfgRoot = "config";
     var required = new[] { "sources.yaml", "pipeline.yaml" };
@@ -50,14 +54,14 @@ void RunConvert()
 
     using var lf = LoggerFactory.Create(b => { b.AddConsole(); b.SetMinimumLevel(LogLevel.Information); });
     var log = lf.CreateLogger("convert");
-    var runner = new PipelineRunner(log, new FileMarkdownLoader(), p => new YamlLoader<MappingConfig>().Load(p), new[]
-    {
+    var runner = new PipelineRunner(log, new FileMarkdownLoader(), 
+        p => new YamlLoader<MappingConfig>().Load(p), [
         ("classes", new Bfmd.Extractors.ClassesExtractor()),
         ("backgrounds", new Bfmd.Extractors.BackgroundsExtractor()),
-        ("lineages", (IExtractor)new Bfmd.Extractors.LineagesExtractor()),
+        ("lineages", new Bfmd.Extractors.LineagesExtractor()),
         ("talents", new Bfmd.Extractors.TalentsExtractor()),
-        ("spells", new Bfmd.Extractors.SpellsExtractor()),
-    });
+        ("spells", new Bfmd.Extractors.SpellsExtractor())
+    ]);
     var code = runner.Run(pipe, sources, (input, output, cfgRoot));
     if (code == 0)
     {

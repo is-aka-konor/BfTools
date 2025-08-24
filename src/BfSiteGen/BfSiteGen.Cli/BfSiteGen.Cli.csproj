@@ -10,6 +10,7 @@
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+    <PackageReference Include="Spectre.Console" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BfSiteGen.Core\BfSiteGen.Core.csproj" />

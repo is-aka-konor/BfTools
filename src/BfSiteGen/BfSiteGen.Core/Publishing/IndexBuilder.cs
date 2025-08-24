@@ -9,8 +9,8 @@ public sealed class IndexBuilder
 {
     public sealed class IndexConfig
     {
-        public string[] Fields { get; init; } = new[] { "name", "descriptionHtml" };
-        public Dictionary<string, double> Boost { get; init; } = new() { { "name", 3.0 }, { "descriptionHtml", 1.0 } };
+        public string[] Fields { get; init; } = new[] { "name", "description" };
+        public Dictionary<string, double> Boost { get; init; } = new() { { "name", 3.0 }, { "description", 1.0 } };
         public double? Fuzzy { get; init; } = 0.2; // MiniSearch fuzzy ratio
         public string[] StoreFields { get; init; } = new[] { "slug", "category", "sources", "circle", "school", "isRitual", "type" };
     }
@@ -42,7 +42,7 @@ public sealed class IndexBuilder
     private (string hash, int count) BuildForCategory<T>(string indexDir, string category, IEnumerable<T> items, Action<Utf8JsonWriter, string, T> writeDoc)
     {
         using var ms = new MemoryStream();
-        using var w = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = false });
+        using var w = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = false, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
         w.WriteStartObject();
         w.WritePropertyName("options");
         WriteOptions(w, _config);
@@ -111,7 +111,7 @@ public sealed class IndexBuilder
         w.WriteStartObject();
         // Indexed fields first
         w.WriteString("name", e.Name);
-        w.WriteString("descriptionHtml", descriptionHtml);
+        w.WriteString("description", descriptionHtml);
         // Stored fields
         w.WriteString("slug", e.Slug);
         w.WriteString("category", category);

@@ -70,6 +70,8 @@ public sealed class ContentReader : IContentReader
             result.Errors.Add(new ValidationError(category, file, entity.Slug, "slug", "Missing required field 'slug'."));
         if (string.IsNullOrWhiteSpace(entity.Name))
             result.Errors.Add(new ValidationError(category, file, entity.Slug, "name", "Missing required field 'name'."));
+        if (string.IsNullOrWhiteSpace(entity.Description))
+            result.Errors.Add(new ValidationError(category, file, entity.Slug, "description", "Missing markdown 'description'."));
         if (entity.Src is null)
         {
             result.Errors.Add(new ValidationError(category, file, entity.Slug, "src", "Missing required field 'src'."));
@@ -80,6 +82,58 @@ public sealed class ContentReader : IContentReader
                 result.Errors.Add(new ValidationError(category, file, entity.Slug, "src.abbr", "Missing source 'abbr'."));
             if (string.IsNullOrWhiteSpace(entity.Src.Name))
                 result.Errors.Add(new ValidationError(category, file, entity.Slug, "src.name", "Missing source 'name'."));
+        }
+
+        // Per-type validations
+        switch (category)
+        {
+            case "talents":
+            {
+                var t = entity as TalentDto;
+                if (t != null)
+                {
+                    if (string.IsNullOrWhiteSpace(t.Category))
+                        result.Errors.Add(new ValidationError(category, file, t.Slug, "category", "Missing talent 'category'."));
+                }
+                break;
+            }
+            case "backgrounds":
+            {
+                // No additional checks beyond common
+                break;
+            }
+            case "classes":
+            {
+                var c = entity as ClassDto;
+                if (c != null)
+                {
+                    if (string.IsNullOrWhiteSpace(c.HitDie))
+                        result.Errors.Add(new ValidationError(category, file, c.Slug, "hitDie", "Missing class 'hitDie'."));
+                }
+                break;
+            }
+            case "spells":
+            {
+                var s = entity as SpellDto;
+                if (s != null)
+                {
+                    if (s.Circle <= 0)
+                        result.Errors.Add(new ValidationError(category, file, s.Slug, "circle", "Missing or invalid 'circle'."));
+                    if (string.IsNullOrWhiteSpace(s.School))
+                        result.Errors.Add(new ValidationError(category, file, s.Slug, "school", "Missing spell 'school'."));
+                }
+                break;
+            }
+            case "lineages":
+            {
+                var l = entity as LineageDto;
+                if (l != null)
+                {
+                    if (l.Speed <= 0)
+                        result.Errors.Add(new ValidationError(category, file, l.Slug, "speed", "Missing or invalid 'speed'."));
+                }
+                break;
+            }
         }
     }
 }

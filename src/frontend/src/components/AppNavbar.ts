@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators.js';
 @customElement('app-navbar')
 export class AppNavbar extends LitElement {
   static styles = css`:host{display:block}`;
+  protected createRenderRoot() { return this; }
 
   connectedCallback(): void {
     super.connectedCallback();

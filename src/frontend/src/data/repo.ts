@@ -3,7 +3,7 @@ import { db } from './db';
 export interface Entry {
   slug: string;
   name: string;
-  descriptionHtml?: string;
+  description?: string; // HTML
   sources: Array<{ abbr: string; name: string }>
 }
 
@@ -12,10 +12,13 @@ export interface Talent extends Entry {
 }
 
 export async function getDataset(category: string): Promise<Entry[]> {
+  console.info(`Received a call to get Category data for: ${category}`);
   const active = (await db.meta.get('active'))?.value as Record<string, { hash: string }> | undefined;
   const h = active?.[category]?.hash;
+  console.info(`Got hash: ${h}`);
   if (!h) return [];
   const row = await db.datasets.get(`${category}:${h}`);
+  console.info(`Trying to pull data for the Row:${row}`);
   return (row?.data ?? []) as Entry[];
 }
 

@@ -5,7 +5,7 @@
   - `BfSiteGen.Core`: C# models, IO reader/validation, canonical JSON, indexing, bundling.
   - `BfSiteGen.Cli`: CLI entry to build site bundles and manifest.
   - `Bfmd.Core` / `Bfmd.Extractors` / `Bfmd.Cli`: Markdown tooling and extractors.
-- `frontend/`: Vite + Lit SPA (Tailwind + DaisyUI), offline search, service worker.
+- `src/frontend/`: Vite + Lit SPA (Tailwind + DaisyUI), offline search, service worker.
 - `tests/`: C# unit/integration; `frontend/tests`: Vitest unit + Playwright e2e.
 - Generated output: `dist-site/` (immutable data/index files, manifest), `output/` (source JSON).
 

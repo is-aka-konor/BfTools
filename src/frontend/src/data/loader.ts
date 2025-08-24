@@ -22,7 +22,7 @@ async function fetchJson<T>(url: string): Promise<T> {
   return res.json();
 }
 
-export async function syncContent(baseUrl = '/dist-site'): Promise<SyncResult> {
+export async function syncContent(baseUrl = ''): Promise<SyncResult> {
   const manifestUrl = `${baseUrl}/site-manifest.json`;
   const manifest = await fetchJson<SiteManifest>(manifestUrl);
 

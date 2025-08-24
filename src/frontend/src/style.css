@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "daisyui";
+/* Explicitly declare content sources for Tailwind v4 scanner */
+@source "../index.html";
+@source "./**/*.{ts,js,html}";
 
 html, body, #app { height: 100%; }
 
@@ -16,5 +18,4 @@ html, body, #app { height: 100%; }
 @layer components {
   .app-card { @apply card bg-base-200 shadow-md; }
   .app-badge { @apply badge badge-outline; }
-  .app-tab { @apply tab tab-bordered; }
 }

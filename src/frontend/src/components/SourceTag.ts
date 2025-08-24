@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators.js';
 @customElement('source-tag')
 export class SourceTag extends LitElement {
   static styles = css`:host{display:inline-block}`;
+  protected createRenderRoot() { return this; }
   static properties = {
     abbr: { type: String },
     name: { type: String },
