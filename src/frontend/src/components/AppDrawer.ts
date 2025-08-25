@@ -8,7 +8,7 @@ export class AppDrawer extends LitElement {
 
   render() {
     return html`
-      <div class="drawer lg:drawer-open">
+      <div class="drawer">
         <input id="app-drawer" type="checkbox" class="drawer-toggle" />
         <div class="drawer-content">
           <slot></slot>

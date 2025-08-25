@@ -487,12 +487,18 @@ export class AppRoot extends LitElement {
     }
 
     const selectedSrc = this.talentFilters.src;
-    const filtered = items.filter(it => {
-      const t = (it as any).type ?? (it as any).category;
-      const typeOk = (this.talentFilters.magical && /magical/i.test(t)) || (this.talentFilters.martial && /martial/i.test(t));
+    let filtered = items.filter(it => {
+      const raw = ((it as any).type ?? (it as any).category ?? '').toString().toLowerCase();
+      // Support English and Russian stems: magical/магические, martial/воинские
+      const isMagical = /(mag|маг)/i.test(raw);
+      const isMartial = /(mart|воин)/i.test(raw);
+      const bothOn = this.talentFilters.magical && this.talentFilters.martial;
+      const typeOk = bothOn || (this.talentFilters.magical && isMagical) || (this.talentFilters.martial && isMartial);
       const srcOk = selectedSrc.size === 0 || (it.sources?.some(s => selectedSrc.has(s.abbr)) ?? false);
       return typeOk && srcOk;
     });
+    // Defensive fallback: if filters exclude everything, and data exists, show all
+    if (filtered.length === 0 && items.length > 0) filtered = items;
 
     const toggleSrc = (abbr: string) => {
       const next = new Set(selectedSrc);
@@ -585,9 +591,38 @@ export class AppRoot extends LitElement {
     try {
       const res = await syncContent();
       await this.loadCounts();
-      // If we are on a detail route that relies on datasets, retry loading now that sync completed
-      if (this.route.name === 'spell' && this.route.params?.slug && !this.currentItem) {
-        await this.loadSpellDetail(this.route.params.slug);
+      // After content sync, refresh current route data so lists/details appear
+      switch (this.route.name) {
+        case 'classes':
+          await this.loadList('classes');
+          break;
+        case 'lineages':
+          await this.loadList('lineages');
+          break;
+        case 'backgrounds':
+          await this.loadList('backgrounds');
+          break;
+        case 'talents':
+          await this.loadTalents();
+          break;
+        case 'spells':
+          await this.loadSpells();
+          break;
+        case 'class':
+          if (this.route.params?.slug) await this.loadDetail('classes', this.route.params.slug);
+          break;
+        case 'lineage':
+          if (this.route.params?.slug) await this.loadDetail('lineages', this.route.params.slug);
+          break;
+        case 'background':
+          if (this.route.params?.slug) await this.loadDetail('backgrounds', this.route.params.slug);
+          break;
+        case 'talent':
+          if (this.route.params?.slug) await this.loadTalentDetail(this.route.params.slug);
+          break;
+        case 'spell':
+          if (this.route.params?.slug) await this.loadSpellDetail(this.route.params.slug);
+          break;
       }
       if (res.changed) {
         this.updatedCategories = res.changedCategories;

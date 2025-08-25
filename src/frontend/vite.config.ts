@@ -4,6 +4,11 @@ import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [tailwindcss()],
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
+  },
   server: { port: 5173 },
   build: {
     outDir: 'dist',
