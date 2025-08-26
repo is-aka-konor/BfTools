@@ -1,8 +1,9 @@
 import './style.css';
 import { html, css, LitElement } from 'lit';
 import Navigo from 'navigo';
-import './components/AppNavbar';
-import './components/AppDrawer';
+// Legacy components kept available; layout now rendered via views/layout
+// import './components/AppNavbar';
+// import './components/AppDrawer';
 import './components/SearchModal';
 import { syncContent, getCountsFromManifest } from './data/loader';
 import { getDataset, getBySlug, type Entry, type Talent } from './data/repo';
@@ -12,6 +13,7 @@ import { renderCategoryList, renderCategoryDetail, renderSimplePage } from './vi
 import { renderSearchPage, renderResult as renderSearchResult } from './views/search';
 import { renderTalents, renderTalentDetail, type TalentFilters } from './views/talents';
 import { renderSpells, type SpellsFilters, renderSpellDetail } from './views/spells';
+import { renderLayout } from './views/layout';
 
 export class AppRoot extends LitElement {
   // Render into light DOM so Tailwind/DaisyUI global styles apply
@@ -33,7 +35,8 @@ export class AppRoot extends LitElement {
     talentFilters: { state: true },
     currentItem: { state: true },
     spells: { state: true },
-    spellsFilters: { state: true }
+    spellsFilters: { state: true },
+    sidebarOpen: { state: true }
   } as any;
 
   private router = new Navigo('/');
@@ -51,6 +54,7 @@ export class AppRoot extends LitElement {
   declare private currentItem?: Entry;
   declare private spells: Array<Entry & { circle:number; school:string; isRitual:boolean; circleType:string }> | undefined;
   declare private spellsFilters: { circle?: number|null; school?: string|null; ritual?: boolean|null; circleType?: string|null; src: Set<string>; sort: 'name-asc'|'name-desc'|'circle-asc'|'circle-desc' };
+  declare private sidebarOpen: boolean;
 
   constructor() {
     super();
@@ -68,6 +72,7 @@ export class AppRoot extends LitElement {
     this.currentItem = undefined;
     this.spells = undefined;
     this.spellsFilters = { circle: null, school: null, ritual: null, circleType: null, src: new Set(), sort: 'name-asc' };
+    this.sidebarOpen = false;
   }
   private listScroll: Record<string, number> = {};
 
@@ -87,7 +92,10 @@ export class AppRoot extends LitElement {
         .on('/lineages', () => this.setRoute('lineages'))
         .on('/backgrounds', () => this.setRoute('backgrounds'))
         .on('/spells', () => this.setRoute('spells'))
-        .on('/spells/:slug', (match) => this.setRoute('spell', match?.params || undefined))
+        .on('/spells/:slug', (match) => {
+          console.info('[router] match spell', match);
+          this.setRoute('spell', match?.params || undefined);
+        })
         .on('/talents/:slug', (match) => this.setRoute('talent', match?.params || undefined))
         .on('/classes/:slug', (match) => this.setRoute('class', match?.params || undefined))
         .on('/lineages/:slug', (match) => this.setRoute('lineage', match?.params || undefined))
@@ -95,6 +103,16 @@ export class AppRoot extends LitElement {
         .on('/search', () => this.setRoute('search'))
         .notFound(() => this.setRoute('notfound'))
         .resolve();
+
+    // Fallback for deep links if Navigo doesn't populate params on first load
+    const path = (globalThis as any)?.location?.pathname || '';
+    if (path.startsWith('/spells/')) {
+      const slug = decodeURIComponent(path.split('/')[2] || '');
+      if (slug) {
+        console.info('[router] fallback parse slug from location', slug);
+        this.setRoute('spell', { slug });
+      }
+    }
 
     // Kick off content sync (network-first)
     this.sync();
@@ -127,6 +145,7 @@ export class AppRoot extends LitElement {
   }
 
   private setRoute(name: string, params?: Record<string, string>) {
+    console.info('[router] setRoute', name, params);
     this.route = { name, params };
     if (name === 'search') this.doSearchFromLocation();
     if (name === 'classes' || name === 'lineages' || name === 'backgrounds') this.loadList(name);
@@ -136,17 +155,89 @@ export class AppRoot extends LitElement {
     if (name === 'lineage' && params?.slug) this.loadDetail('lineages', params.slug);
     if (name === 'background' && params?.slug) this.loadDetail('backgrounds', params.slug);
     if (name === 'talent' && params?.slug) this.loadTalentDetail(params.slug);
-    if (name === 'spell' && params?.slug) this.loadSpellDetail(params.slug);
+    if (name === 'spell' && params?.slug) {
+      // Ensure list is loading so we can resolve detail and related items quickly
+      this.loadSpells();
+      this.loadSpellDetail(params.slug);
+    }
   }
 
   render() {
+    const content = this.renderRoute();
+    const crumbs: Array<{ label: string; href?: string }> = [];
+    const addHome = () => crumbs.push({ label: 'Главная', href: '/' });
+    switch (this.route.name) {
+      case 'home':
+        crumbs.push({ label: 'Главная' });
+        break;
+      case 'spells':
+        addHome();
+        crumbs.push({ label: 'Заклинания' });
+        break;
+      case 'spell':
+        addHome();
+        crumbs.push({ label: 'Заклинания', href: '/spells' });
+        {
+          const slug = this.route.params?.slug;
+          const nm = this.currentItem?.name || (this.spells?.find((x: any) => x.slug === slug) as any)?.name || slug || '...';
+          crumbs.push({ label: nm });
+        }
+        break;
+      case 'classes':
+        addHome();
+        crumbs.push({ label: 'Классы' });
+        break;
+      case 'class':
+        addHome();
+        crumbs.push({ label: 'Классы', href: '/classes' });
+        crumbs.push({ label: this.currentItem?.name || this.route.params?.slug || '...' });
+        break;
+      case 'lineages':
+        addHome();
+        crumbs.push({ label: 'Происхождения' });
+        break;
+      case 'lineage':
+        addHome();
+        crumbs.push({ label: 'Происхождения', href: '/lineages' });
+        crumbs.push({ label: this.currentItem?.name || this.route.params?.slug || '...' });
+        break;
+      case 'backgrounds':
+        addHome();
+        crumbs.push({ label: 'Предыстории' });
+        break;
+      case 'background':
+        addHome();
+        crumbs.push({ label: 'Предыстории', href: '/backgrounds' });
+        crumbs.push({ label: this.currentItem?.name || this.route.params?.slug || '...' });
+        break;
+      case 'talents':
+        addHome();
+        crumbs.push({ label: 'Таланты' });
+        break;
+      case 'talent':
+        addHome();
+        crumbs.push({ label: 'Таланты', href: '/talents' });
+        crumbs.push({ label: this.currentItem?.name || this.route.params?.slug || '...' });
+        break;
+      case 'search':
+        addHome();
+        crumbs.push({ label: 'Поиск' });
+        break;
+      default:
+        addHome();
+        crumbs.push({ label: '...' });
+        break;
+    }
     return html`
-      <app-drawer>
-        <app-navbar></app-navbar>
-        <main class="p-4 lg:p-6">
-          ${this.renderRoute()}
-        </main>
-      </app-drawer>
+      ${renderLayout({
+        routeName: this.route.name,
+        content,
+        counts: this.counts,
+        sidebarOpen: this.sidebarOpen,
+        onToggleSidebar: () => (this.sidebarOpen = !this.sidebarOpen),
+        onSearch: (q) => { if (q) this.router.navigate(`/search?q=${encodeURIComponent(q)}`); },
+        breadcrumbs: crumbs
+      })}
       <search-modal .open=${this.searchOpen} @navigate=${(e: Event) => this.onNavigateFromModal(e)}></search-modal>
       ${this.updateReady ? html`<div class="toast toast-bottom toast-center">
         <div class="alert alert-info">
@@ -169,8 +260,12 @@ export class AppRoot extends LitElement {
       case 'talents': return shell('Talents', renderTalents(this.talents, this.talentFilters as TalentFilters, { updateTalentFilters: (p) => this.updateTalentFilters(p), rememberScroll: () => this.rememberScroll('talents') }));
       case 'lineages': return shell('Lineages', renderCategoryList(this.lists['lineages'], 'lineages', { onOpenItem: () => this.rememberScroll('lineages') }));
       case 'backgrounds': return shell('Backgrounds', renderCategoryList(this.lists['backgrounds'], 'backgrounds', { onOpenItem: () => this.rememberScroll('backgrounds') }));
-      case 'spells': return shell('Spells', renderSpells(this.spells as any, this.spellsFilters as SpellsFilters, { updateSpellsFilters: (p) => this.updateSpellsFilters(p), rememberScroll: () => this.rememberScroll('spells') }));
-      case 'spell': return renderSpellDetail(this.currentItem, this.route.params?.slug);
+      case 'spells': return renderSpells(this.spells as any, this.spellsFilters as SpellsFilters, { updateSpellsFilters: (p) => this.updateSpellsFilters(p), rememberScroll: () => this.rememberScroll('spells') });
+      case 'spell': {
+        const slug = this.route.params?.slug;
+        const item = (this.currentItem as any) ?? (this.spells as any)?.find?.((x: any) => x.slug === slug);
+        return renderSpellDetail(item, slug, { allSpells: this.spells as any });
+      }
       case 'talent': {
         const q = new URLSearchParams(location.search).toString();
         const backHref = q ? `/talents?${q}` : '/talents';
@@ -240,10 +335,12 @@ export class AppRoot extends LitElement {
   }
 
   private async loadSpells() {
+    console.info('[spells] loadSpells()');
     this.parseSpellsFiltersFromLocation();
     if (!this.spells) {
       const data = await getDataset('spells');
       this.spells = data as any;
+      console.info('[spells] loaded spells:', this.spells?.length ?? 0);
       const y = this.listScroll['spells'];
       if (typeof y === 'number') queueMicrotask(() => window.scrollTo({ top: y }));
     }
@@ -354,6 +451,8 @@ export class AppRoot extends LitElement {
           if (this.route.params?.slug) await this.loadTalentDetail(this.route.params.slug);
           break;
         case 'spell':
+          // Ensure we have both list and detail when deep-linking
+          await this.loadSpells();
           if (this.route.params?.slug) await this.loadSpellDetail(this.route.params.slug);
           break;
       }
@@ -391,8 +490,17 @@ export class AppRoot extends LitElement {
   };
 
   private async loadSpellDetail(slug: string) {
+    console.info('[spell] loadSpellDetail()', slug);
     this.currentItem = undefined;
-    this.currentItem = await getBySlug('spells', slug);
+    const fromList = this.spells?.find(x => x.slug === slug);
+    if (fromList) {
+      console.info('[spell] found in list');
+      this.currentItem = fromList;
+    } else {
+      console.info('[spell] fetching from storage');
+      this.currentItem = await getBySlug('spells', slug);
+      console.info('[spell] fetched item?', !!this.currentItem);
+    }
   }
 
 }

@@ -11,25 +11,22 @@ export interface SpellsRenderOpts {
 }
 
 export function renderSpells(
-  items: Array<Entry & { circle:number; school:string; isRitual:boolean; circleType:string }> | undefined,
-  filters: SpellsFilters,
+  items: Array<Entry & { circle:number; school:string; isRitual?:boolean; circleType?:string; circles?: string[] }> | undefined,
+  filters: SpellsFilters & { q?: string | null; className?: string | null },
   opts: SpellsRenderOpts
 ): TemplateResult {
   if (!items) return loadingSpinner();
   const f = filters;
   const allSchools = Array.from(new Set(items.map((s: any) => s.school))).sort();
-  const allSources: Array<{ abbr: string; name: string }> = [];
-  const seen = new Set<string>();
-  for (const it of items) for (const s of it.sources ?? []) if (!seen.has(s.abbr)) { seen.add(s.abbr); allSources.push({ abbr: s.abbr, name: s.name }); }
-  const selectedSrc = f.src;
+  const allClasses = Array.from(new Set(items.flatMap((s: any) => (s.classes ?? s.circles ?? []) as string[]))).sort();
 
   let filtered = items.filter((it: any) => {
     const cOk = f.circle == null || it.circle === f.circle;
     const sOk = !f.school || it.school === f.school;
-    const rOk = f.ritual == null || it.isRitual === f.ritual;
-    const ctOk = !f.circleType || it.circleType === f.circleType;
-    const srcOk = selectedSrc.size === 0 || (it.sources?.some((s: any) => selectedSrc.has(s.abbr)) ?? false);
-    return cOk && sOk && rOk && ctOk && srcOk;
+    const clOk = !f.className || (it.classes?.includes(f.className) || it.circles?.includes(f.className));
+    const q = (f.q ?? '').trim().toLowerCase();
+    const qOk = !q || it.name.toLowerCase().includes(q) || (it.description ? it.description.toLowerCase().includes(q) : false);
+    return cOk && sOk && clOk && qOk;
   });
 
   const cmpName = (a:any,b:any) => a.name.localeCompare(b.name);
@@ -41,73 +38,47 @@ export function renderSpells(
     default: filtered = [...filtered].sort((a,b)=>cmpName(a,b) || a.slug.localeCompare(b.slug));
   }
 
-  const toggleSrc = (abbr: string) => {
-    const next = new Set(selectedSrc);
-    if (next.has(abbr)) next.delete(abbr); else next.add(abbr);
-    opts.updateSpellsFilters({ src: next });
-  };
-
-  const clearAll = () => opts.updateSpellsFilters({ circle: null, school: null, ritual: null, circleType: null, src: new Set(), sort: 'name-asc' });
-
   return html`
-    <div class="mt-4 flex flex-col gap-3">
-      <div class="flex flex-wrap items-center gap-3">
-        <label class="form-control w-40">
-          <div class="label"><span class="label-text">Circle</span></div>
-          <select class="select select-bordered"
-            @change=${(e:Event)=> opts.updateSpellsFilters({ circle: (e.target as HTMLSelectElement).value === '' ? null : Number((e.target as HTMLSelectElement).value) })}>
-            <option value="" ?selected=${f.circle==null}>All</option>
-            ${[0,1,2,3,4,5,6,7,8,9].map(c => html`<option .selected=${f.circle===c} value=${c}>${c}</option>`)}
-          </select>
-        </label>
-        <label class="form-control w-52">
-          <div class="label"><span class="label-text">School</span></div>
-          <select class="select select-bordered"
-            @change=${(e:Event)=> opts.updateSpellsFilters({ school: (e.target as HTMLSelectElement).value || null })}>
-            <option value="" ?selected=${!f.school}>All</option>
-            ${allSchools.map(s => html`<option .selected=${f.school===s} value=${s}>${s}</option>`)}
-          </select>
-        </label>
-        <label class="label cursor-pointer gap-2">
-          <span>Ritual</span>
-          <input type="checkbox" class="toggle" .checked=${f.ritual===true}
-            indeterminate=${String(f.ritual==null)}
-            @change=${(e:Event)=> opts.updateSpellsFilters({ ritual: (e.target as HTMLInputElement).checked ? true : null })} />
-        </label>
-        <label class="form-control w-44">
-          <div class="label"><span class="label-text">Circle Type</span></div>
-          <select class="select select-bordered"
-            @change=${(e:Event)=> opts.updateSpellsFilters({ circleType: (e.target as HTMLSelectElement).value || null })}>
-            <option value="" ?selected=${!f.circleType}>All</option>
-            ${Array.from(new Set(items.map((x:any)=>x.circleType))).sort().map(ct => html`<option .selected=${f.circleType===ct} value=${ct}>${ct}</option>`)}
-          </select>
-        </label>
-        <label class="form-control w-52">
-          <div class="label"><span class="label-text">Sort</span></div>
-          <select class="select select-bordered" @change=${(e:Event)=> opts.updateSpellsFilters({ sort: (e.target as HTMLSelectElement).value as any })}>
-            ${['name-asc','name-desc','circle-asc','circle-desc'].map(k => html`<option .selected=${f.sort===k} value=${k}>${k}</option>`)}
-          </select>
-        </label>
-        <button class="btn btn-warning btn-sm" @click=${clearAll}>Clear All</button>
+    <div id="spellsPage" class="page active">
+      <div class="page-header">
+        <h1>Заклинания</h1>
+        <div class="page-controls">
+          <div class="filters">
+            <select id="levelFilter" class="form-control" @change=${(e:Event)=> opts.updateSpellsFilters({ circle: (e.target as HTMLSelectElement).value === '' ? null : Number((e.target as HTMLSelectElement).value) })}>
+              <option value="" ?selected=${f.circle==null}>Все уровни</option>
+              ${[0,1,2,3,4,5,6,7,8,9].map(c => html`<option .selected=${f.circle===c} value=${c}>${c} уровень</option>`)}
+            </select>
+            <select id="schoolFilter" class="form-control" @change=${(e:Event)=> opts.updateSpellsFilters({ school: (e.target as HTMLSelectElement).value || null })}>
+              <option value="" ?selected=${!f.school}>Все школы</option>
+              ${allSchools.map(s => html`<option .selected=${f.school===s} value=${s}>${s}</option>`)}
+            </select>
+            <select id="classFilter" class="form-control" @change=${(e:Event)=> opts.updateSpellsFilters({ className: (e.target as HTMLSelectElement).value || null } as any)}>
+              <option value="" ?selected=${!(f as any).className}>Все классы</option>
+              ${allClasses.map(s => html`<option .selected=${(f as any).className===s} value=${s}>${s}</option>`)}
+            </select>
+          </div>
+          <input id="spellSearch" type="text" class="form-control search-input" placeholder="Поиск заклинаний..." 
+                 .value=${f.q ?? ''}
+                 @input=${(e:Event)=> opts.updateSpellsFilters({ q: (e.target as HTMLInputElement).value } as any)} />
+        </div>
       </div>
-      <div class="flex flex-wrap gap-2">
-        ${allSources.map(s => html`
-          <div class="tooltip" data-tip=${s.name}>
-            <button class="btn btn-xs ${selectedSrc.has(s.abbr)?'btn-accent':'btn-ghost'}" data-active=${selectedSrc.has(s.abbr)?'1':'0'} @click=${() => toggleSrc(s.abbr)}>
-              <span class="badge ${selectedSrc.has(s.abbr)?'badge-primary':'badge-outline'}">${s.abbr}</span>
-            </button>
-          </div>`)}
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        ${filtered.map(it => html`
-          <a href="/spells/${(it as any).slug}" data-navigo class="app-card card" @click=${() => opts.rememberScroll()}>
-            <div class="card-body p-4">
-              <div class="flex items-center gap-2">
-                <h3 class="card-title m-0">${(it as any).name}</h3>
-                <span class="badge badge-sm">${(it as any).circle}</span>
-                <div class="flex gap-1 flex-wrap">${sourceBadges((it as any).sources)}</div>
-              </div>
+      <div class="spells-grid" id="spellsGrid">
+        ${filtered.length === 0 ? html`
+          <div class="empty-state">
+            <div class="empty-state-icon">🔍</div>
+            <h3>Заклинания не найдены</h3>
+            <p>Попробуйте изменить фильтры поиска</p>
+          </div>
+        ` : filtered.map(it => html`
+          <a href="/spells/${(it as any).slug}" data-navigo class="spell-card" @click=${() => opts.rememberScroll()}>
+            <div class="spell-header">
+              <h3 class="spell-name">${(it as any).name}</h3>
+              <span class="spell-level">${(it as any).circle} ур.</span>
             </div>
+            ${((it as any).school) ? html`<div class="spell-school">${(it as any).school}</div>` : null}
+            ${((it as any).description) ? html`<div class="spell-description">${(it as any).description}</div>` : null}
+            <div class="spell-tags">${sourceBadges((it as any).sources)}</div>
+            ${((it as any).classes || (it as any).circles) ? html`<div class="spell-classes">Классы: ${(((it as any).classes ?? (it as any).circles) as string[]).join(', ')}</div>` : null}
           </a>
         `)}
       </div>
@@ -116,19 +87,95 @@ export function renderSpells(
 }
 
 export function renderSpellDetail(
-  item: Entry | undefined,
-  slug: string | undefined
+  item: (Entry & { castingTime?: string; range?: string; components?: string; duration?: string; circle?: number; school?: string; classes?: string[]; circles?: string[]; tags?: string[]; higherLevels?: string }) | undefined,
+  slug: string | undefined,
+  opts?: { allSpells?: Array<Entry & { circle?: number; school?: string }> }
 ): TemplateResult {
-  if (!item || item.slug !== slug) return loadingSpinner();
+  console.info('[spell-view] renderSpellDetail', { slug, hasItem: !!item });
+  if (!item) return loadingSpinner();
+
+  const level = (item as any).circle;
+  const school = (item as any).school;
+  const classes = ((item as any).classes ?? (item as any).circles) as string[] | undefined;
+  const tags = (item as any).tags as string[] | undefined;
+  const higherLevels = (item as any).higherLevels as string | undefined;
+
+  const related = (opts?.allSpells ?? [])
+    .filter((s: any) => s.slug !== item.slug && ((school && s.school === school) || (typeof level === 'number' && s.circle === level)))
+    .slice(0, 3);
+
   return html`
-    <div class="mt-2">
-      <a class="link" href="/spells" data-navigo>&larr; Back to spells</a>
-      <div class="mt-2 flex items-center gap-2">
-        <h2 class="text-2xl font-bold m-0">${item.name}</h2>
-        <div class="flex gap-1 flex-wrap">${sourceBadges(item.sources)}</div>
+    <div id="spellDetail">
+      <div class="spell-detail">
+        <div class="spell-detail-header">
+          <h1 class="spell-detail-title">${item.name}</h1>
+          <div style="color: var(--text-secondary); font-size: var(--font-size-lg);">
+            ${school ? school : ''}${(school && typeof level === 'number') ? ', ' : ''}${typeof level === 'number' ? `${level} уровень` : ''}
+          </div>
+        </div>
+
+        <div class="spell-detail-meta">
+          ${(item as any).castingTime ? html`<div class="meta-item">
+            <div class="meta-label">Время накладывания</div>
+            <div class="meta-value">${(item as any).castingTime}</div>
+          </div>` : null}
+          ${(item as any).range ? html`<div class="meta-item">
+            <div class="meta-label">Дистанция</div>
+            <div class="meta-value">${(item as any).range}</div>
+          </div>` : null}
+          ${(item as any).components ? html`<div class="meta-item">
+            <div class="meta-label">Компоненты</div>
+            <div class="meta-value">${(item as any).components}</div>
+          </div>` : null}
+          ${(item as any).duration ? html`<div class="meta-item">
+            <div class="meta-label">Длительность</div>
+            <div class="meta-value">${(item as any).duration}</div>
+          </div>` : null}
+        </div>
+
+        <div class="spell-detail-description" .innerHTML=${(item as any).description ?? ''}></div>
+
+        ${higherLevels ? html`
+          <div class="spell-higher-levels">
+            <h4>На более высоких уровнях</h4>
+            <p>${higherLevels}</p>
+          </div>
+        ` : null}
+
+        ${(classes || tags)?.length ? html`
+          <div class="spell-detail-meta">
+            ${classes?.length ? html`<div class="meta-item">
+              <div class="meta-label">Классы</div>
+              <div class="meta-value">${classes.join(', ')}</div>
+            </div>` : null}
+            ${tags?.length ? html`<div class="meta-item">
+              <div class="meta-label">Теги</div>
+              <div class="meta-value">${tags.map(t => html`<span class="spell-tag">${t}</span>` )}</div>
+            </div>` : null}
+          </div>
+        ` : null}
+
+        <div style="margin-top: var(--space-xl); text-align: center;">
+          <a class="btn btn--secondary" href="/spells" data-navigo>← Вернуться к заклинаниям</a>
+        </div>
       </div>
-      <article class="prose max-w-none mt-4" .innerHTML=${(item as any).description ?? ''}></article>
+
+      ${related.length > 0 ? html`
+        <div style="margin-top: var(--space-2xl);">
+          <h3 style="margin-bottom: var(--space-lg); color: var(--accent-primary);">Похожие заклинания</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-md);">
+            ${related.map((s: any) => html`
+              <a class="spell-card" href="/spells/${s.slug}" data-navigo>
+                <div class="spell-header">
+                  <h4 class="spell-name">${s.name}</h4>
+                  <span class="spell-level">${typeof s.circle === 'number' ? `${s.circle} ур.` : ''}</span>
+                </div>
+                ${s.school ? html`<div class="spell-school">${s.school}</div>` : null}
+              </a>
+            `)}
+          </div>
+        </div>
+      ` : null}
     </div>
   `;
 }
-

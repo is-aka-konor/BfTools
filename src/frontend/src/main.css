@@ -1,0 +1,187 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply bg-base-100 text-base-content font-sans antialiased;
+    line-height: 1.6;
+  }
+  
+  /* Оптимизация для чтения */
+  .reading-text {
+    @apply text-base leading-relaxed tracking-wide;
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+  }
+  
+  .long-text {
+    @apply text-lg leading-relaxed max-w-prose mx-auto;
+    font-size: 18px;
+    line-height: 1.7;
+  }
+}
+
+@layer components {
+  /* Компоненты карточек */
+  .spell-card {
+    @apply card bg-base-200 shadow-lg hover:shadow-2xl transition-all duration-200;
+    @apply hover:-translate-y-1 cursor-pointer;
+  }
+  
+  .spell-card-body {
+    @apply card-body p-6;
+  }
+  
+  .spell-title {
+    @apply card-title text-accent text-xl font-bold mb-2;
+  }
+  
+  .spell-meta {
+    @apply text-sm text-base-content/70 mb-4;
+  }
+  
+  .spell-description {
+    @apply text-base-content reading-text;
+  }
+  
+  /* Навигация */
+  .sidebar-nav {
+    @apply menu p-4 w-80 bg-base-200 text-base-content min-h-full;
+  }
+  
+  .sidebar-link {
+    @apply flex items-center gap-3 p-3 rounded-lg transition-colors duration-200;
+    @apply hover:bg-base-300 focus:bg-base-300 focus:outline-none;
+  }
+  
+  .sidebar-link.active {
+    @apply bg-primary text-primary-content font-medium;
+  }
+  
+  /* Фильтры */
+  .filter-group {
+    @apply form-control w-full max-w-xs mb-4;
+  }
+  
+  .filter-label {
+    @apply label label-text font-medium text-base-content;
+  }
+  
+  .filter-select {
+    @apply select select-bordered w-full;
+  }
+  
+  /* Поиск */
+  .search-input {
+    @apply input input-bordered w-full;
+  }
+  
+  .search-results {
+    @apply absolute top-full left-0 right-0 bg-base-200 rounded-lg shadow-lg z-50;
+    @apply border border-base-300 max-h-80 overflow-y-auto;
+  }
+  
+  .search-result-item {
+    @apply p-3 hover:bg-base-300 cursor-pointer border-b border-base-300 last:border-b-0;
+  }
+  
+  /* Теги и бэйджи */
+  .spell-level-badge {
+    @apply badge badge-primary;
+  }
+  
+  .spell-school-badge {
+    @apply badge badge-secondary;
+  }
+  
+  .spell-tag {
+    @apply badge badge-outline badge-sm;
+  }
+  
+  /* Кнопки */
+  .btn-primary-custom {
+    @apply btn btn-primary hover:scale-105 transition-transform duration-150;
+  }
+  
+  .btn-ghost-custom {
+    @apply btn btn-ghost hover:bg-base-300;
+  }
+}
+
+@layer utilities {
+  /* Утилиты для анимаций */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out forwards;
+  }
+  
+  .animate-skeleton {
+    background: linear-gradient(
+      90deg,
+      theme('colors.base.200') 25%, 
+      theme('colors.base.300') 50%, 
+      theme('colors.base.200') 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton 1.5s infinite;
+  }
+  
+  /* Утилиты для скролла */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.base.300') theme('colors.base.100');
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: theme('colors.base.100');
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.base.300');
+    border-radius: 3px;
+  }
+  
+  /* Утилиты для focus */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-base-100;
+  }
+}
+
+/* Темная тема - дополнительные стили */
+@media (prefers-color-scheme: dark) {
+  /* Оптимизация изображений для темной темы */
+  img {
+    opacity: 0.9;
+  }
+  
+  /* Подсветка кода (если используется) */
+  pre, code {
+    @apply bg-base-300 text-base-content;
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .sidebar-nav {
+    @apply w-64;
+  }
+}
+
+@media (max-width: 768px) {
+  .reading-text {
+    font-size: 16px;
+  }
+  
+  .long-text {
+    font-size: 17px;
+  }
+}
