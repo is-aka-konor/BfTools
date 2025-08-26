@@ -7,15 +7,102 @@
 html, body, #app { height: 100%; }
 
 @layer base {
-  html { @apply bg-base-100 text-base-content; }
+  /* Custom DaisyUI theme tokens for Tales of the Valiant */
+  [data-theme="tov"] {
+    --rounded-box: 0.5rem;
+    --rounded-btn: 0.25rem;
+    --rounded-badge: 0.125rem;
+    --animation-btn: 0.25s;
+    --animation-input: .2s;
+    --btn-focus-scale: 0.95;
+    --border-btn: 1px;
+    --tab-border: 1px;
+    --tab-radius: 0.5rem;
+
+    /* Colors in HSL triplets (no hsl()) per DaisyUI token format */
+    --p: 262 80% 50%;      /* Primary (violet) */
+    --pf: 262 80% 45%;     /* Primary focus */
+    --pc: 262 20% 95%;     /* Primary content */
+    --s: 215 28% 17%;      /* Secondary (deep blue) */
+    --sf: 215 28% 15%;     /* Secondary focus */
+    --sc: 43 96% 56%;      /* Secondary content (gold) */
+    --a: 43 96% 56%;       /* Accent (gold) */
+    --af: 43 96% 51%;      /* Accent focus */
+    --ac: 215 28% 17%;     /* Accent content */
+    --n: 215 28% 17%;      /* Neutral */
+    --nf: 215 28% 15%;     /* Neutral focus */
+    --nc: 43 96% 56%;      /* Neutral content */
+    --b1: 222 47% 11%;     /* Base 100 (page background) */
+    --b2: 215 28% 17%;     /* Base 200 (cards) */
+    --b3: 215 20% 27%;     /* Base 300 (surfaces above cards) */
+    --bc: 43 23% 89%;      /* Base content (parchment text) */
+    --in: 207 90% 54%;     /* Info */
+    --inc: 207 90% 8%;     /* Info content */
+    --su: 174 100% 29%;    /* Success */
+    --suc: 174 100% 90%;   /* Success content */
+    --wa: 43 96% 56%;      /* Warning */
+    --wac: 43 96% 8%;      /* Warning content */
+    --er: 0 91% 54%;       /* Error */
+    --erc: 0 91% 8%;       /* Error content */
+    /* Daisy v5 color vars to match base tokens */
+    --color-base-100: hsl(222 47% 11%);
+    --color-base-200: hsl(215 28% 17%);
+    --color-base-300: hsl(215 20% 27%);
+    --color-base-content: hsl(43 23% 89%);
+  }
+
+  /* Force background/text using Daisy vars with safe fallbacks */
+  html {
+    background-color: hsl(var(--b1, 222 47% 11%));
+    color: hsl(var(--bc, 43 23% 89%));
+  }
   body { @apply antialiased; }
   h1 { @apply text-3xl font-bold tracking-tight; }
   h2 { @apply text-2xl font-semibold mt-6; }
   h3 { @apply text-xl font-semibold mt-4; }
-  a { @apply link link-primary; }
+  /* Links use golden accent to match design */
+  a { @apply link link-accent; }
 }
 
 @layer components {
-  .app-card { @apply card bg-base-200 shadow-md; }
+  .app-card { @apply card bg-base-200 shadow-md border border-slate-600/60 hover:border-amber-500/70; }
   .app-badge { @apply badge badge-outline; }
+  .prose { @apply text-slate-200; }
+  .prose :where(h1,h2,h3,h4) { @apply text-slate-100; }
+  .prose :where(a) { @apply text-amber-400 hover:text-amber-300; }
+  .prose :where(hr) { @apply border-slate-600; }
+  .prose :where(code) { @apply text-amber-300; }
+}
+
+/* Minimal light theme tokens so the toggle works without Daisy defaults */
+@layer base {
+  [data-theme="light"] {
+    --b1: 0 0% 100%;       /* white */
+    --b2: 210 20% 98%;
+    --b3: 210 16% 96%;
+    --bc: 222 14% 10%;     /* near-black text */
+    --p: 262 80% 50%;
+    --pf: 262 80% 45%;
+    --pc: 262 20% 95%;
+    --a: 43 96% 46%;
+    --af: 43 96% 41%;
+    --ac: 222 14% 10%;
+    --color-base-100: hsl(0 0% 100%);
+    --color-base-200: hsl(210 20% 98%);
+    --color-base-300: hsl(210 16% 96%);
+    --color-base-content: hsl(222 14% 10%);
+  }
+  /* High-specificity overrides to win over Daisy defaults */
+  html[data-theme="light"] {
+    --color-base-100: hsl(0 0% 100%);
+    --color-base-200: hsl(210 20% 98%);
+    --color-base-300: hsl(210 16% 96%);
+    --color-base-content: hsl(222 14% 10%);
+  }
+  html[data-theme="tov"] {
+    --color-base-100: hsl(222 47% 11%);
+    --color-base-200: hsl(215 28% 17%);
+    --color-base-300: hsl(215 20% 27%);
+    --color-base-content: hsl(43 23% 89%);
+  }
 }

@@ -7,6 +7,11 @@ import './components/SearchModal';
 import { syncContent, getCountsFromManifest } from './data/loader';
 import { getDataset, getBySlug, type Entry, type Talent } from './data/repo';
 import { searchAll } from './data/search';
+import { renderHome } from './views/home';
+import { renderCategoryList, renderCategoryDetail, renderSimplePage } from './views/lists';
+import { renderSearchPage, renderResult as renderSearchResult } from './views/search';
+import { renderTalents, renderTalentDetail, type TalentFilters } from './views/talents';
+import { renderSpells, type SpellsFilters, renderSpellDetail } from './views/spells';
 
 export class AppRoot extends LitElement {
   // Render into light DOM so Tailwind/DaisyUI global styles apply
@@ -68,23 +73,28 @@ export class AppRoot extends LitElement {
 
   connectedCallback(): void {
     super.connectedCallback();
+    // Apply persisted theme (if any)
+    try {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+    } catch {}
     this.router
-      .on('/', () => this.setRoute('home'))
-      .on('/intro', () => this.setRoute('intro'))
-      .on('/spellcasting', () => this.setRoute('spellcasting'))
-      .on('/classes', () => this.setRoute('classes'))
-      .on('/talents', () => this.setRoute('talents'))
-      .on('/lineages', () => this.setRoute('lineages'))
-      .on('/backgrounds', () => this.setRoute('backgrounds'))
-      .on('/spells', () => this.setRoute('spells'))
-      .on('/spells/:slug', ({ data }) => this.setRoute('spell', data))
-      .on('/talents/:slug', ({ data }) => this.setRoute('talent', data))
-      .on('/classes/:slug', ({ data }) => this.setRoute('class', data))
-      .on('/lineages/:slug', ({ data }) => this.setRoute('lineage', data))
-      .on('/backgrounds/:slug', ({ data }) => this.setRoute('background', data))
-      .on('/search', () => this.setRoute('search'))
-      .notFound(() => this.setRoute('notfound'))
-      .resolve();
+        .on('/', () => this.setRoute('home'))
+        .on('/intro', () => this.setRoute('intro'))
+        .on('/spellcasting', () => this.setRoute('spellcasting'))
+        .on('/classes', () => this.setRoute('classes'))
+        .on('/talents', () => this.setRoute('talents'))
+        .on('/lineages', () => this.setRoute('lineages'))
+        .on('/backgrounds', () => this.setRoute('backgrounds'))
+        .on('/spells', () => this.setRoute('spells'))
+        .on('/spells/:slug', (match) => this.setRoute('spell', match?.params || undefined))
+        .on('/talents/:slug', (match) => this.setRoute('talent', match?.params || undefined))
+        .on('/classes/:slug', (match) => this.setRoute('class', match?.params || undefined))
+        .on('/lineages/:slug', (match) => this.setRoute('lineage', match?.params || undefined))
+        .on('/backgrounds/:slug', (match) => this.setRoute('background', match?.params || undefined))
+        .on('/search', () => this.setRoute('search'))
+        .notFound(() => this.setRoute('notfound'))
+        .resolve();
 
     // Kick off content sync (network-first)
     this.sync();
@@ -149,97 +159,34 @@ export class AppRoot extends LitElement {
 
   private renderRoute() {
     const r = this.route;
-    const shell = (title: string, extra?: unknown) => html`
-      <div class="prose max-w-none">
-        <h1>${title}</h1>
-        ${extra ?? ''}
-      </div>`;
-
+    const shell = (title: string, extra?: unknown) => renderSimplePage(title, extra as any);
     switch (r.name) {
       case 'home':
-        return html`
-          ${shell('Home')}
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mt-4">
-            ${this.tile('/intro', 'Intro / Rules')}
-            ${this.tile('/spellcasting', 'Spellcasting')}
-            ${this.tile('/classes', 'Classes', this.counts['classes'])}
-            ${this.tile('/talents', 'Talents', this.counts['talents'])}
-            ${this.tile('/lineages', 'Lineages', this.counts['lineages'])}
-            ${this.tile('/spells', 'Spells', this.counts['spells'])}
-            ${this.tile('/backgrounds', 'Backgrounds', this.counts['backgrounds'])}
-          </div>`;
+        return renderHome(this.counts);
       case 'intro': return shell('Intro');
       case 'spellcasting': return shell('Spellcasting');
-      case 'classes': return shell('Classes', this.renderList('classes'));
-      case 'talents': return shell('Talents', this.renderTalents());
-      case 'lineages': return shell('Lineages', this.renderList('lineages'));
-      case 'backgrounds': return shell('Backgrounds', this.renderList('backgrounds'));
-      case 'spells': return shell('Spells', this.renderSpells());
-      case 'spell': return this.renderSpellDetail();
-      case 'talent': return this.renderTalentDetail();
-      case 'class': return this.renderDetail('classes');
-      case 'lineage': return this.renderDetail('lineages');
-      case 'background': return this.renderDetail('backgrounds');
+      case 'classes': return shell('Classes', renderCategoryList(this.lists['classes'], 'classes', { onOpenItem: () => this.rememberScroll('classes') }));
+      case 'talents': return shell('Talents', renderTalents(this.talents, this.talentFilters as TalentFilters, { updateTalentFilters: (p) => this.updateTalentFilters(p), rememberScroll: () => this.rememberScroll('talents') }));
+      case 'lineages': return shell('Lineages', renderCategoryList(this.lists['lineages'], 'lineages', { onOpenItem: () => this.rememberScroll('lineages') }));
+      case 'backgrounds': return shell('Backgrounds', renderCategoryList(this.lists['backgrounds'], 'backgrounds', { onOpenItem: () => this.rememberScroll('backgrounds') }));
+      case 'spells': return shell('Spells', renderSpells(this.spells as any, this.spellsFilters as SpellsFilters, { updateSpellsFilters: (p) => this.updateSpellsFilters(p), rememberScroll: () => this.rememberScroll('spells') }));
+      case 'spell': return renderSpellDetail(this.currentItem, this.route.params?.slug);
+      case 'talent': {
+        const q = new URLSearchParams(location.search).toString();
+        const backHref = q ? `/talents?${q}` : '/talents';
+        return renderTalentDetail(this.currentItem as any, this.route.params?.slug, backHref, { onBackClick: () => this.scrollBack('talents') });
+      }
+      case 'class': return renderCategoryDetail(this.currentItem, this.route.params?.slug, 'classes', { onBackClick: () => this.scrollBack('classes') });
+      case 'lineage': return renderCategoryDetail(this.currentItem, this.route.params?.slug, 'lineages', { onBackClick: () => this.scrollBack('lineages') });
+      case 'background': return renderCategoryDetail(this.currentItem, this.route.params?.slug, 'backgrounds', { onBackClick: () => this.scrollBack('backgrounds') });
       case 'search':
-        return html`
-          ${shell('Search', html`<p class="mt-2">Results for <code>${this.searchQuery || '(empty)'}</code></p>`)}
-          ${this.searching ? html`<span class="loading loading-spinner"></span>` : this.renderSearchResults()}
-        `;
+        return renderSearchPage(this.searchQuery, this.searching, this.searchResults, (r) => renderSearchResult(r));
       default:
         return shell('Not Found');
     }
   }
 
-  private tile(href: string, label: string, count?: number) {
-    return html`
-      <a href="${href}" data-navigo class="app-card card hover:shadow-lg transition-shadow">
-        <div class="card-body p-4">
-          <div class="flex items-center justify-between">
-            <h3 class="card-title">${label}</h3>
-            ${typeof count === 'number' ? html`<span class="badge badge-sm">${count}</span>` : null}
-          </div>
-        </div>
-      </a>`;
-  }
-
-  private renderList(category: 'classes'|'lineages'|'backgrounds') {
-    const items = this.lists[category];
-    if (!items) return html`<span class="loading loading-spinner"></span>`;
-    return html`
-      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        ${items.map(it => html`
-          <a href="/${category}/${it.slug}" data-navigo class="app-card card" @click=${() => this.rememberScroll(category)}>
-            <div class="card-body p-4">
-              <div class="flex items-center gap-2">
-                <h3 class="card-title m-0">${it.name}</h3>
-                <div class="flex gap-1 flex-wrap">
-                  ${it.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
-                </div>
-              </div>
-            </div>
-          </a>
-        `)}
-      </div>`;
-  }
-
-  private renderDetail(category: 'classes'|'lineages'|'backgrounds') {
-    const item = this.currentItem;
-    const slug = this.route.params?.slug;
-    if (!item || item.slug !== slug) return html`<span class="loading loading-spinner"></span>`;
-    return html`
-      <div class="mt-2">
-        <a class="link" href="/${category}" data-navigo @click=${() => this.scrollBack(category)}>&larr; Back to ${category}</a>
-        <div class="mt-2 flex items-center gap-2">
-          <h2 class="text-2xl font-bold m-0">${item.name}</h2>
-          <div class="flex gap-1 flex-wrap">
-            ${item.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
-          </div>
-        </div>
-        <article class="prose max-w-none mt-4" .innerHTML=${(item as any).description ?? ''}></article>
-      </div>`;
-  }
-
-  private async loadList(category: 'classes'|'lineages'|'backgrounds') {
+  private async loadList(category: 'classes'|'lineages'|'backgrounds'|'talents'|'spells') {
     // reuse if already loaded
     if (this.lists[category]) return;
     this.lists = { ...this.lists, [category]: await getDataset(category) };
@@ -248,17 +195,17 @@ export class AppRoot extends LitElement {
     if (typeof y === 'number') queueMicrotask(() => window.scrollTo({ top: y }));
   }
 
-  private async loadDetail(category: 'classes'|'lineages'|'backgrounds', slug: string) {
+  private async loadDetail(category: 'classes'|'lineages'|'backgrounds'|'talents'|'spells', slug: string) {
     this.currentItem = undefined;
     const fromList = this.lists[category]?.find(x => x.slug === slug);
     this.currentItem = fromList ?? await getBySlug(category, slug);
   }
 
-  private rememberScroll(category: 'classes'|'lineages'|'backgrounds') {
+  private rememberScroll(category: 'classes'|'lineages'|'backgrounds'|'talents'|'spells') {
     this.listScroll[category] = window.scrollY;
   }
 
-  private scrollBack(category: 'classes'|'lineages'|'backgrounds') {
+  private scrollBack(category: 'classes'|'lineages'|'backgrounds'|'talents'|'spells') {
     const y = this.listScroll[category] ?? 0;
     queueMicrotask(() => window.scrollTo({ top: y }));
   }
@@ -275,15 +222,6 @@ export class AppRoot extends LitElement {
     } finally {
       this.searching = false;
     }
-  }
-
-  private renderSearchResults() {
-    if (!this.searchQuery) return html`<p class="opacity-70">Type in the search bar to find content.</p>`;
-    if (this.searchResults.length === 0) return html`<p class="opacity-70">Nothing was found for “${this.searchQuery}”.</p>`;
-    return html`
-      <div class="mt-4 space-y-3">
-        ${this.searchResults.map(r => this.renderResult(r))}
-      </div>`;
   }
 
   private async loadCounts() {
@@ -343,109 +281,7 @@ export class AppRoot extends LitElement {
     history.replaceState(null, '', `/spells?${sp.toString()}`);
   }
 
-  private renderSpells() {
-    const items = this.spells;
-    if (!items) return html`<span class="loading loading-spinner"></span>`;
-    const f = this.spellsFilters;
-    const allSchools = Array.from(new Set(items.map((s: any) => s.school))).sort();
-    const allSources: Array<{ abbr: string; name: string }> = [];
-    const seen = new Set<string>();
-    for (const it of items) for (const s of it.sources ?? []) if (!seen.has(s.abbr)) { seen.add(s.abbr); allSources.push({ abbr: s.abbr, name: s.name }); }
-    const selectedSrc = f.src;
-
-    let filtered = items.filter((it: any) => {
-      const cOk = f.circle == null || it.circle === f.circle;
-      const sOk = !f.school || it.school === f.school;
-      const rOk = f.ritual == null || it.isRitual === f.ritual;
-      const ctOk = !f.circleType || it.circleType === f.circleType;
-      const srcOk = selectedSrc.size === 0 || (it.sources?.some((s: any) => selectedSrc.has(s.abbr)) ?? false);
-      return cOk && sOk && rOk && ctOk && srcOk;
-    });
-
-    const cmpName = (a:any,b:any) => a.name.localeCompare(b.name);
-    const cmpCircle = (a:any,b:any) => (a.circle - b.circle) || cmpName(a,b) || a.slug.localeCompare(b.slug);
-    switch (f.sort) {
-      case 'name-desc': filtered = [...filtered].sort((a,b)=>-cmpName(a,b)); break;
-      case 'circle-asc': filtered = [...filtered].sort(cmpCircle); break;
-      case 'circle-desc': filtered = [...filtered].sort((a,b)=>-cmpCircle(a,b)); break;
-      default: filtered = [...filtered].sort((a,b)=>cmpName(a,b) || a.slug.localeCompare(b.slug));
-    }
-
-    const toggleSrc = (abbr: string) => {
-      const next = new Set(selectedSrc);
-      if (next.has(abbr)) next.delete(abbr); else next.add(abbr);
-      this.updateSpellsFilters({ src: next });
-    };
-
-    const clearAll = () => this.updateSpellsFilters({ circle: null, school: null, ritual: null, circleType: null, src: new Set(), sort: 'name-asc' });
-
-    return html`
-      <div class="mt-4 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-3">
-          <label class="form-control w-40">
-            <div class="label"><span class="label-text">Circle</span></div>
-            <select class="select select-bordered"
-              @change=${(e:Event)=> this.updateSpellsFilters({ circle: (e.target as HTMLSelectElement).value === '' ? null : Number((e.target as HTMLSelectElement).value) })}>
-              <option value="" ?selected=${f.circle==null}>All</option>
-              ${[0,1,2,3,4,5,6,7,8,9].map(c => html`<option .selected=${f.circle===c} value=${c}>${c}</option>`)}
-            </select>
-          </label>
-          <label class="form-control w-52">
-            <div class="label"><span class="label-text">School</span></div>
-            <select class="select select-bordered"
-              @change=${(e:Event)=> this.updateSpellsFilters({ school: (e.target as HTMLSelectElement).value || null })}>
-              <option value="" ?selected=${!f.school}>All</option>
-              ${allSchools.map(s => html`<option .selected=${f.school===s} value=${s}>${s}</option>`)}
-            </select>
-          </label>
-          <label class="label cursor-pointer gap-2">
-            <span>Ritual</span>
-            <input type="checkbox" class="toggle" .checked=${f.ritual===true}
-              indeterminate=${String(f.ritual==null)}
-              @change=${(e:Event)=> this.updateSpellsFilters({ ritual: (e.target as HTMLInputElement).checked ? true : null })} />
-          </label>
-          <label class="form-control w-44">
-            <div class="label"><span class="label-text">Circle Type</span></div>
-            <select class="select select-bordered"
-              @change=${(e:Event)=> this.updateSpellsFilters({ circleType: (e.target as HTMLSelectElement).value || null })}>
-              <option value="" ?selected=${!f.circleType}>All</option>
-              ${Array.from(new Set(items.map((x:any)=>x.circleType))).sort().map(ct => html`<option .selected=${f.circleType===ct} value=${ct}>${ct}</option>`)}
-            </select>
-          </label>
-          <label class="form-control w-52">
-            <div class="label"><span class="label-text">Sort</span></div>
-            <select class="select select-bordered" @change=${(e:Event)=> this.updateSpellsFilters({ sort: (e.target as HTMLSelectElement).value as any })}>
-              ${['name-asc','name-desc','circle-asc','circle-desc'].map(k => html`<option .selected=${f.sort===k} value=${k}>${k}</option>`)}
-            </select>
-          </label>
-          <button class="btn btn-sm" @click=${clearAll}>Clear All</button>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          ${allSources.map(s => html`
-            <div class="tooltip" data-tip=${s.name}>
-              <button class="btn btn-xs" data-active=${selectedSrc.has(s.abbr)?'1':'0'} @click=${() => toggleSrc(s.abbr)}>
-                <span class="badge ${selectedSrc.has(s.abbr)?'badge-primary':'badge-outline'}">${s.abbr}</span>
-              </button>
-            </div>`)}
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          ${filtered.map(it => html`
-            <a href="/spells/${(it as any).slug}" data-navigo class="app-card card" @click=${() => this.rememberScroll('spells')}>
-              <div class="card-body p-4">
-                <div class="flex items-center gap-2">
-                  <h3 class="card-title m-0">${(it as any).name}</h3>
-                  <span class="badge badge-sm">${(it as any).circle}</span>
-                  <div class="flex gap-1 flex-wrap">
-                    ${it.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
-                  </div>
-                </div>
-              </div>
-            </a>
-          `)}
-        </div>
-      </div>
-    `;
-  }
+  
 
   private parseTalentFiltersFromLocation() {
     const params = new URLSearchParams(location.search);
@@ -475,77 +311,7 @@ export class AppRoot extends LitElement {
     history.replaceState(null, '', `/talents?${sp.toString()}`);
   }
 
-  private renderTalents() {
-    const items = this.talents;
-    if (!items) return html`<span class="loading loading-spinner"></span>`;
-    const allSources: Array<{ abbr: string; name: string }> = [];
-    const seen = new Set<string>();
-    for (const it of items) {
-      for (const s of it.sources ?? []) {
-        if (!seen.has(s.abbr)) { seen.add(s.abbr); allSources.push({ abbr: s.abbr, name: s.name }); }
-      }
-    }
-
-    const selectedSrc = this.talentFilters.src;
-    let filtered = items.filter(it => {
-      const raw = ((it as any).type ?? (it as any).category ?? '').toString().toLowerCase();
-      // Support English and Russian stems: magical/магические, martial/воинские
-      const isMagical = /(mag|маг)/i.test(raw);
-      const isMartial = /(mart|воин)/i.test(raw);
-      const bothOn = this.talentFilters.magical && this.talentFilters.martial;
-      const typeOk = bothOn || (this.talentFilters.magical && isMagical) || (this.talentFilters.martial && isMartial);
-      const srcOk = selectedSrc.size === 0 || (it.sources?.some(s => selectedSrc.has(s.abbr)) ?? false);
-      return typeOk && srcOk;
-    });
-    // Defensive fallback: if filters exclude everything, and data exists, show all
-    if (filtered.length === 0 && items.length > 0) filtered = items;
-
-    const toggleSrc = (abbr: string) => {
-      const next = new Set(selectedSrc);
-      if (next.has(abbr)) next.delete(abbr); else next.add(abbr);
-      this.updateTalentFilters({ src: next });
-    };
-
-    return html`
-      <div class="mt-4 flex flex-col gap-3">
-        <div class="flex flex-wrap items-center gap-4">
-          <label class="label cursor-pointer gap-2">
-            <span>Magical</span>
-            <input type="checkbox" class="toggle" .checked=${this.talentFilters.magical} @change=${(e: Event) => this.updateTalentFilters({ magical: (e.target as HTMLInputElement).checked })} />
-          </label>
-          <label class="label cursor-pointer gap-2">
-            <span>Martial</span>
-            <input type="checkbox" class="toggle" .checked=${this.talentFilters.martial} @change=${(e: Event) => this.updateTalentFilters({ martial: (e.target as HTMLInputElement).checked })} />
-          </label>
-          <button class="btn btn-sm" @click=${() => this.updateTalentFilters({ src: new Set<string>() })}>Clear Sources</button>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          ${allSources.map(s => html`
-            <div class="tooltip" data-tip=${s.name}>
-              <button class="btn btn-xs" 
-                      data-active=${selectedSrc.has(s.abbr) ? '1' : '0'}
-                      @click=${() => toggleSrc(s.abbr)}>
-                <span class="badge ${selectedSrc.has(s.abbr) ? 'badge-primary' : 'badge-outline'}">${s.abbr}</span>
-              </button>
-            </div>`)}
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          ${filtered.map(it => html`
-            <a href="/talents/${it.slug}" data-navigo class="app-card card" @click=${() => this.rememberScroll('talents')}>
-              <div class="card-body p-4">
-                <div class="flex items-center gap-2">
-                  <h3 class="card-title m-0">${it.name}</h3>
-                  <div class="flex gap-1 flex-wrap">
-                    ${it.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
-                  </div>
-                </div>
-              </div>
-            </a>
-          `)}
-        </div>
-      </div>
-    `;
-  }
+  
 
   private async loadTalentDetail(slug: string) {
     this.currentItem = undefined;
@@ -553,39 +319,6 @@ export class AppRoot extends LitElement {
     this.currentItem = fromList ?? await getBySlug('talents', slug);
   }
 
-  private renderTalentDetail() {
-    const item = this.currentItem;
-    const slug = this.route.params?.slug;
-    if (!item || item.slug !== slug) return html`<span class="loading loading-spinner"></span>`;
-    const q = new URLSearchParams(location.search).toString();
-    const backHref = q ? `/talents?${q}` : '/talents';
-    return html`
-      <div class="mt-2">
-        <a class="link" href="${backHref}" data-navigo @click=${() => this.scrollBack('talents')}>&larr; Back to talents</a>
-        <div class="mt-2 flex items-center gap-2">
-          <h2 class="text-2xl font-bold m-0">${item.name}</h2>
-          <div class="flex gap-1 flex-wrap">
-            ${item.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
-          </div>
-        </div>
-        <article class="prose max-w-none mt-4" .innerHTML=${(item as any).description ?? ''}></article>
-      </div>`;
-  }
-
-  private renderResult(r: { doc: any; score: number }) {
-    const d = r.doc;
-    const href = `/${d.category}/${d.slug}`;
-    return html`
-      <a href="${href}" data-navigo class="app-card block">
-        <div class="card-body p-4">
-          <div class="flex items-center gap-2">
-            <h3 class="card-title m-0">${d.name}</h3>
-            <span class="app-badge badge-sm">${d.category}</span>
-          </div>
-          ${(d as any).description ? html`<p class="line-clamp-2 opacity-80" .innerHTML=${(d as any).description}></p>` : ''}
-        </div>
-      </a>`;
-  }
 
   private async sync() {
     try {
@@ -660,23 +393,6 @@ export class AppRoot extends LitElement {
   private async loadSpellDetail(slug: string) {
     this.currentItem = undefined;
     this.currentItem = await getBySlug('spells', slug);
-  }
-
-  private renderSpellDetail() {
-    const item = this.currentItem;
-    const slug = this.route.params?.slug;
-    if (!item || item.slug !== slug) return html`<span class="loading loading-spinner"></span>`;
-    return html`
-      <div class="mt-2">
-        <a class="link" href="/spells" data-navigo>&larr; Back to spells</a>
-        <div class="mt-2 flex items-center gap-2">
-          <h2 class="text-2xl font-bold m-0">${item.name}</h2>
-          <div class="flex gap-1 flex-wrap">
-            ${item.sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
-          </div>
-        </div>
-        <article class="prose max-w-none mt-4" .innerHTML=${(item as any).description ?? ''}></article>
-      </div>`;
   }
 
 }

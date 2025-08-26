@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "mac-preview": "npm run build && (rsync -a --ignore-existing ../../dist-site/ ./dist/ || cp -R -n ../../dist-site/* ./dist/) && npm run preview",
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest",
     "test:e2e": "node scripts/run-playwright.js",
@@ -14,9 +15,11 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.47.2",
+    "@tailwindcss/vite": "^4.1.12",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.5.2",
+    "@types/node": "^24.3.0",
     "@vitest/coverage-v8": "^2.0.5",
     "axe-core": "^4.10.0",
     "daisyui": "^5.0.50",
@@ -27,8 +30,7 @@
     "tailwindcss": "^4.1.12",
     "typescript": "^5.4.0",
     "vite": "^5.4.0",
-    "vitest": "^2.0.5",
-    "@tailwindcss/vite": "^4.1.12"
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "dexie": "^4.0.8",
