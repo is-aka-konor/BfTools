@@ -11,7 +11,7 @@ export interface LayoutParams {
 }
 
 export function renderLayout(p: LayoutParams): TemplateResult {
-  const { routeName, content, sidebarOpen, onToggleSidebar, counts } = p;
+  const { routeName, content, sidebarOpen, onToggleSidebar } = p;
   const onKey = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       const q = (e.target as HTMLInputElement).value;
@@ -23,31 +23,6 @@ export function renderLayout(p: LayoutParams): TemplateResult {
       <span class="sidebar-icon">${icon}</span>
       ${label}
     </a>`;
-
-  const homeQuick = html`
-    <section class="quick-nav">
-      <h2>Быстрый доступ</h2>
-      <div class="quick-nav-grid">
-        <a class="quick-nav-card" data-navigo href="/spells">
-          <div class="card-icon">✨</div>
-          <h3>Заклинания</h3>
-          <p>Изучите магические заклинания всех уровней и школ</p>
-          <div class="card-stats"><span>${counts['spells'] ?? ''} заклинаний</span></div>
-        </a>
-        <a class="quick-nav-card" data-navigo href="/classes">
-          <div class="card-icon">⚔️</div>
-          <h3>Классы</h3>
-          <p>Познакомьтесь с различными классами персонажей</p>
-          <div class="card-stats"><span>${counts['classes'] ?? ''} классов</span></div>
-        </a>
-        <div class="quick-nav-card disabled">
-          <div class="card-icon">🏛️</div>
-          <h3>Школы магии</h3>
-          <p>Узнайте о различных школах магического искусства</p>
-          <div class="card-stats"><span>-</span></div>
-        </div>
-      </div>
-    </section>`;
 
   return html`
     <!-- Navigation -->
@@ -84,7 +59,7 @@ export function renderLayout(p: LayoutParams): TemplateResult {
     <!-- Main Content -->
     <main class="main-content">
       <nav class="breadcrumbs">
-        ${
+      ${
           (p.breadcrumbs && p.breadcrumbs.length > 0)
             ? p.breadcrumbs.map((c, i) => (
                 (c.href && i < p.breadcrumbs!.length - 1)
@@ -101,7 +76,6 @@ export function renderLayout(p: LayoutParams): TemplateResult {
             <p class="hero-description">Полный справочник по правилам игры. Исследуйте заклинания, классы персонажей и магические школы.</p>
           </div>
         </section>
-        ${homeQuick}
       ` : null}
       <div class="page active">
         ${content}
