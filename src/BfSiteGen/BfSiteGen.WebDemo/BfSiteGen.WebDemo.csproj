@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -82,18 +82,14 @@
     <ItemGroup>
       <_DistFiles Include="$(MSBuildProjectDirectory)\..\..\..\dist-site\**\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(_DistFiles)"
-          DestinationFiles="@(_DistFiles->'$(MSBuildProjectDirectory)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" Condition=" '@(_DistFiles)' != '' " />
+    <Copy SourceFiles="@(_DistFiles)" DestinationFiles="@(_DistFiles->'$(MSBuildProjectDirectory)\wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition=" '@(_DistFiles)' != '' " />
   </Target>
 
   <Target Name="CopyDistSiteToWebRootOnPublish" AfterTargets="Publish">
     <ItemGroup>
       <_DistFilesPub Include="$(MSBuildProjectDirectory)\..\..\..\dist-site\**\*" />
     </ItemGroup>
-    <Copy SourceFiles="@(_DistFilesPub)"
-          DestinationFiles="@(_DistFilesPub->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" Condition=" '$(PublishDir)' != '' AND '@(_DistFilesPub)' != '' " />
+    <Copy SourceFiles="@(_DistFilesPub)" DestinationFiles="@(_DistFilesPub->'$(PublishDir)wwwroot\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition=" '$(PublishDir)' != '' AND '@(_DistFilesPub)' != '' " />
   </Target>
 
 </Project>
