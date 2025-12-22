@@ -10,7 +10,7 @@ import { getDataset, getBySlug, type Entry, type Talent } from './data/repo';
 import { searchAll } from './data/search';
 import { renderHome } from './views/home';
 import { renderCategoryList, renderCategoryDetail, renderSimplePage } from './views/lists';
-import { renderClasses } from './views/classes';
+import { renderClasses, renderClassDetail } from './views/classes';
 import { renderSearchPage, renderResult as renderSearchResult } from './views/search';
 import { renderTalents, renderTalentDetail, type TalentFilters } from './views/talents';
 import { renderSpells, type SpellsFilters, renderSpellDetail } from './views/spells';
@@ -95,25 +95,48 @@ export class AppRoot extends LitElement {
       .on('/spells', () => this.setRoute('spells'))
       .on('/spells/:slug', (match) => {
         console.info('[router] match spell', match);
-        this.setRoute('spell', match?.params || undefined);
+        this.setRoute('spell', match?.data || match?.params || undefined);
       })
-      .on('/talents/:slug', (match) => this.setRoute('talent', match?.params || undefined))
-      .on('/classes/:slug', (match) => this.setRoute('class', match?.params || undefined))
-      .on('/lineages/:slug', (match) => this.setRoute('lineage', match?.params || undefined))
-      .on('/backgrounds/:slug', (match) => this.setRoute('background', match?.params || undefined))
+      .on('/talents/:slug', (match) => this.setRoute('talent', match?.data || match?.params || undefined))
+      .on('/classes/:slug', (match) => this.setRoute('class', match?.data || match?.params || undefined))
+      .on('/lineages/:slug', (match) => this.setRoute('lineage', match?.data || match?.params || undefined))
+      .on('/backgrounds/:slug', (match) => this.setRoute('background', match?.data || match?.params || undefined))
       .on('/search', () => this.setRoute('search'))
       .notFound(() => this.setRoute('notfound'))
       .resolve();
 
-    // Fallback for deep links if Navigo doesn't populate params on first load
+    //Fallback for deep links if Navigo doesn't populate params on first load
     const path = (globalThis as any)?.location?.pathname || '';
     if (path.startsWith('/spells/')) {
       const slug = decodeURIComponent(path.split('/')[2] || '');
       if (slug) {
-        console.info('[router] fallback parse slug from location', slug);
+        console.info('[router] fallback parse spell slug from location', slug);
         this.setRoute('spell', { slug });
       }
     }
+    else if (path.startsWith('/classes/')) {
+      const slug = decodeURIComponent(path.split('/')[2] || '');
+      if (slug) {
+        console.info('[router] fallback parse class slug from location', slug);
+        this.setRoute('class', { slug });
+      }
+    }
+    //else if (path.startsWith('/talents/')) {
+    //   const slug = decodeURIComponent(path.split('/')[2] || '');
+    //   if (slug) {
+    //     this.setRoute('talent', { slug });
+    //   }
+    // } else if (path.startsWith('/lineages/')) {
+    //   const slug = decodeURIComponent(path.split('/')[2] || '');
+    //   if (slug) {
+    //     this.setRoute('lineage', { slug });
+    //   }
+    // } else if (path.startsWith('/backgrounds/')) {
+    //   const slug = decodeURIComponent(path.split('/')[2] || '');
+    //   if (slug) {
+    //     this.setRoute('background', { slug });
+    //   }
+    // }
 
     // Kick off content sync (network-first)
     this.sync();
@@ -273,7 +296,7 @@ export class AppRoot extends LitElement {
         const backHref = q ? `/talents?${q}` : '/talents';
         return renderTalentDetail(this.currentItem as any, this.route.params?.slug, backHref, { onBackClick: () => this.scrollBack('talents') });
       }
-      case 'class': return renderCategoryDetail(this.currentItem, this.route.params?.slug, 'classes', { onBackClick: () => this.scrollBack('classes') });
+      case 'class': return renderClassDetail(this.currentItem as any, this.route.params?.slug, { onBackClick: () => this.scrollBack('classes') });
       case 'lineage': return renderCategoryDetail(this.currentItem, this.route.params?.slug, 'lineages', { onBackClick: () => this.scrollBack('lineages') });
       case 'background': return renderCategoryDetail(this.currentItem, this.route.params?.slug, 'backgrounds', { onBackClick: () => this.scrollBack('backgrounds') });
       case 'search':

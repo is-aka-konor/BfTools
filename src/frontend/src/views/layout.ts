@@ -39,7 +39,7 @@ export function renderLayout(p: LayoutParams): TemplateResult {
     </nav>
 
     <!-- Sidebar -->
-    <aside class="sidebar ${sidebarOpen ? 'open' : ''}">
+    <aside class="sidebar ${sidebarOpen ? 'active' : ''}">
       <div class="sidebar-content">
         <nav class="sidebar-nav">
           ${link('/', '🏠', 'Главная')}
@@ -59,15 +59,14 @@ export function renderLayout(p: LayoutParams): TemplateResult {
     <!-- Main Content -->
     <main class="main-content">
       <nav class="breadcrumbs">
-      ${
-          (p.breadcrumbs && p.breadcrumbs.length > 0)
-            ? p.breadcrumbs.map((c, i) => (
-                (c.href && i < p.breadcrumbs!.length - 1)
-                  ? html`<a class="breadcrumb-item" href="${c.href}" data-navigo>${c.label}</a>`
-                  : html`<span class="breadcrumb-item">${c.label}</span>`
-              ))
-            : html`<span class="breadcrumb-item">${routeName}</span>`
-        }
+      ${(p.breadcrumbs && p.breadcrumbs.length > 0)
+      ? p.breadcrumbs.map((c, i) => (
+        (c.href && i < p.breadcrumbs!.length - 1)
+          ? html`<a class="breadcrumb-item" href="${c.href}" data-navigo>${c.label}</a>`
+          : html`<span class="breadcrumb-item">${c.label}</span>`
+      ))
+      : html`<span class="breadcrumb-item">${routeName}</span>`
+    }
       </nav>
       ${routeName === 'home' ? html`
         <section class="hero">
@@ -83,6 +82,6 @@ export function renderLayout(p: LayoutParams): TemplateResult {
     </main>
 
     <!-- Overlay for mobile -->
-    <div class="overlay ${sidebarOpen ? 'open' : ''}" @click=${onToggleSidebar}></div>
+    <div class="overlay ${sidebarOpen ? 'active' : ''}" @click=${onToggleSidebar}></div>
   `;
 }
