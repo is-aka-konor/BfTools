@@ -2,13 +2,14 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Spectre.Console" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" />
     </ItemGroup>
@@ -24,12 +25,8 @@
             <_ConfigFiles Include="$(MSBuildProjectDirectory)\..\..\..\config\**\*" />
             <_InputFiles Include="$(MSBuildProjectDirectory)\..\..\..\input\**\*" />
         </ItemGroup>
-        <Copy SourceFiles="@(_ConfigFiles)"
-              DestinationFiles="@(_ConfigFiles->'$(OutDir)config\%(RecursiveDir)%(Filename)%(Extension)')"
-              SkipUnchangedFiles="true" />
-        <Copy SourceFiles="@(_InputFiles)"
-              DestinationFiles="@(_InputFiles->'$(OutDir)input\%(RecursiveDir)%(Filename)%(Extension)')"
-              SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(_ConfigFiles)" DestinationFiles="@(_ConfigFiles->'$(OutDir)config\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="@(_InputFiles)" DestinationFiles="@(_InputFiles->'$(OutDir)input\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
     </Target>
 
     <Target Name="CopyInputAndConfigToPublish" AfterTargets="Publish">
@@ -37,12 +34,8 @@
             <_ConfigFilesPub Include="$(MSBuildProjectDirectory)\..\..\..\config\**\*" />
             <_InputFilesPub Include="$(MSBuildProjectDirectory)\..\..\..\input\**\*" />
         </ItemGroup>
-        <Copy SourceFiles="@(_ConfigFilesPub)"
-              DestinationFiles="@(_ConfigFilesPub->'$(PublishDir)config\%(RecursiveDir)%(Filename)%(Extension)')"
-              SkipUnchangedFiles="true" Condition=" '$(PublishDir)' != '' " />
-        <Copy SourceFiles="@(_InputFilesPub)"
-              DestinationFiles="@(_InputFilesPub->'$(PublishDir)input\%(RecursiveDir)%(Filename)%(Extension)')"
-              SkipUnchangedFiles="true" Condition=" '$(PublishDir)' != '' " />
+        <Copy SourceFiles="@(_ConfigFilesPub)" DestinationFiles="@(_ConfigFilesPub->'$(PublishDir)config\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition=" '$(PublishDir)' != '' " />
+        <Copy SourceFiles="@(_InputFilesPub)" DestinationFiles="@(_InputFilesPub->'$(PublishDir)input\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" Condition=" '$(PublishDir)' != '' " />
     </Target>
 
 </Project>
