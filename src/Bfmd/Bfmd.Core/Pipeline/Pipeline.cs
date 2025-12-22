@@ -93,7 +93,9 @@ public class PipelineRunner : IPipeline
             // Assign IDs, slugs, and src, normalize common
             foreach (var e in entities)
             {
-                e.Slug = SlugService.From(e.Name, cacheKey: e.Name);
+                e.Slug = string.IsNullOrWhiteSpace(e.Slug) 
+                    ? SlugService.From(e.Name, cacheKey: e.Name) 
+                    : e.Slug;
                 e.Id = $"{src.Abbr}:{e.Type}/{e.Slug}";
                 e.Src = new SourceRef
                 {

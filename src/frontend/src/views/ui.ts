@@ -3,7 +3,7 @@ import { html, type TemplateResult } from 'lit';
 export function shell(title: string, extra?: unknown): TemplateResult {
   return html`
     <div class="prose max-w-none">
-      <h1>${title}</h1>
+      ${title ? html`<h1>${title}</h1>` : ''}
       ${extra ?? ''}
     </div>
   `;

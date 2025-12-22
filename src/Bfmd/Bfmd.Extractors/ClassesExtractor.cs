@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Bfmd.Core.Config;
 using BfCommon.Domain.Models;
 using Bfmd.Core.Pipeline;
+using Bfmd.Core.Services;
 using Markdig.Syntax;
 
 namespace Bfmd.Extractors;
@@ -17,11 +18,13 @@ public class ClassesExtractor : IExtractor
             if (string.IsNullOrWhiteSpace(title)) continue;
             var sectionBlocks = GetSectionBlocks(doc, classHeader);
             var desc = SectionMarkdown(doc, content, classHeader, sectionBlocks);
-
+            
             var cls = new ClassDto
             {
                 Type = "class",
                 Name = title!,
+
+                Slug = SlugMap.GetValueOrDefault(title) ?? "",
                 Description = desc,
                 Summary = GetFirstParagraph(doc),
                 HitDie = GuessHitDie(sectionBlocks),
@@ -463,4 +466,21 @@ public class ClassesExtractor : IExtractor
         var m = Regex.Match(value, "(\\d+)");
         return m.Success && int.TryParse(m.Groups[1].Value, out var n) ? n : 0;
     }
+    
+    internal static readonly Dictionary<string, string> SlugMap = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "бард", "bard" },
+        { "жрец", "cleric" },
+        { "воин", "fighter" },
+        { "механик", "mechanist" },
+        { "следопыт", "ranger" },
+        { "разбойник", "rogue" },
+        { "волшебник", "wizard" },
+        { "варвар", "barbarian" },
+        { "паладин", "paladin" },
+        { "чародей", "sorcerer" },
+        { "колдун", "warlock" },
+        { "монах", "monk" },
+        { "друид", "druid" }
+    };
 }

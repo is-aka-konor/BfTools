@@ -11,6 +11,23 @@ export interface Talent extends Entry {
   type: string;
 }
 
+export interface ClassEntry extends Entry {
+  hitDie?: string;
+  savingThrows?: string[];
+  proficiencies?: {
+    armor?: string[];
+    weapons?: string[];
+    tools?: string[];
+    skills?: {
+      granted?: string[];
+      choose?: number;
+      from?: string[];
+    };
+  };
+  startingEquipment?: string[];
+  levels?: Array<{ level: number; proficiencyBonus?: string; features?: string[] }>;
+}
+
 export async function getDataset(category: string): Promise<Entry[]> {
   console.info(`Received a call to get Category data for: ${category}`);
   const active = (await db.meta.get('active'))?.value as Record<string, { hash: string }> | undefined;

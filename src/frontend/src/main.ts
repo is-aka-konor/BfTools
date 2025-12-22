@@ -10,6 +10,7 @@ import { getDataset, getBySlug, type Entry, type Talent } from './data/repo';
 import { searchAll } from './data/search';
 import { renderHome } from './views/home';
 import { renderCategoryList, renderCategoryDetail, renderSimplePage } from './views/lists';
+import { renderClasses } from './views/classes';
 import { renderSearchPage, renderResult as renderSearchResult } from './views/search';
 import { renderTalents, renderTalentDetail, type TalentFilters } from './views/talents';
 import { renderSpells, type SpellsFilters, renderSpellDetail } from './views/spells';
@@ -52,8 +53,8 @@ export class AppRoot extends LitElement {
   declare private talents: Talent[] | undefined;
   declare private talentFilters: { magical: boolean; martial: boolean; src: Set<string> };
   declare private currentItem?: Entry;
-  declare private spells: Array<Entry & { circle:number; school:string; isRitual:boolean; circleType:string }> | undefined;
-  declare private spellsFilters: { circle?: number|null; school?: string|null; ritual?: boolean|null; circleType?: string|null; src: Set<string>; sort: 'name-asc'|'name-desc'|'circle-asc'|'circle-desc' };
+  declare private spells: Array<Entry & { circle: number; school: string; isRitual: boolean; circleType: string }> | undefined;
+  declare private spellsFilters: { circle?: number | null; school?: string | null; ritual?: boolean | null; circleType?: string | null; src: Set<string>; sort: 'name-asc' | 'name-desc' | 'circle-asc' | 'circle-desc' };
   declare private sidebarOpen: boolean;
 
   constructor() {
@@ -82,27 +83,27 @@ export class AppRoot extends LitElement {
     try {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
-    } catch {}
+    } catch { }
     this.router
-        .on('/', () => this.setRoute('home'))
-        .on('/intro', () => this.setRoute('intro'))
-        .on('/spellcasting', () => this.setRoute('spellcasting'))
-        .on('/classes', () => this.setRoute('classes'))
-        .on('/talents', () => this.setRoute('talents'))
-        .on('/lineages', () => this.setRoute('lineages'))
-        .on('/backgrounds', () => this.setRoute('backgrounds'))
-        .on('/spells', () => this.setRoute('spells'))
-        .on('/spells/:slug', (match) => {
-          console.info('[router] match spell', match);
-          this.setRoute('spell', match?.params || undefined);
-        })
-        .on('/talents/:slug', (match) => this.setRoute('talent', match?.params || undefined))
-        .on('/classes/:slug', (match) => this.setRoute('class', match?.params || undefined))
-        .on('/lineages/:slug', (match) => this.setRoute('lineage', match?.params || undefined))
-        .on('/backgrounds/:slug', (match) => this.setRoute('background', match?.params || undefined))
-        .on('/search', () => this.setRoute('search'))
-        .notFound(() => this.setRoute('notfound'))
-        .resolve();
+      .on('/', () => this.setRoute('home'))
+      .on('/intro', () => this.setRoute('intro'))
+      .on('/spellcasting', () => this.setRoute('spellcasting'))
+      .on('/classes', () => this.setRoute('classes'))
+      .on('/talents', () => this.setRoute('talents'))
+      .on('/lineages', () => this.setRoute('lineages'))
+      .on('/backgrounds', () => this.setRoute('backgrounds'))
+      .on('/spells', () => this.setRoute('spells'))
+      .on('/spells/:slug', (match) => {
+        console.info('[router] match spell', match);
+        this.setRoute('spell', match?.params || undefined);
+      })
+      .on('/talents/:slug', (match) => this.setRoute('talent', match?.params || undefined))
+      .on('/classes/:slug', (match) => this.setRoute('class', match?.params || undefined))
+      .on('/lineages/:slug', (match) => this.setRoute('lineage', match?.params || undefined))
+      .on('/backgrounds/:slug', (match) => this.setRoute('background', match?.params || undefined))
+      .on('/search', () => this.setRoute('search'))
+      .notFound(() => this.setRoute('notfound'))
+      .resolve();
 
     // Fallback for deep links if Navigo doesn't populate params on first load
     const path = (globalThis as any)?.location?.pathname || '';
@@ -230,14 +231,14 @@ export class AppRoot extends LitElement {
     }
     return html`
       ${renderLayout({
-        routeName: this.route.name,
-        content,
-        counts: this.counts,
-        sidebarOpen: this.sidebarOpen,
-        onToggleSidebar: () => (this.sidebarOpen = !this.sidebarOpen),
-        onSearch: (q) => { if (q) this.router.navigate(`/search?q=${encodeURIComponent(q)}`); },
-        breadcrumbs: crumbs
-      })}
+      routeName: this.route.name,
+      content,
+      counts: this.counts,
+      sidebarOpen: this.sidebarOpen,
+      onToggleSidebar: () => (this.sidebarOpen = !this.sidebarOpen),
+      onSearch: (q) => { if (q) this.router.navigate(`/search?q=${encodeURIComponent(q)}`); },
+      breadcrumbs: crumbs
+    })}
       <search-modal .open=${this.searchOpen} @navigate=${(e: Event) => this.onNavigateFromModal(e)}></search-modal>
       ${this.updateReady ? html`<div class="toast toast-bottom toast-center">
         <div class="alert alert-info">
@@ -256,7 +257,8 @@ export class AppRoot extends LitElement {
         return renderHome(this.counts);
       case 'intro': return shell('Intro');
       case 'spellcasting': return shell('Spellcasting');
-      case 'classes': return shell('Classes', renderCategoryList(this.lists['classes'], 'classes', { onOpenItem: () => this.rememberScroll('classes') }));
+      case 'classes':
+        return shell('', renderClasses(this.lists['classes'] as any, { onOpenItem: () => this.rememberScroll('classes') }));
       case 'talents': return shell('Talents', renderTalents(this.talents, this.talentFilters as TalentFilters, { updateTalentFilters: (p) => this.updateTalentFilters(p), rememberScroll: () => this.rememberScroll('talents') }));
       case 'lineages': return shell('Lineages', renderCategoryList(this.lists['lineages'], 'lineages', { onOpenItem: () => this.rememberScroll('lineages') }));
       case 'backgrounds': return shell('Backgrounds', renderCategoryList(this.lists['backgrounds'], 'backgrounds', { onOpenItem: () => this.rememberScroll('backgrounds') }));
@@ -281,7 +283,7 @@ export class AppRoot extends LitElement {
     }
   }
 
-  private async loadList(category: 'classes'|'lineages'|'backgrounds'|'talents'|'spells') {
+  private async loadList(category: 'classes' | 'lineages' | 'backgrounds' | 'talents' | 'spells') {
     // reuse if already loaded
     if (this.lists[category]) return;
     this.lists = { ...this.lists, [category]: await getDataset(category) };
@@ -290,17 +292,17 @@ export class AppRoot extends LitElement {
     if (typeof y === 'number') queueMicrotask(() => window.scrollTo({ top: y }));
   }
 
-  private async loadDetail(category: 'classes'|'lineages'|'backgrounds'|'talents'|'spells', slug: string) {
+  private async loadDetail(category: 'classes' | 'lineages' | 'backgrounds' | 'talents' | 'spells', slug: string) {
     this.currentItem = undefined;
     const fromList = this.lists[category]?.find(x => x.slug === slug);
     this.currentItem = fromList ?? await getBySlug(category, slug);
   }
 
-  private rememberScroll(category: 'classes'|'lineages'|'backgrounds'|'talents'|'spells') {
+  private rememberScroll(category: 'classes' | 'lineages' | 'backgrounds' | 'talents' | 'spells') {
     this.listScroll[category] = window.scrollY;
   }
 
-  private scrollBack(category: 'classes'|'lineages'|'backgrounds'|'talents'|'spells') {
+  private scrollBack(category: 'classes' | 'lineages' | 'backgrounds' | 'talents' | 'spells') {
     const y = this.listScroll[category] ?? 0;
     queueMicrotask(() => window.scrollTo({ top: y }));
   }
@@ -364,7 +366,7 @@ export class AppRoot extends LitElement {
     } as any;
   }
 
-  private updateSpellsFilters(patch: Partial<{ circle?: number|null; school?: string|null; ritual?: boolean|null; circleType?: string|null; src?: Set<string>; sort?: 'name-asc'|'name-desc'|'circle-asc'|'circle-desc' }>) {
+  private updateSpellsFilters(patch: Partial<{ circle?: number | null; school?: string | null; ritual?: boolean | null; circleType?: string | null; src?: Set<string>; sort?: 'name-asc' | 'name-desc' | 'circle-asc' | 'circle-desc' }>) {
     const next = { ...this.spellsFilters } as any;
     for (const [k, v] of Object.entries(patch)) (next as any)[k] = v;
     this.spellsFilters = next;
@@ -378,7 +380,7 @@ export class AppRoot extends LitElement {
     history.replaceState(null, '', `/spells?${sp.toString()}`);
   }
 
-  
+
 
   private parseTalentFiltersFromLocation() {
     const params = new URLSearchParams(location.search);
@@ -408,7 +410,7 @@ export class AppRoot extends LitElement {
     history.replaceState(null, '', `/talents?${sp.toString()}`);
   }
 
-  
+
 
   private async loadTalentDetail(slug: string) {
     this.currentItem = undefined;

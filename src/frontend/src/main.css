@@ -103,6 +103,94 @@
   .spell-tag {
     @apply badge badge-outline badge-sm;
   }
+
+  .class-card {
+    @apply border border-base-300 bg-base-200/80 shadow-md rounded-xl transition-all duration-200 p-6 flex flex-col gap-5;
+  }
+
+  .class-card:hover {
+    @apply border-accent shadow-2xl -translate-y-1;
+  }
+
+  .class-header {
+    @apply flex items-start gap-4 justify-between;
+  }
+
+  .class-icon {
+    @apply flex h-12 w-12 items-center justify-center rounded-full bg-base-300 text-2xl shadow-inner;
+  }
+
+  .class-title {
+    @apply flex-1;
+  }
+
+  .class-name {
+    @apply text-xl font-semibold m-0;
+  }
+
+  .class-subtitle {
+    @apply mt-1 text-sm opacity-70;
+  }
+
+  .class-stats {
+    @apply grid gap-3 text-sm sm:grid-cols-2;
+  }
+
+  .stat-item {
+    @apply flex flex-col gap-1 rounded-lg bg-base-100/60 p-3;
+  }
+
+  .stat-label {
+    @apply text-[11px] uppercase tracking-widest font-semibold opacity-60;
+  }
+
+  .stat-value {
+    @apply leading-snug;
+  }
+
+  .class-description {
+    @apply text-sm leading-relaxed opacity-80;
+  }
+
+  .class-features {
+    @apply border-t border-base-300 pt-4 flex flex-col gap-3;
+  }
+
+  .class-features h4 {
+    @apply text-sm font-semibold uppercase tracking-wide text-base-content/70;
+  }
+
+  .feature-list {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .feature-tag {
+    @apply badge badge-outline badge-sm;
+  }
+
+  .class-equipment {
+    @apply border-t border-base-300 pt-4 text-sm space-y-2;
+  }
+
+  .class-equipment h4 {
+    @apply text-sm font-semibold uppercase tracking-wide text-base-content/60;
+  }
+
+  .class-equipment ul {
+    @apply list-disc list-inside space-y-1 opacity-80;
+  }
+
+  .class-footer {
+    @apply mt-auto flex items-center justify-between gap-4 pt-4;
+  }
+
+  .class-sources {
+    @apply flex flex-wrap gap-1 text-xs opacity-80;
+  }
+
+  .class-link {
+    @apply text-sm font-medium text-accent hover:underline;
+  }
   
   /* Кнопки */
   .btn-primary-custom {
