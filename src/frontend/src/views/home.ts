@@ -17,12 +17,24 @@ export function renderHome(counts: Record<string, number | undefined>): Template
           <p>Познакомьтесь с различными классами персонажей</p>
           <div class="card-stats"><span>${counts['classes'] ?? ''} классов</span></div>
         </a>
-        <div class="quick-nav-card disabled">
-          <div class="card-icon">🏛️</div>
-          <h3>Школы магии</h3>
-          <p>Узнайте о различных школах магического искусства</p>
-          <div class="card-stats"><span>-</span></div>
-        </div>
+        <a class="quick-nav-card" data-navigo href="/talents">
+          <div class="card-icon">🎖️</div>
+          <h3>Таланты</h3>
+          <p>Выберите уникальные способности для вашего персонажа</p>
+          <div class="card-stats"><span>${counts['talents'] ?? ''} талантов</span></div>
+        </a>
+        <a class="quick-nav-card" data-navigo href="/lineages">
+          <div class="card-icon">🧬</div>
+          <h3>Происхождения</h3>
+          <p>Исследуйте различные расы и народы мира</p>
+          <div class="card-stats"><span>${counts['lineages'] ?? ''} происхождений</span></div>
+        </a>
+        <a class="quick-nav-card" data-navigo href="/backgrounds">
+          <div class="card-icon">📜</div>
+          <h3>Предыстории</h3>
+          <p>Определите прошлое вашего героя и его жизненный опыт</p>
+          <div class="card-stats"><span>${counts['backgrounds'] ?? ''} предысторий</span></div>
+        </a>
       </div>
     </section>
   `;

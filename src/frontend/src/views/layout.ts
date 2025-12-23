@@ -72,7 +72,7 @@ export function renderLayout(p: LayoutParams): TemplateResult {
         <section class="hero">
           <div class="hero-content">
             <h1 class="hero-title">Добро пожаловать в Tales of the Valiant</h1>
-            <p class="hero-description">Полный справочник по правилам игры. Исследуйте заклинания, классы персонажей и магические школы.</p>
+            <p class="hero-description">Полный справочник по правилам игры. Исследуйте заклинания, классы, таланты, происхождения и предыстории.</p>
           </div>
         </section>
       ` : null}
