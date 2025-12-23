@@ -39,12 +39,6 @@ export function renderClassDetail(
 
   return html`
     <div class="class-detail-page">
-      <div style="margin-bottom: var(--space-xl);">
-         <a class="btn btn-ghost btn-sm gap-2" href="/classes" data-navigo @click=${onBack}>
-           ← Вернуться к классам
-         </a>
-      </div>
-
       <header class="class-detail-header">
         <div class="class-detail-icon">${icon}</div>
         <h1 class="class-detail-title">${item.name}</h1>
@@ -116,10 +110,8 @@ export function renderClassDetail(
         <div class="class-full-description" .innerHTML=${item.description ?? ''}></div>
       </section>
 
-      <div style="margin-top: var(--space-2xl); text-align: center;">
-        <a class="btn btn-secondary" href="/classes" data-navigo @click=${onBack}>
-          ← Вернуться к списку классов
-        </a>
+      <div style="margin-top: var(--space-xl); text-align: center;">
+        <a class="btn btn--accent-outline" href="/classes" data-navigo @click=${onBack}>← Вернуться к списку классов</a>
       </div>
     </div>
   `;

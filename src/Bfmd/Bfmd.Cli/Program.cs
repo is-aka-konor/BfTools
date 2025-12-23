@@ -52,6 +52,22 @@ void RunConvert()
     var sources = new YamlLoader<SourcesConfig>().Load(Path.Combine(cfgRoot, "sources.yaml"));
     var pipe = new YamlLoader<PipelineConfig>().Load(Path.Combine(cfgRoot, "pipeline.yaml"));
 
+    // Clear output to avoid stale JSON confusing developers/testers.
+    try
+    {
+        if (Directory.Exists(output))
+        {
+            Directory.Delete(output, true);
+            Console.WriteLine("The output folder was deleted.");
+        }
+        Directory.CreateDirectory(output);
+    }
+    catch (Exception ex)
+    {
+        AnsiConsole.MarkupLine($"[red]Failed to clear output folder[/]: {ex.Message}");
+        return;
+    }
+
     using var lf = LoggerFactory.Create(b => { b.AddConsole(); b.SetMinimumLevel(LogLevel.Information); });
     var log = lf.CreateLogger("convert");
     var runner = new PipelineRunner(log, new FileMarkdownLoader(), 

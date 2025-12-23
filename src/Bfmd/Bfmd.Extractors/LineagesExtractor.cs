@@ -9,6 +9,9 @@ namespace Bfmd.Extractors;
 
 public class LineagesExtractor : IExtractor
 {
+    /// <summary>
+    /// Extracts lineage DTOs from each markdown document using the lineage parser.
+    /// </summary>
     public IEnumerable<BaseEntity> Extract(IEnumerable<(string path, string content, MarkdownDocument doc, string sha256)> docs, SourceItem src, MappingConfig map)
     {
         foreach (var (path, content, doc, _) in docs)
@@ -18,16 +21,18 @@ public class LineagesExtractor : IExtractor
         }
     }
 
+    /// <summary>
+    /// Parses all H2 lineage sections and builds one DTO per section, using the H2 title for name/slug
+    /// and the blocks between the H2 and the next H2 or thematic break as the description/traits source.
+    /// </summary>
     internal static IEnumerable<LineageDto> ParseLineages(MarkdownDocument doc, string content, MappingConfig map, string sourcePath)
     {
-        // Optional narrowing: look for a collection root H1/H2 that contains key phrase
         var allH2 = doc.Descendants().OfType<HeadingBlock>().Where(h => h.Level == 2).ToList();
         for (int i = 0; i < allH2.Count; i++)
         {
             var h2 = allH2[i];
             var title = InlineToText(h2.Inline);
-            var name = TryParseEntryName(title);
-            if (string.IsNullOrWhiteSpace(name)) continue;
+            if (!TryParseHeaderParts(title, out var name, out var slug)) continue;
 
             var next = i + 1 < allH2.Count ? allH2[i + 1] : null;
             var blocks = CollectUntil(doc, h2, next).ToList();
@@ -35,11 +40,12 @@ public class LineagesExtractor : IExtractor
             var lin = new LineageDto
             {
                 Type = "lineage",
-                Name = name!,
+                Name = name,
+                Slug = slug,
                 Size = string.Empty,
                 Speed = 0,
                 Traits = new List<TraitDto>(),
-                Description = content,
+                Description = BlocksToMarkdown(content, blocks),
                 SourceFile = sourcePath
             };
 
@@ -55,6 +61,10 @@ public class LineagesExtractor : IExtractor
         }
     }
 
+    /// <summary>
+    /// Walks list blocks inside a lineage section and maps labeled bullets into traits,
+    /// also deriving size and speed from matching labels.
+    /// </summary>
     internal static void ParseBulletsIntoLineage(IEnumerable<Block> blocks, LineageDto lin, MappingConfig map)
     {
         foreach (var b in blocks)
@@ -116,6 +126,9 @@ public class LineagesExtractor : IExtractor
         }
     }
 
+    /// <summary>
+    /// Infers the first recognizable size token from the text.
+    /// </summary>
     internal static string ParseSize(string text)
     {
         // Prefer "Средний" or "Маленький" if present; if both, choose "Средний"
@@ -124,6 +137,9 @@ public class LineagesExtractor : IExtractor
         return string.Empty;
     }
 
+    /// <summary>
+    /// Extracts the first speed number using a configurable capture regex.
+    /// </summary>
     internal static int ParseSpeed(string text, MappingConfig map)
     {
         var rx = map.Regexes != null && map.Regexes.TryGetValue("speedCapture", out var s) ? s : "(?i)(\\d+)";
@@ -132,6 +148,9 @@ public class LineagesExtractor : IExtractor
         return 0;
     }
 
+    /// <summary>
+    /// Extracts a labeled bullet like **Label.** value into label/value strings.
+    /// </summary>
     internal static (string label, string value) ExtractLabeledValue(ListItemBlock li)
     {
         var p = li.Descendants().OfType<ParagraphBlock>().FirstOrDefault();
@@ -151,6 +170,9 @@ public class LineagesExtractor : IExtractor
         return (label.Trim().TrimEnd('.'), value);
     }
 
+    /// <summary>
+    /// Collects blocks after a start heading until the next H2 or a thematic break.
+    /// </summary>
     internal static IEnumerable<Block> CollectUntil(MarkdownDocument doc, Block start, Block? nextH2)
     {
         var list = new List<Block>();
@@ -169,13 +191,27 @@ public class LineagesExtractor : IExtractor
         return list;
     }
 
-    internal static string? TryParseEntryName(string headingText)
+    /// <summary>
+    /// Splits a H2 heading into name and slug using the "Name | SLUG" convention.
+    /// </summary>
+    internal static bool TryParseHeaderParts(string headingText, out string name, out string slug)
     {
-        var m = Regex.Match(headingText ?? string.Empty, "(?i)^черт[аы]\\s+происхождени[ея]\\s+(.+)$");
-        if (m.Success) return m.Groups[1].Value.Trim();
-        return null;
+        name = string.Empty;
+        slug = string.Empty;
+        var text = headingText?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+
+        var split = text.Split('|', 2, StringSplitOptions.TrimEntries);
+        if (split.Length < 2) return false;
+
+        name = split[0].Trim();
+        slug = split[1].Trim().ToLower();
+        return !string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(slug);
     }
 
+    /// <summary>
+    /// Flattens inline markup into plain text.
+    /// </summary>
     internal static string InlineToText(Markdig.Syntax.Inlines.ContainerInline? inline)
     {
         if (inline is null) return string.Empty;
@@ -184,6 +220,9 @@ public class LineagesExtractor : IExtractor
         return sb.ToString().Trim();
     }
 
+    /// <summary>
+    /// Converts a single inline node to text, traversing known inline types.
+    /// </summary>
     internal static string InlineNodeToText(Markdig.Syntax.Inlines.Inline node)
     {
         return node switch
@@ -194,5 +233,18 @@ public class LineagesExtractor : IExtractor
             Markdig.Syntax.Inlines.CodeInline code => code.Content,
             _ => string.Empty
         };
+    }
+
+    /// <summary>
+    /// Slices the original markdown content for the provided block span range.
+    /// </summary>
+    internal static string BlocksToMarkdown(string content, List<Block> blocks)
+    {
+        if (blocks.Count == 0) return string.Empty;
+        var start = blocks.First().Span.Start;
+        var end = blocks.Last().Span.End;
+        if (start < 0 || end < 0 || end < start || end + 1 > content.Length) return string.Empty;
+        var slice = content.Substring(start, end - start + 1);
+        return slice.Trim();
     }
 }

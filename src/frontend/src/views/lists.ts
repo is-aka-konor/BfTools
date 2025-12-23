@@ -8,19 +8,30 @@ export function renderCategoryList(
   opts: { onOpenItem?: (it: Entry) => void } = {}
 ): TemplateResult {
   if (!items) return loadingSpinner();
-  const onOpen = opts.onOpenItem ?? (() => {});
+  const onOpen = opts.onOpenItem ?? (() => { });
+  const displayTitles: Record<string, string> = {
+    lineages: 'Происхождения',
+    backgrounds: 'Предыстории',
+    classes: 'Классы'
+  };
+
   return html`
-    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-      ${items.map(it => html`
-        <a href="/${category}/${it.slug}" data-navigo class="app-card card" @click=${() => onOpen(it)}>
-          <div class="card-body p-4">
-            <div class="flex items-center gap-2">
-              <h3 class="card-title m-0">${it.name}</h3>
-              <div class="flex gap-1 flex-wrap">${sourceBadges(it.sources)}</div>
+    <div id="${category}Page" class="page active">
+      <div class="page-header">
+        <h1>${displayTitles[category] || category}</h1>
+      </div>
+      <div class="resource-grid">
+        ${items.map(it => html`
+          <a href="/${category}/${it.slug}" data-navigo class="resource-card" @click=${() => onOpen(it)}>
+            <div class="resource-header">
+              <h3 class="resource-name">${it.name}</h3>
             </div>
-          </div>
-        </a>
-      `)}
+            <div style="margin-top: auto; display: flex; justify-content: flex-end;">
+              ${sourceBadges(it.sources)}
+            </div>
+          </a>
+        `)}
+      </div>
     </div>
   `;
 }
@@ -32,15 +43,48 @@ export function renderCategoryDetail(
   opts: { onBackClick?: () => void } = {}
 ): TemplateResult {
   if (!item || item.slug !== slug) return loadingSpinner();
-  const onBack = opts.onBackClick ?? (() => {});
+  const onBack = opts.onBackClick ?? (() => { });
+
+  const categoryLabels: Record<string, string> = {
+    backgrounds: 'Предыстория',
+    classes: 'Класс'
+  };
+  const categoryTitle = categoryLabels[category] || category;
+
+  const backLabels: Record<string, string> = {
+    backgrounds: 'к предысториям',
+    classes: 'к классам'
+  };
+  const backTo = backLabels[category] || category;
+
   return html`
-    <div class="mt-2">
-      <a class="link" href="/${category}" data-navigo @click=${() => onBack()}>&larr; Back to ${category}</a>
-      <div class="mt-2 flex items-center gap-2">
-        <h2 class="text-2xl font-bold m-0">${item.name}</h2>
-        <div class="flex gap-1 flex-wrap">${sourceBadges(item.sources)}</div>
+    <div class="class-detail-page">
+      <header class="class-detail-header">
+        <div class="class-detail-icon">📜</div>
+        <h1 class="class-detail-title">${item.name}</h1>
+        <div class="class-detail-subtitle">${categoryTitle}</div>
+        <div style="margin-top: var(--space-md);">${sourceBadges(item.sources)}</div>
+      </header>
+
+      <section class="class-meta-grid">
+        <div class="meta-item">
+          <div class="meta-label">Категория</div>
+          <div class="meta-value">${categoryTitle}</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Источник</div>
+          <div class="meta-value">${item.sources?.map(s => s.abbr).join(', ') ?? '—'}</div>
+        </div>
+      </section>
+
+      <section class="class-description-section" style="border-left-color: var(--mystical-primary);">
+        <h2 class="class-section-title">Описание</h2>
+        <div class="class-full-description" .innerHTML=${item.description ?? ''}></div>
+      </section>
+
+      <div style="margin-top: var(--space-xl); text-align: center;">
+        <a class="btn btn--accent-outline" href="/${category}" data-navigo @click=${() => onBack()}>← Вернуться ${backTo}</a>
       </div>
-      <article class="prose max-w-none mt-4" .innerHTML=${(item as any).description ?? ''}></article>
     </div>
   `;
 }

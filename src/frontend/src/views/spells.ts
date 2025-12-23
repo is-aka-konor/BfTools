@@ -2,8 +2,8 @@ import { html, type TemplateResult } from 'lit';
 import type { Entry } from '../data/repo';
 import { loadingSpinner, sourceBadges } from './ui';
 
-export type SpellsSort = 'name-asc'|'name-desc'|'circle-asc'|'circle-desc';
-export interface SpellsFilters { circle?: number|null; school?: string|null; ritual?: boolean|null; circleType?: string|null; src: Set<string>; sort: SpellsSort }
+export type SpellsSort = 'name-asc' | 'name-desc' | 'circle-asc' | 'circle-desc';
+export interface SpellsFilters { circle?: number | null; school?: string | null; ritual?: boolean | null; circleType?: string | null; src: Set<string>; sort: SpellsSort }
 
 export interface SpellsRenderOpts {
   updateSpellsFilters: (patch: Partial<SpellsFilters>) => void;
@@ -11,7 +11,7 @@ export interface SpellsRenderOpts {
 }
 
 export function renderSpells(
-  items: Array<Entry & { circle:number; school:string; isRitual?:boolean; circleType?:string; circles?: string[] }> | undefined,
+  items: Array<Entry & { circle: number; school: string; isRitual?: boolean; circleType?: string; circles?: string[] }> | undefined,
   filters: SpellsFilters & { q?: string | null; className?: string | null },
   opts: SpellsRenderOpts
 ): TemplateResult {
@@ -29,13 +29,13 @@ export function renderSpells(
     return cOk && sOk && clOk && qOk;
   });
 
-  const cmpName = (a:any,b:any) => a.name.localeCompare(b.name);
-  const cmpCircle = (a:any,b:any) => (a.circle - b.circle) || cmpName(a,b) || a.slug.localeCompare(b.slug);
+  const cmpName = (a: any, b: any) => a.name.localeCompare(b.name);
+  const cmpCircle = (a: any, b: any) => (a.circle - b.circle) || cmpName(a, b) || a.slug.localeCompare(b.slug);
   switch (f.sort) {
-    case 'name-desc': filtered = [...filtered].sort((a,b)=>-cmpName(a,b)); break;
+    case 'name-desc': filtered = [...filtered].sort((a, b) => -cmpName(a, b)); break;
     case 'circle-asc': filtered = [...filtered].sort(cmpCircle); break;
-    case 'circle-desc': filtered = [...filtered].sort((a,b)=>-cmpCircle(a,b)); break;
-    default: filtered = [...filtered].sort((a,b)=>cmpName(a,b) || a.slug.localeCompare(b.slug));
+    case 'circle-desc': filtered = [...filtered].sort((a, b) => -cmpCircle(a, b)); break;
+    default: filtered = [...filtered].sort((a, b) => cmpName(a, b) || a.slug.localeCompare(b.slug));
   }
 
   return html`
@@ -44,22 +44,22 @@ export function renderSpells(
         <h1>Заклинания</h1>
         <div class="page-controls">
           <div class="filters">
-            <select id="levelFilter" class="form-control" @change=${(e:Event)=> opts.updateSpellsFilters({ circle: (e.target as HTMLSelectElement).value === '' ? null : Number((e.target as HTMLSelectElement).value) })}>
-              <option value="" ?selected=${f.circle==null}>Все уровни</option>
-              ${[0,1,2,3,4,5,6,7,8,9].map(c => html`<option .selected=${f.circle===c} value=${c}>${c} уровень</option>`)}
+            <select id="levelFilter" class="form-control" @change=${(e: Event) => opts.updateSpellsFilters({ circle: (e.target as HTMLSelectElement).value === '' ? null : Number((e.target as HTMLSelectElement).value) })}>
+              <option value="" ?selected=${f.circle == null}>Все уровни</option>
+              ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(c => html`<option .selected=${f.circle === c} value=${c}>${c} уровень</option>`)}
             </select>
-            <select id="schoolFilter" class="form-control" @change=${(e:Event)=> opts.updateSpellsFilters({ school: (e.target as HTMLSelectElement).value || null })}>
+            <select id="schoolFilter" class="form-control" @change=${(e: Event) => opts.updateSpellsFilters({ school: (e.target as HTMLSelectElement).value || null })}>
               <option value="" ?selected=${!f.school}>Все школы</option>
-              ${allSchools.map(s => html`<option .selected=${f.school===s} value=${s}>${s}</option>`)}
+              ${allSchools.map(s => html`<option .selected=${f.school === s} value=${s}>${s}</option>`)}
             </select>
-            <select id="classFilter" class="form-control" @change=${(e:Event)=> opts.updateSpellsFilters({ className: (e.target as HTMLSelectElement).value || null } as any)}>
+            <select id="classFilter" class="form-control" @change=${(e: Event) => opts.updateSpellsFilters({ className: (e.target as HTMLSelectElement).value || null } as any)}>
               <option value="" ?selected=${!(f as any).className}>Все классы</option>
-              ${allClasses.map(s => html`<option .selected=${(f as any).className===s} value=${s}>${s}</option>`)}
+              ${allClasses.map(s => html`<option .selected=${(f as any).className === s} value=${s}>${s}</option>`)}
             </select>
           </div>
           <input id="spellSearch" type="text" class="form-control search-input" placeholder="Поиск заклинаний..." 
                  .value=${f.q ?? ''}
-                 @input=${(e:Event)=> opts.updateSpellsFilters({ q: (e.target as HTMLInputElement).value } as any)} />
+                 @input=${(e: Event) => opts.updateSpellsFilters({ q: (e.target as HTMLInputElement).value } as any)} />
         </div>
       </div>
       <div class="spells-grid" id="spellsGrid">
@@ -150,13 +150,13 @@ export function renderSpellDetail(
             </div>` : null}
             ${tags?.length ? html`<div class="meta-item">
               <div class="meta-label">Теги</div>
-              <div class="meta-value">${tags.map(t => html`<span class="spell-tag">${t}</span>` )}</div>
+              <div class="meta-value">${tags.map(t => html`<span class="spell-tag">${t}</span>`)}</div>
             </div>` : null}
           </div>
         ` : null}
 
         <div style="margin-top: var(--space-xl); text-align: center;">
-          <a class="btn btn--secondary" href="/spells" data-navigo>← Вернуться к заклинаниям</a>
+          <a class="btn btn--accent-outline" href="/spells" data-navigo>← Вернуться к заклинаниям</a>
         </div>
       </div>
 

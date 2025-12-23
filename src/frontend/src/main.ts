@@ -10,6 +10,7 @@ import { getDataset, getBySlug, type Entry, type Talent } from './data/repo';
 import { searchAll } from './data/search';
 import { renderHome } from './views/home';
 import { renderCategoryList, renderCategoryDetail, renderSimplePage } from './views/lists';
+import { renderLineages, renderLineageDetail } from './views/lineages';
 import { renderClasses, renderClassDetail } from './views/classes';
 import { renderSearchPage, renderResult as renderSearchResult } from './views/search';
 import { renderTalents, renderTalentDetail, type TalentFilters } from './views/talents';
@@ -51,7 +52,7 @@ export class AppRoot extends LitElement {
   declare private searchOpen: boolean;
   declare private lists: Record<string, Entry[]>;
   declare private talents: Talent[] | undefined;
-  declare private talentFilters: { magical: boolean; martial: boolean; src: Set<string> };
+  declare private talentFilters: { magical: boolean; martial: boolean; src: Set<string>; q?: string };
   declare private currentItem?: Entry;
   declare private spells: Array<Entry & { circle: number; school: string; isRitual: boolean; circleType: string }> | undefined;
   declare private spellsFilters: { circle?: number | null; school?: string | null; ritual?: boolean | null; circleType?: string | null; src: Set<string>; sort: 'name-asc' | 'name-desc' | 'circle-asc' | 'circle-desc' };
@@ -282,9 +283,9 @@ export class AppRoot extends LitElement {
       case 'spellcasting': return shell('Spellcasting');
       case 'classes':
         return shell('', renderClasses(this.lists['classes'] as any, { onOpenItem: () => this.rememberScroll('classes') }));
-      case 'talents': return shell('Talents', renderTalents(this.talents, this.talentFilters as TalentFilters, { updateTalentFilters: (p) => this.updateTalentFilters(p), rememberScroll: () => this.rememberScroll('talents') }));
-      case 'lineages': return shell('Lineages', renderCategoryList(this.lists['lineages'], 'lineages', { onOpenItem: () => this.rememberScroll('lineages') }));
-      case 'backgrounds': return shell('Backgrounds', renderCategoryList(this.lists['backgrounds'], 'backgrounds', { onOpenItem: () => this.rememberScroll('backgrounds') }));
+      case 'talents': return shell('', renderTalents(this.talents, this.talentFilters as TalentFilters, { updateTalentFilters: (p) => this.updateTalentFilters(p), rememberScroll: () => this.rememberScroll('talents') }));
+      case 'lineages': return shell('', renderLineages(this.lists['lineages'], { onOpenItem: () => this.rememberScroll('lineages') }));
+      case 'backgrounds': return shell('', renderCategoryList(this.lists['backgrounds'], 'backgrounds', { onOpenItem: () => this.rememberScroll('backgrounds') }));
       case 'spells': return renderSpells(this.spells as any, this.spellsFilters as SpellsFilters, { updateSpellsFilters: (p) => this.updateSpellsFilters(p), rememberScroll: () => this.rememberScroll('spells') });
       case 'spell': {
         const slug = this.route.params?.slug;
@@ -297,7 +298,7 @@ export class AppRoot extends LitElement {
         return renderTalentDetail(this.currentItem as any, this.route.params?.slug, backHref, { onBackClick: () => this.scrollBack('talents') });
       }
       case 'class': return renderClassDetail(this.currentItem as any, this.route.params?.slug, { onBackClick: () => this.scrollBack('classes') });
-      case 'lineage': return renderCategoryDetail(this.currentItem, this.route.params?.slug, 'lineages', { onBackClick: () => this.scrollBack('lineages') });
+      case 'lineage': return renderLineageDetail(this.currentItem, this.route.params?.slug, { onBackClick: () => this.scrollBack('lineages') });
       case 'background': return renderCategoryDetail(this.currentItem, this.route.params?.slug, 'backgrounds', { onBackClick: () => this.scrollBack('backgrounds') });
       case 'search':
         return renderSearchPage(this.searchQuery, this.searching, this.searchResults, (r) => renderSearchResult(r));
@@ -410,26 +411,30 @@ export class AppRoot extends LitElement {
     const magical = params.get('magical');
     const martial = params.get('martial');
     const src = params.get('src');
+    const q = params.get('q');
     const srcSet = new Set<string>((src ? src.split(',') : []).filter(Boolean));
     const f = {
       magical: magical ? magical === '1' : this.talentFilters.magical,
       martial: martial ? martial === '1' : this.talentFilters.martial,
-      src: src ? srcSet : this.talentFilters.src
+      src: src ? srcSet : this.talentFilters.src,
+      q: q !== null ? (q || undefined) : this.talentFilters.q
     };
     this.talentFilters = { ...f };
   }
 
-  private updateTalentFilters(patch: Partial<{ magical: boolean; martial: boolean; src: Set<string> }>) {
+  private updateTalentFilters(patch: Partial<{ magical: boolean; martial: boolean; src: Set<string>; q?: string }>) {
     const next = { ...this.talentFilters };
     if (patch.magical !== undefined) next.magical = patch.magical;
     if (patch.martial !== undefined) next.martial = patch.martial;
     if (patch.src) next.src = patch.src;
+    if (patch.q !== undefined) next.q = patch.q;
     this.talentFilters = next;
     // update URL query params to persist state
     const sp = new URLSearchParams();
     if (next.magical) sp.set('magical', '1'); else sp.set('magical', '0');
     if (next.martial) sp.set('martial', '1'); else sp.set('martial', '0');
     if (next.src.size > 0) sp.set('src', Array.from(next.src).join(','));
+    if (next.q) sp.set('q', next.q);
     history.replaceState(null, '', `/talents?${sp.toString()}`);
   }
 

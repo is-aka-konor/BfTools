@@ -502,6 +502,19 @@ pre code {
   background: var(--color-secondary);
 }
 
+.btn--accent-outline {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.btn--accent-outline:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  background: rgba(251, 191, 36, 0.05);
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
+}
+
 .btn--sm {
   padding: var(--space-4) var(--space-12);
   font-size: var(--font-size-sm);
@@ -1249,13 +1262,15 @@ select.form-control option {
   padding: var(--space-sm);
 }
 
-/* Spells Grid */
+/* Resource Grid (Unified) */
+.resource-grid,
 .spells-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: var(--space-lg);
 }
 
+.resource-card,
 .spell-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -1264,26 +1279,66 @@ select.form-control option {
   cursor: pointer;
   transition: var(--transition-normal);
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
 }
 
+.resource-card:hover,
 .spell-card:hover {
   transform: translateY(-2px);
   border-color: var(--mystical-primary);
   box-shadow: var(--shadow-mystical);
 }
 
+.resource-header,
 .spell-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: var(--space-md);
+  gap: var(--space-sm);
 }
 
+.resource-name,
 .spell-name {
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--accent-primary);
   margin: 0;
+  line-height: 1.3;
+}
+
+/* Specific Badge Styles for Unified Design */
+.badge--magical {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge--martial {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge--source {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .spell-level {
@@ -1306,7 +1361,8 @@ select.form-control option {
   color: var(--text-secondary);
   margin-bottom: var(--space-md);
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -1407,13 +1463,7 @@ select.form-control option {
   gap: var(--space-sm);
 }
 
-.feature-tag {
-  background: rgba(251, 191, 36, 0.1);
-  color: var(--accent-primary);
-  padding: var(--space-xs) var(--space-sm);
-  border-radius: 6px;
-  font-size: var(--font-size-xs);
-}
+
 
 /* Class Detail */
 .class-detail-page {

@@ -14,5 +14,9 @@ export function loadingSpinner(): TemplateResult {
 }
 
 export function sourceBadges(sources: Array<{ abbr: string; name: string }> | undefined): TemplateResult {
-  return html`${sources?.map(s => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}`;
+  return html`${sources?.map(s => html`
+    <div class="tooltip" data-tip=${s.name}>
+      <span class="badge--source">${s.abbr}</span>
+    </div>`)}
+  `;
 }

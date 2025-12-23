@@ -24,11 +24,13 @@ public class LineagesExtractorTests
         Assert.True(list.Count >= 4);
 
         var dwarf = list.First(l => l.Name.Contains("ДВОРФ", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("DWARF", dwarf.Slug);
         Assert.Equal("Средний", dwarf.Size);
         Assert.Equal(30, dwarf.Speed);
         Assert.Contains(dwarf.Traits, t => t.Name.Equals("Темное Зрение", StringComparison.OrdinalIgnoreCase));
 
         var zver = list.First(l => l.Name.Contains("ЗВЕРОЛЮД", StringComparison.OrdinalIgnoreCase));
+        Assert.Equal("BEASTKIN", zver.Slug);
         Assert.Contains(zver.Traits, t => t.Name.Equals("Возраст", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(zver.Traits, t => t.Name.Equals("Размер", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(zver.Traits, t => t.Name.Equals("Скорость", StringComparison.OrdinalIgnoreCase));
@@ -37,7 +39,7 @@ public class LineagesExtractorTests
     }
 
     [Fact]
-    public void LineagesExtractor_ShouldPopulateDescription_WithFullMarkdown()
+    public void LineagesExtractor_ShouldPopulateDescription_WithSectionMarkdown()
     {
         var (content, doc, map, repo) = Load();
         var list = LineagesExtractor.ParseLineages(doc, content, map, Path.Combine(repo, "input", "lineages", "lineage.md")).ToList();
@@ -45,8 +47,13 @@ public class LineagesExtractorTests
         foreach (var lin in list)
         {
             Assert.False(string.IsNullOrWhiteSpace(lin.Description));
-            Assert.Equal(content, lin.Description);
+            Assert.DoesNotContain("## ", lin.Description);
+            Assert.DoesNotContain("---", lin.Description);
         }
+
+        var dwarf = list.First(l => l.Slug.Equals("DWARF", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains("Ваш персонаж-дворф", dwarf.Description);
+        Assert.DoesNotContain("ЭЛЬФ", dwarf.Description);
     }
 
     private static string FindRepoRoot()
