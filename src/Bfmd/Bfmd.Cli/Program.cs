@@ -4,6 +4,14 @@ using Bfmd.Core.Pipeline;
 using Bfmd.Core.Services;
 using Spectre.Console;
 using Microsoft.Extensions.Logging;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Warning()
+    .WriteTo.Console()
+    .WriteTo.File("logs/bfmd.log", rollingInterval: RollingInterval.Day, retainedFileCountLimit: 30)
+    .CreateLogger();
+AppDomain.CurrentDomain.ProcessExit += (_, _) => Log.CloseAndFlush();
 
 AnsiConsole.MarkupLine("[bold]BFMD[/] — Markdown → JSON");
 

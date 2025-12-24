@@ -117,7 +117,7 @@ public sealed class ContentReader : IContentReader
                 var s = entity as SpellDto;
                 if (s != null)
                 {
-                    if (s.Circle <= 0)
+                    if (s.Circle < 0)
                         result.Errors.Add(new ValidationError(category, file, s.Slug, "circle", "Missing or invalid 'circle'."));
                     if (string.IsNullOrWhiteSpace(s.School))
                         result.Errors.Add(new ValidationError(category, file, s.Slug, "school", "Missing spell 'school'."));

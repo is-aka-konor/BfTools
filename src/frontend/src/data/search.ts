@@ -32,7 +32,7 @@ export async function searchAll(query: string, opts?: { fuzzy?: boolean; combine
   if (docs.length === 0) return [];
 
   const ms = new MiniSearch<SearchDoc>({
-    fields: ['name', 'description'],
+    fields: ['name', 'slug', 'description'],
     storeFields: ['slug', 'category', 'sources', 'circle', 'circleType', 'school', 'isRitual', 'type', 'name'],
     idField: 'id'
   });
@@ -40,7 +40,7 @@ export async function searchAll(query: string, opts?: { fuzzy?: boolean; combine
   ms.addAll(prepared);
   const fuzzyOpt: false | number = opts?.fuzzy === false ? false : 0.2;
   let results = ms.search(query, {
-    boost: { name: 3, description: 1 },
+    boost: { name: 3, slug: 2, description: 1 },
     fuzzy: fuzzyOpt,
     combineWith: opts?.combineWith ?? 'AND',
     // When fuzzy search is on, disable prefix to avoid conflicts; otherwise enable prefix for snappy partials
@@ -98,7 +98,7 @@ export async function searchAll(query: string, opts?: { fuzzy?: boolean; combine
     const all = docs
       .map(d => ({ doc: d, score: 0 }))
       .filter(r => {
-        const hay = `${(r.doc.name ?? '').toLowerCase()} ${strip(r.doc.description)}`;
+        const hay = `${(r.doc.name ?? '').toLowerCase()} ${(r.doc.slug ?? '').toLowerCase()} ${strip(r.doc.description)}`;
         return terms.every(t => hay.includes(t));
       });
     return all as any;

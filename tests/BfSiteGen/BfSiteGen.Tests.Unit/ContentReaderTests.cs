@@ -46,6 +46,7 @@ public class ContentReaderTests
         {
             slug = "bad-spell",
             name = "Bad Spell",
+            circle = -1,
             school = "Evocation",
             description = "Bad md",
             effect = new[] { "Fizz" },

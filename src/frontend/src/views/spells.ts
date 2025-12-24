@@ -24,9 +24,10 @@ export function renderSpells(
     const cOk = f.circle == null || it.circle === f.circle;
     const sOk = !f.school || it.school === f.school;
     const clOk = !f.className || (it.classes?.includes(f.className) || it.circles?.includes(f.className));
+    const rOk = f.ritual == null || !!it.isRitual === f.ritual;
     const q = (f.q ?? '').trim().toLowerCase();
-    const qOk = !q || it.name.toLowerCase().includes(q) || (it.description ? it.description.toLowerCase().includes(q) : false);
-    return cOk && sOk && clOk && qOk;
+    const qOk = !q || it.name.toLowerCase().includes(q) || it.slug.toLowerCase().includes(q) || (it.description ? it.description.toLowerCase().includes(q) : false);
+    return cOk && sOk && clOk && rOk && qOk;
   });
 
   const cmpName = (a: any, b: any) => a.name.localeCompare(b.name);
@@ -46,11 +47,16 @@ export function renderSpells(
           <div class="filters">
             <select id="levelFilter" class="form-control" @change=${(e: Event) => opts.updateSpellsFilters({ circle: (e.target as HTMLSelectElement).value === '' ? null : Number((e.target as HTMLSelectElement).value) })}>
               <option value="" ?selected=${f.circle == null}>Все уровни</option>
-              ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(c => html`<option .selected=${f.circle === c} value=${c}>${c} уровень</option>`)}
+              ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(c => html`<option .selected=${f.circle === c} value=${c}>${c === 0 ? 'Заговоры' : `${c} уровень`}</option>`)}
             </select>
             <select id="schoolFilter" class="form-control" @change=${(e: Event) => opts.updateSpellsFilters({ school: (e.target as HTMLSelectElement).value || null })}>
               <option value="" ?selected=${!f.school}>Все школы</option>
               ${allSchools.map(s => html`<option .selected=${f.school === s} value=${s}>${s}</option>`)}
+            </select>
+            <select id="ritualFilter" class="form-control" @change=${(e: Event) => opts.updateSpellsFilters({ ritual: (e.target as HTMLSelectElement).value === '' ? null : (e.target as HTMLSelectElement).value === 'true' })}>
+              <option value="" ?selected=${f.ritual == null}>Все (ритуалы)</option>
+              <option value="true" ?selected=${f.ritual === true}>Ритуал</option>
+              <option value="false" ?selected=${f.ritual === false}>Не ритуал</option>
             </select>
             <select id="classFilter" class="form-control" @change=${(e: Event) => opts.updateSpellsFilters({ className: (e.target as HTMLSelectElement).value || null } as any)}>
               <option value="" ?selected=${!(f as any).className}>Все классы</option>
@@ -73,11 +79,14 @@ export function renderSpells(
           <a href="/spells/${(it as any).slug}" data-navigo class="spell-card" @click=${() => opts.rememberScroll()}>
             <div class="spell-header">
               <h3 class="spell-name">${(it as any).name}</h3>
-              <span class="spell-level">${(it as any).circle} ур.</span>
+              <span class="spell-level">${(it as any).circle === 0 ? 'Заговор' : `${(it as any).circle} ур.`}</span>
             </div>
-            ${((it as any).school) ? html`<div class="spell-school">${(it as any).school}</div>` : null}
+            ${((it as any).school) ? html`<div class="spell-school">${(it as any).school}${(it as any).isRitual ? ' (ритуал)' : ''}</div>` : null}
             ${((it as any).description) ? html`<div class="spell-description">${(it as any).description}</div>` : null}
-            <div class="spell-tags">${sourceBadges((it as any).sources)}</div>
+            <div class="spell-tags">
+              ${(it as any).isRitual ? html`<span class="spell-tag">Ритуал</span>` : null}
+              ${sourceBadges((it as any).sources)}
+            </div>
             ${((it as any).classes || (it as any).circles) ? html`<div class="spell-classes">Классы: ${(((it as any).classes ?? (it as any).circles) as string[]).join(', ')}</div>` : null}
           </a>
         `)}
@@ -110,7 +119,7 @@ export function renderSpellDetail(
         <div class="spell-detail-header">
           <h1 class="spell-detail-title">${item.name}</h1>
           <div style="color: var(--text-secondary); font-size: var(--font-size-lg);">
-            ${school ? school : ''}${(school && typeof level === 'number') ? ', ' : ''}${typeof level === 'number' ? `${level} уровень` : ''}
+            ${school ? school : ''}${(school && typeof level === 'number') ? ', ' : ''}${typeof level === 'number' ? (level === 0 ? 'Заговор' : `${level} уровень`) : ''}${(item as any).isRitual ? ' (ритуал)' : ''}
           </div>
         </div>
 

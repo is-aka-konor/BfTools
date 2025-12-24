@@ -74,6 +74,7 @@ public class CanonicalWritersTests
             Slug = "s1", Name = "Spell One", Circle = 1, School = "Evocation",
             CastingTime = "1 action", Range = "Self", Components = "V,S", Duration = "Instant",
             Effect = new() { "First.", "Second." },
+            IsRitual = true,
             Src = new SourceRef { Abbr = "BF", Name = "Black Flag" }
         });
 
@@ -94,6 +95,8 @@ public class CanonicalWritersTests
             // Required keys present
             foreach (var k in new[] { "castingTime", "circle", "components", "duration", "name", "range", "school", "slug", "sources" })
                 Assert.True(first.TryGetProperty(k, out _), $"missing {k}");
+            Assert.True(first.TryGetProperty("isRitual", out var isRitual));
+            Assert.True(isRitual.GetBoolean());
             // No markdown keys
             Assert.False(first.TryGetProperty("descriptionMd", out _));
             Assert.False(first.TryGetProperty("descriptionHtml", out _));

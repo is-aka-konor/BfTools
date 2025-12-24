@@ -124,6 +124,7 @@ public sealed class IndexBuilder
         var html = _markdown.ToHtml(md);
         WriteCommonDocStart(w, category, s, html, s.Src);
         w.WriteNumber("circle", s.Circle);
+        w.WriteBoolean("isRitual", s.IsRitual);
         w.WriteString("school", s.School);
         w.WriteEndObject();
     }

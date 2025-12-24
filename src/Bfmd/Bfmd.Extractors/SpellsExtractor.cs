@@ -4,6 +4,7 @@ using Bfmd.Core.Config;
 using BfCommon.Domain.Models;
 using Bfmd.Core.Pipeline;
 using Markdig.Syntax;
+using Serilog;
 
 namespace Bfmd.Extractors;
 
@@ -23,19 +24,36 @@ public class SpellsExtractor : IExtractor
             {
                 var h2 = h2s[i];
                 var blocks = FindNextBreakOrH2(doc, h2, h2s.ElementAtOrDefault(i + 1)).ToList();
+                var headerText = InlineToText(h2.Inline);
+                if (!TryParseHeaderParts(headerText, out var nameRu, out var slug))
+                {
+                    LogWarn(headerText, "invalid header format; expected 'Name | Slug'");
+                    continue;
+                }
 
-                var nameRu = ParseNameRu(h2);
-                if (string.IsNullOrWhiteSpace(nameRu)) continue;
-
-                var (circle, traditions, school, casting, range, components, duration, effect) = ParseSpellBody(blocks);
-                if (circle <= 0 || effect.Count == 0)
-                    continue; // skip malformed entries
+                var (circle, hasCircle, traditions, school, casting, range, components, duration, effect, isRitual) = ParseSpellBody(blocks);
+                if (!hasCircle)
+                {
+                    LogWarn(nameRu, "missing or invalid circle");
+                    continue;
+                }
+                if (effect.Count == 0)
+                {
+                    LogWarn(nameRu, "missing effect text");
+                    continue;
+                }
+                if (!isRitual.HasValue)
+                {
+                    LogWarn(nameRu, "missing ritual flag");
+                }
 
                 yield return new SpellDto
                 {
                     Type = "spell",
                     Name = nameRu,
+                    Slug = slug,
                     Circle = circle,
+                    IsRitual = isRitual ?? false,
                     Circles = traditions,
                     School = school,
                     CastingTime = casting,
@@ -43,7 +61,7 @@ public class SpellsExtractor : IExtractor
                     Components = components,
                     Duration = duration,
                     Effect = effect,
-                    Description = content,
+                    Description = BlocksToMarkdown(content, blocks),
                     SourceFile = path
                 };
             }
@@ -68,19 +86,27 @@ public class SpellsExtractor : IExtractor
         return result;
     }
 
-    internal static string ParseNameRu(HeadingBlock h2)
+    internal static bool TryParseHeaderParts(string headingText, out string name, out string slug)
     {
-        var text = InlineToText(h2.Inline);
-        var idx = text.IndexOf('(');
-        return idx > 0 ? text[..idx].Trim() : text.Trim();
+        name = string.Empty;
+        slug = string.Empty;
+        var text = headingText?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(text)) return false;
+        var split = text.Split('|', 2, StringSplitOptions.TrimEntries);
+        if (split.Length < 2) return false;
+        name = split[0].Trim();
+        slug = split[1].Trim();
+        return !string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(slug);
     }
 
-    internal static (int circle, List<string> traditions, string school, string casting, string range, string components, string duration, List<string> effect)
+    internal static (int circle, bool hasCircle, List<string> traditions, string school, string casting, string range, string components, string duration, List<string> effect, bool? isRitual)
         ParseSpellBody(IReadOnlyList<Block> blocks)
     {
         int circle = 0; var traditions = new List<string>(); var school = string.Empty;
         string casting = string.Empty, range = string.Empty, components = string.Empty, duration = string.Empty;
         var effect = new List<string>();
+        bool? isRitual = null;
+        bool hasCircle = false;
 
         for (int bi = 0; bi < blocks.Count; bi++)
         {
@@ -91,7 +117,13 @@ public class SpellsExtractor : IExtractor
             if (labeled.TryGetValue("уровень", out var lvlRaw))
             {
                 var ru = lvlRaw.Split('/')[0].Trim();
-                ParseLevelLine(ru, out circle, out traditions, out school);
+                hasCircle = ParseLevelLine(ru, out circle, out traditions, out school);
+            }
+            if (labeled.TryGetValue("ритуал", out var ritualRaw))
+            {
+                var ritual = ritualRaw.Trim().TrimEnd('.');
+                if (ritual.Equals("да", StringComparison.OrdinalIgnoreCase)) isRitual = true;
+                else if (ritual.Equals("нет", StringComparison.OrdinalIgnoreCase)) isRitual = false;
             }
             if (labeled.TryGetValue("время накладывания", out var castingRaw)) casting = castingRaw.Trim();
             if (labeled.TryGetValue("дистанция", out var rangeRaw)) range = rangeRaw.Trim();
@@ -106,16 +138,16 @@ public class SpellsExtractor : IExtractor
             }
         }
 
-        return (circle, traditions, school, casting, range, components, duration, effect);
+        return (circle, hasCircle, traditions, school, casting, range, components, duration, effect, isRitual);
     }
 
     // removed FollowingBlocks to avoid multiple enumeration and improve performance
 
-    internal static void ParseLevelLine(string russian, out int circle, out List<string> traditions, out string school)
+    internal static bool ParseLevelLine(string russian, out int circle, out List<string> traditions, out string school)
     {
         circle = 0; traditions = new List<string>(); school = string.Empty;
         var m = Regex.Match(russian, @"(\d+)\s*-?й\s+круг", RegexOptions.IgnoreCase);
-        if (m.Success && int.TryParse(m.Groups[1].Value, out var c)) circle = c;
+        var hasCircle = m.Success && int.TryParse(m.Groups[1].Value, out circle);
         // Extract traditions: part between comma after "круг," and the first (
         var commaIdx = russian.IndexOf(',');
         var parIdx = russian.IndexOf('(');
@@ -127,6 +159,7 @@ public class SpellsExtractor : IExtractor
         // School: text in first parentheses
         var sm = Regex.Match(russian, @"\(([^)]+)\)");
         if (sm.Success) school = sm.Groups[1].Value.Trim();
+        return hasCircle;
     }
 
     internal static (string label, string value) ExtractLabeledValue(ParagraphBlock p)
@@ -222,5 +255,20 @@ public class SpellsExtractor : IExtractor
             }
         }
         return effect;
+    }
+
+    internal static string BlocksToMarkdown(string content, List<Block> blocks)
+    {
+        if (blocks.Count == 0) return string.Empty;
+        var start = blocks.First().Span.Start;
+        var end = blocks.Last().Span.End;
+        if (start < 0 || end < 0 || end < start || end + 1 > content.Length) return string.Empty;
+        var slice = content.Substring(start, end - start + 1);
+        return slice.Trim();
+    }
+
+    internal static void LogWarn(string name, string message)
+    {
+        Log.Warning("Spell parse warning: {SpellName} {Issue}", name, message);
     }
 }

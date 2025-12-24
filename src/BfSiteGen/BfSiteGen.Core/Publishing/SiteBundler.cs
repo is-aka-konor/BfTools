@@ -183,6 +183,7 @@ partial class SiteBundler
         w.WriteString("description", s.ToHtml(r));
         w.WriteString("duration", s.Duration);
         if (s.Effect is { Count: > 0 }) { w.WritePropertyName("effect"); w.WriteStartArray(); foreach (var e in s.Effect) w.WriteStringValue(e); w.WriteEndArray(); }
+        w.WriteBoolean("isRitual", s.IsRitual);
         w.WriteString("name", s.Name);
         w.WriteString("range", s.Range);
         w.WriteString("school", s.School);

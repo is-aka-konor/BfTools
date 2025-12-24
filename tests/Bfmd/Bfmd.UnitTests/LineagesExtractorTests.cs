@@ -24,13 +24,13 @@ public class LineagesExtractorTests
         Assert.True(list.Count >= 4);
 
         var dwarf = list.First(l => l.Name.Contains("ДВОРФ", StringComparison.OrdinalIgnoreCase));
-        Assert.Equal("DWARF", dwarf.Slug);
+        Assert.Equal("dwarf", dwarf.Slug);
         Assert.Equal("Средний", dwarf.Size);
         Assert.Equal(30, dwarf.Speed);
         Assert.Contains(dwarf.Traits, t => t.Name.Equals("Темное Зрение", StringComparison.OrdinalIgnoreCase));
 
         var zver = list.First(l => l.Name.Contains("ЗВЕРОЛЮД", StringComparison.OrdinalIgnoreCase));
-        Assert.Equal("BEASTKIN", zver.Slug);
+        Assert.Equal("beastkin", zver.Slug);
         Assert.Contains(zver.Traits, t => t.Name.Equals("Возраст", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(zver.Traits, t => t.Name.Equals("Размер", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(zver.Traits, t => t.Name.Equals("Скорость", StringComparison.OrdinalIgnoreCase));

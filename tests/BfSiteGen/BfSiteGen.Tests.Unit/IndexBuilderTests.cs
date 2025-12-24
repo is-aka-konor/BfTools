@@ -14,7 +14,7 @@ public class IndexBuilderTests
     {
         var load = new ContentLoadResult();
         load.Talents.Add(new TalentDto { Slug = "tal1", Name = "Mage Hand", Category = "Magical", Description = "desc", Src = new SourceRef { Abbr = "BF", Name = "Black Flag" } });
-        load.Spells.Add(new SpellDto { Slug = "spell1", Name = "Fireball", Circle = 3, School = "Evocation", Src = new SourceRef { Abbr = "BF", Name = "Black Flag" } });
+        load.Spells.Add(new SpellDto { Slug = "spell1", Name = "Fireball", Circle = 3, School = "Evocation", IsRitual = true, Src = new SourceRef { Abbr = "BF", Name = "Black Flag" } });
 
         var dist = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(dist);
@@ -35,6 +35,7 @@ public class IndexBuilderTests
             Assert.Equal("talents", first.GetProperty("category").GetString());
             Assert.Equal("tal1", first.GetProperty("slug").GetString());
             Assert.Equal("Mage Hand", first.GetProperty("name").GetString());
+            Assert.True(first.TryGetProperty("isRitual", out _));
         }
         finally
         {

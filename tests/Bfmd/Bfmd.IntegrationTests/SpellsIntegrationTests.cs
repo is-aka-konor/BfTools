@@ -33,22 +33,23 @@ public class SpellsIntegrationTests
 
         // Check Dispel Magic and Divine Favor slugs exist
         var files = Directory.EnumerateFiles(spellsDir, "*.json").Select(Path.GetFileNameWithoutExtension).ToList();
-        Assert.Contains("razveivanie-magii", files);
-        Assert.Contains("bozhestvennoe-blagovolenie", files);
+        Assert.Contains("Dispel Magic", files);
+        Assert.Contains("Divine Favor", files);
         
-        var dispelPath = Path.Combine(spellsDir, "razveivanie-magii.json");
+        var dispelPath = Path.Combine(spellsDir, "Dispel Magic.json");
         using var doc = JsonDocument.Parse(File.ReadAllText(dispelPath));
         var root = doc.RootElement;
         Assert.Equal("Развеивание магии", root.GetProperty("name").GetString());
         Assert.Equal(3, root.GetProperty("circle").GetInt32());
+        Assert.False(root.GetProperty("isRitual").GetBoolean());
         Assert.True(root.TryGetProperty("effect", out var eff));
         Assert.True(eff.GetArrayLength() >= 1);
 
         // Validate index structure for both entries
         using var idxDoc = JsonDocument.Parse(File.ReadAllText(idxPath));
         var arr = idxDoc.RootElement.EnumerateArray().ToList();
-        var dispelIdx = arr.FirstOrDefault(e => e.GetProperty("slug").GetString() == "razveivanie-magii");
-        var favorIdx = arr.FirstOrDefault(e => e.GetProperty("slug").GetString() == "bozhestvennoe-blagovolenie");
+        var dispelIdx = arr.FirstOrDefault(e => e.GetProperty("slug").GetString() == "Dispel Magic");
+        var favorIdx = arr.FirstOrDefault(e => e.GetProperty("slug").GetString() == "Divine Favor");
         Assert.True(dispelIdx.ValueKind != JsonValueKind.Undefined);
         Assert.True(favorIdx.ValueKind != JsonValueKind.Undefined);
         Assert.Equal(3, dispelIdx.GetProperty("circle").GetInt32());
