@@ -107,7 +107,7 @@ export function renderClassDetail(
 
       <section class="class-description-section">
         <h2 class="class-section-title">Описание</h2>
-        <div class="class-full-description" .innerHTML=${item.description ?? ''}></div>
+        <div class="prose" .innerHTML=${item.description ?? ''}></div>
       </section>
 
       <div style="margin-top: var(--space-xl); text-align: center;">
@@ -140,12 +140,13 @@ function renderClassCard(item: ClassEntry, onOpen: (entry: ClassEntry) => void):
       @click=${() => onOpen(item)}
     >
       <div class="class-header">
-        <div class="class-icon" aria-hidden="true">${icon}</div>
-        <div class="class-title">
+        <div class="class-header-left">
+          <div class="class-icon" aria-hidden="true">${icon}</div>
           <h2 class="class-name">${item.name}</h2>
-          <div class="class-subtitle">Кость хитов: ${hitDie}</div>
         </div>
-        <span class="class-hit-die badge badge-accent badge-lg font-mono">${hitDie}</span>
+        <div class="class-header-right">
+          ${sourceBadges(item.sources)}
+        </div>
       </div>
 
       <div class="class-stats">
@@ -188,7 +189,6 @@ function renderClassCard(item: ClassEntry, onOpen: (entry: ClassEntry) => void):
       ` : null}
 
       <div class="class-footer">
-        <div class="class-sources">${sourceBadges(item.sources)}</div>
         <span class="class-link">Подробнее →</span>
       </div>
     </a>

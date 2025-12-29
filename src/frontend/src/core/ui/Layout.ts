@@ -5,7 +5,7 @@ export interface LayoutParams {
   content: TemplateResult;
   counts: Record<string, number | undefined>;
   sidebarOpen: boolean;
-  onToggleSidebar: () => void;
+  onToggleSidebar: (val?: boolean) => void;
   onSearch: (q: string) => void;
   breadcrumbs?: Array<{ label: string; href?: string }>;
 }
@@ -19,7 +19,7 @@ export function renderLayout(p: LayoutParams): TemplateResult {
     }
   };
   const link = (href: string, icon: string, label: string) => html`
-    <a href="${href}" data-navigo class="sidebar-link" @click=${() => onToggleSidebar()}>
+    <a href="${href}" data-navigo class="sidebar-link" @click=${() => onToggleSidebar(false)}>
       <span class="sidebar-icon">${icon}</span>
       ${label}
     </a>`;
@@ -82,6 +82,6 @@ export function renderLayout(p: LayoutParams): TemplateResult {
     </main>
 
     <!-- Overlay for mobile -->
-    <div class="overlay ${sidebarOpen ? 'active' : ''}" @click=${onToggleSidebar}></div>
+    <div class="overlay ${sidebarOpen ? 'active' : ''}" @click=${() => onToggleSidebar(false)}></div>
   `;
 }

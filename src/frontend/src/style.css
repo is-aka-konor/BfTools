@@ -158,23 +158,92 @@
   font-family: 'Cinzel', serif;
 }
 
-.class-full-description h1,
-.class-full-description h2,
-.class-full-description h3 {
+/* Prose - Unified Typography for Content Descriptions */
+.prose {
+  margin-top: var(--space-md);
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
   font-family: 'Cinzel', serif;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
   color: var(--accent-primary);
+  line-height: var(--line-height-tight);
 }
 
-.class-full-description ul {
+.prose h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-8);
+  margin-top: 2em;
+}
+
+.prose h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-top: 1.5em;
+}
+
+.prose h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.prose h4 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-secondary);
+}
+
+.prose h5 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  opacity: 0.9;
+}
+
+.prose h6 {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
+
+.prose p {
+  margin-bottom: var(--space-16);
+}
+
+.prose ul, .prose ol {
+  margin-bottom: var(--space-16);
+  padding-left: var(--space-24);
+}
+
+.prose li {
+  margin-bottom: var(--space-4);
+}
+
+.prose ul {
   list-style-type: disc;
-  padding-left: 1.5em;
-  margin-bottom: 1em;
 }
 
-.class-full-description p {
-  margin-bottom: 1em;
+.prose ol {
+  list-style-type: decimal;
+}
+
+.prose strong, .prose b {
+  font-weight: var(--font-weight-bold);
 }
 
 /* Dark mode colors */
@@ -1415,14 +1484,31 @@ select.form-control option {
 }
 
 .class-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: var(--space-lg);
+}
+
+.class-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.class-icon {
+  font-size: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .class-name {
   font-size: var(--font-size-2xl);
   font-weight: 600;
   color: var(--accent-primary);
-  margin-bottom: var(--space-sm);
+  margin: 0;
+  line-height: 1;
 }
 
 .class-stats {
@@ -1669,11 +1755,7 @@ select.form-control option {
   color: var(--text-primary);
 }
 
-.spell-detail-description {
-  color: var(--text-secondary);
-  line-height: 1.7;
-  margin-bottom: var(--space-lg);
-}
+
 
 .spell-higher-levels {
   background: rgba(139, 92, 246, 0.1);

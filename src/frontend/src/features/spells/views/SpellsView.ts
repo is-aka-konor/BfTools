@@ -142,7 +142,7 @@ export function renderSpellDetail(
           </div>` : null}
         </div>
 
-        <div class="spell-detail-description" .innerHTML=${(item as any).description ?? ''}></div>
+        <div class="prose" .innerHTML=${(item as any).description ?? ''}></div>
 
         ${higherLevels ? html`
           <div class="spell-higher-levels">

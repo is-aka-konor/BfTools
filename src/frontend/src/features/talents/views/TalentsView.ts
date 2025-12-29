@@ -150,7 +150,7 @@ export function renderTalentDetail(
 
       <section class="class-description-section" style="border-left-color: var(--mystical-primary);">
         <h2 class="class-section-title">Описание</h2>
-        <div class="class-full-description" .innerHTML=${(item as any).description ?? ''}></div>
+        <div class="prose" .innerHTML=${(item as any).description ?? ''}></div>
       </section>
 
       <div style="margin-top: var(--space-xl); text-align: center;">

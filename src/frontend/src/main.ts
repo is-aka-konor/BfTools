@@ -83,14 +83,14 @@ export class AppRoot extends LitElement {
     } catch { }
 
     appRouter
-      .on('/', () => this.setRoute('home'), { title: 'Главная' })
-      .on('/intro', () => this.setRoute('intro'), { title: 'Введение' })
-      .on('/spellcasting', () => this.setRoute('spellcasting'), { title: 'Заклинательство' })
-      .on('/classes', () => this.setRoute('classes'), { title: 'Классы' })
-      .on('/talents', () => this.setRoute('talents'), { title: 'Таланты' })
-      .on('/lineages', () => this.setRoute('lineages'), { title: 'Происхождения' })
-      .on('/backgrounds', () => this.setRoute('backgrounds'), { title: 'Предыстории' })
-      .on('/spells', () => this.setRoute('spells'), { title: 'Заклинания' })
+      .on('/', (p) => this.setRoute('home', p), { title: 'Главная' })
+      .on('/intro', (p) => this.setRoute('intro', p), { title: 'Введение' })
+      .on('/spellcasting', (p) => this.setRoute('spellcasting', p), { title: 'Заклинательство' })
+      .on('/classes', (p) => this.setRoute('classes', p), { title: 'Классы' })
+      .on('/talents', (p) => this.setRoute('talents', p), { title: 'Таланты' })
+      .on('/lineages', (p) => this.setRoute('lineages', p), { title: 'Происхождения' })
+      .on('/backgrounds', (p) => this.setRoute('backgrounds', p), { title: 'Предыстории' })
+      .on('/spells', (p) => this.setRoute('spells', p), { title: 'Заклинания' })
       .on('/spells/:slug', (params) => {
         this.setRoute('spell', params);
       })
@@ -98,7 +98,7 @@ export class AppRoot extends LitElement {
       .on('/classes/:slug', (params) => this.setRoute('class', params))
       .on('/lineages/:slug', (params) => this.setRoute('lineage', params))
       .on('/backgrounds/:slug', (params) => this.setRoute('background', params))
-      .on('/search', () => this.setRoute('search'), { title: 'Поиск' })
+      .on('/search', (p) => this.setRoute('search', p), { title: 'Поиск' })
       .notFound(() => this.setRoute('notfound'))
       .resolve();
     
@@ -135,6 +135,7 @@ export class AppRoot extends LitElement {
 
   private setRoute(name: string, params?: Record<string, string>) {
     console.info('[router] setRoute', name, params);
+    this.sidebarOpen = false;
     this.route = { name, params };
     if (name === 'search') this.doSearchFromLocation();
     if (name === 'classes' || name === 'lineages' || name === 'backgrounds') this.loadList(name);
@@ -223,7 +224,7 @@ export class AppRoot extends LitElement {
       content,
       counts: this.counts,
       sidebarOpen: this.sidebarOpen,
-      onToggleSidebar: () => (this.sidebarOpen = !this.sidebarOpen),
+      onToggleSidebar: (val?: boolean) => (this.sidebarOpen = typeof val === 'boolean' ? val : !this.sidebarOpen),
       onSearch: (q) => { if (q) appRouter.navigate(`/search?q=${encodeURIComponent(q)}`); },
       breadcrumbs: crumbs
     })}
