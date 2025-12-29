@@ -183,6 +183,67 @@ public class ExpectedJsonOutputTests
             var feature = features.EnumerateArray().First();
             Assert.True(feature.TryGetProperty("level", out _));
             Assert.True(feature.TryGetProperty("name", out _));
+            Assert.True(first.TryGetProperty("progressionInfo", out var progressionInfo));
+            Assert.True(progressionInfo.GetArrayLength() > 0);
+        }
+        finally
+        {
+            try { Directory.Delete(outputRoot, true); } catch { }
+        }
+    }
+
+    [Fact]
+    public void Convert_ShouldAttachClericSubclasses_WithExpectedSlugs()
+    {
+        var cwd = Directory.GetCurrentDirectory();
+        var inputRoot = cwd;
+        var outputRoot = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var configRoot = Path.Combine(cwd, "config");
+
+        var sources = new YamlLoader<SourcesConfig>().Load(Path.Combine(configRoot, "sources.yaml"));
+        var pipe = new PipelineConfig
+        {
+            Steps =
+            [
+                new PipelineStepConfig
+                {
+                    Type = "classes",
+                    Input = "input/bfrd/classes",
+                    Mapping = "mapping.classes.yaml",
+                    Enabled = true
+                },
+                new PipelineStepConfig
+                {
+                    Type = "subclasses",
+                    Input = "input/tovpg1/subclasses",
+                    Mapping = "mapping.subclasses.yaml",
+                    Enabled = true
+                }
+            ]
+        };
+
+        var runner = new PipelineRunner(NullLogger.Instance, new FileMarkdownLoader(), p => new YamlLoader<MappingConfig>().Load(p),
+        [
+            ("classes", new Extractors.ClassesExtractor()),
+            ("subclasses", new Extractors.SubclassesExtractor())
+        ]);
+
+        try
+        {
+            var code = runner.Run(pipe, sources, (inputRoot, outputRoot, configRoot));
+            Assert.Equal(0, code);
+
+            var classPath = Path.Combine(outputRoot, "data", "classes", "cleric.json");
+            Assert.True(File.Exists(classPath), "Expected cleric.json to be generated");
+
+            using var doc = JsonDocument.Parse(File.ReadAllText(classPath));
+            var root = doc.RootElement;
+            var subclasses = root.GetProperty("subclasses").EnumerateArray().ToList();
+            Assert.True(subclasses.Count >= 3);
+            var slugs = subclasses.Select(s => s.GetProperty("slug").GetString()).ToList();
+            Assert.Contains("life-domain", slugs);
+            Assert.Contains("light-domain", slugs);
+            Assert.Contains("war-domain", slugs);
         }
         finally
         {

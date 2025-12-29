@@ -342,7 +342,21 @@ partial class SiteBundler
             {
                 w.WriteStartObject();
                 if (!string.IsNullOrWhiteSpace(f.Description)) w.WriteString("description", r.RenderBlock(f.Description));
-                w.WriteNumber("level", f.Level);
+                if (f.Level.HasValue) w.WriteNumber("level", f.Level.Value);
+                w.WriteString("name", f.Name);
+                w.WriteEndObject();
+            }
+            w.WriteEndArray();
+        }
+        if (s.ProgressionInfo is { Count: > 0 })
+        {
+            w.WritePropertyName("progressionInfo");
+            w.WriteStartArray();
+            foreach (var f in s.ProgressionInfo.OrderBy(l => l.Name, StringComparer.Ordinal))
+            {
+                w.WriteStartObject();
+                if (!string.IsNullOrWhiteSpace(f.Description)) w.WriteString("description", r.RenderBlock(f.Description));
+                if (f.Level.HasValue) w.WriteNumber("level", f.Level.Value);
                 w.WriteString("name", f.Name);
                 w.WriteEndObject();
             }

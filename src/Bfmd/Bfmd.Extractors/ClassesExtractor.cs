@@ -525,21 +525,23 @@ public class ClassesExtractor : IExtractor
 
         foreach (var h in headings)
         {
-            var subclassName = TryGetSubclassName(h);
-            if (string.IsNullOrWhiteSpace(subclassName)) continue;
+            var headerText = InlineToText(h.Inline);
+            var subclassInfo = ParseSubclassHeader(headerText);
+            if (string.IsNullOrWhiteSpace(subclassInfo.Name)) continue;
 
             var blocks = GetSectionBlocksUntil(doc, h, b => IsSubclassSectionTerminator(b, h.Level));
             var desc = SectionMarkdown(doc, content, h, blocks);
-            var features = ExtractSubclassFeatures(content, blocks, h.Level + 1);
+            var (features, progression) = ExtractSubclassFeatures(content, blocks, h.Level + 1);
 
             yield return new SubclassDto
             {
                 Type = "subclass",
-                Name = subclassName,
-                Slug = BuildSubclassSlug(parentClassSlug, subclassName),
+                Name = subclassInfo.Name,
+                Slug = subclassInfo.Slug,
                 ParentClassSlug = parentClassSlug,
                 Description = desc,
                 Features = features,
+                ProgressionInfo = progression,
                 SourceFile = sourceFile
             };
         }
@@ -552,18 +554,20 @@ public class ClassesExtractor : IExtractor
         return m.Success ? m.Groups[1].Value.Trim() : null;
     }
 
-    internal static string BuildSubclassSlug(string parentClassSlug, string subclassName)
+    internal static (string Name, string Slug) ParseSubclassHeader(string headerText)
     {
-        var baseSlug = SlugService.From(subclassName, cacheKey: subclassName);
-        return string.IsNullOrWhiteSpace(parentClassSlug) ? baseSlug : $"{parentClassSlug}-{baseSlug}";
+        var m = Regex.Match(headerText, "^\\s*ПОДКЛАСС\\s*:\\s*(.+)$", RegexOptions.IgnoreCase);
+        if (!m.Success) return (string.Empty, string.Empty);
+        return ParseNameAndSlug(m.Groups[1].Value);
     }
 
     internal static bool IsSubclassSectionTerminator(Block b, int headingLevel)
         => b is ThematicBreakBlock || (b is HeadingBlock hb && hb.Level <= headingLevel);
 
-    internal static List<SubclassFeatureDto> ExtractSubclassFeatures(string content, List<Block> blocks, int featureHeadingLevel)
+    internal static (List<SubclassFeatureDto> features, List<SubclassFeatureDto> progression) ExtractSubclassFeatures(string content, List<Block> blocks, int featureHeadingLevel)
     {
         var features = new List<SubclassFeatureDto>();
+        var progression = new List<SubclassFeatureDto>();
         var headings = blocks.OfType<HeadingBlock>().Where(h => h.Level == featureHeadingLevel).ToList();
         for (int i = 0; i < headings.Count; i++)
         {
@@ -584,10 +588,6 @@ public class ClassesExtractor : IExtractor
             }
 
             var name = InlineToText(h.Inline);
-            if (name.Contains("ПРОГРЕССИЯ", StringComparison.OrdinalIgnoreCase))
-            {
-                continue;
-            }
             var desc = BlocksToMarkdown(content, until);
             var level = ParseFeatureLevel(name);
             if (level == 0)
@@ -599,23 +599,42 @@ public class ClassesExtractor : IExtractor
                     level = ParseFeatureLevel(ptext);
                 }
             }
-            if (level == 0)
+            if (level > 0)
             {
-                continue;
+                features.Add(new SubclassFeatureDto
+                {
+                    Level = level,
+                    Name = name,
+                    Description = desc
+                });
             }
-            features.Add(new SubclassFeatureDto
+            else
             {
-                Level = level,
-                Name = name,
-                Description = desc
-            });
+                progression.Add(new SubclassFeatureDto
+                {
+                    Level = null,
+                    Name = name,
+                    Description = desc
+                });
+            }
         }
-        return features;
+        return (features, progression);
     }
 
     internal static int ParseFeatureLevel(string header)
     {
         var m = Regex.Match(header, "(\\d+)");
         return m.Success && int.TryParse(m.Groups[1].Value, out var n) ? n : 0;
+    }
+
+    internal static (string Name, string Slug) ParseNameAndSlug(string raw)
+    {
+        var parts = raw.Split('|', 2, StringSplitOptions.TrimEntries);
+        var name = parts[0].Trim();
+        var slugPart = parts.Length > 1 ? parts[1].Trim() : string.Empty;
+        var slug = !string.IsNullOrWhiteSpace(slugPart)
+            ? SlugService.From(slugPart, cacheKey: slugPart)
+            : SlugService.From(name, cacheKey: name);
+        return (name, slug);
     }
 }

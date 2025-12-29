@@ -12,17 +12,27 @@ public class SubclassesExtractor : IExtractor
     {
         foreach (var (path, content, doc, _) in docs)
         {
-            var (parentName, parentHeader) = ClassesExtractor.GetHeadingTextAndNode(doc, map.EntryHeaderLevel);
+            var (parentName, parentSlug, parentHeader) = GetParentClassInfo(doc, map.EntryHeaderLevel);
             if (string.IsNullOrWhiteSpace(parentName) || parentHeader == null) continue;
 
             var firstHeading = doc.Descendants().OfType<HeadingBlock>().FirstOrDefault();
             if (firstHeading != null && !ReferenceEquals(firstHeading, parentHeader)) continue;
 
-            var parentSlug = ClassesExtractor.SlugMap.GetValueOrDefault(parentName)
-                ?? SlugService.From(parentName, cacheKey: parentName);
-
             foreach (var sub in ClassesExtractor.ExtractSubclassesFromDocument(doc, content, parentSlug, path, parentHeader))
                 yield return sub;
         }
+    }
+
+    private static (string name, string slug, HeadingBlock? header) GetParentClassInfo(MarkdownDocument doc, int headerLevel)
+    {
+        var (title, header) = ClassesExtractor.GetHeadingTextAndNode(doc, headerLevel);
+        if (string.IsNullOrWhiteSpace(title) || header == null) return (string.Empty, string.Empty, null);
+        var (name, slug) = ClassesExtractor.ParseNameAndSlug(title);
+        if (string.IsNullOrWhiteSpace(slug))
+        {
+            slug = ClassesExtractor.SlugMap.GetValueOrDefault(name)
+                ?? SlugService.From(name, cacheKey: name);
+        }
+        return (name, slug, header);
     }
 }
