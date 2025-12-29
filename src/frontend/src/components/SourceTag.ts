@@ -9,6 +9,8 @@ export class SourceTag extends LitElement {
     abbr: { type: String },
     name: { type: String },
   } as any;
+  declare abbr: string;
+  declare name: string;
   constructor() {
     super();
     // dynamic properties to avoid class field shadowing in tests

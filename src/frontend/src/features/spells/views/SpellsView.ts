@@ -1,6 +1,6 @@
 import { html, type TemplateResult } from 'lit';
-import type { Entry } from '../data/repo';
-import { loadingSpinner, sourceBadges } from './ui';
+import type { Entry } from '../../../data/repo';
+import { loadingSpinner, sourceBadges } from '../../../core/ui/ui-utils';
 
 export type SpellsSort = 'name-asc' | 'name-desc' | 'circle-asc' | 'circle-desc';
 export interface SpellsFilters { circle?: number | null; school?: string | null; ritual?: boolean | null; circleType?: string | null; src: Set<string>; sort: SpellsSort }

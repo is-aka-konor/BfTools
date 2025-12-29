@@ -1,5 +1,5 @@
 import { html, type TemplateResult } from 'lit';
-import { loadingSpinner, shell } from './ui';
+import { loadingSpinner, shell } from '../../../core/ui/ui-utils';
 
 export function renderSearchPage(
   query: string,

@@ -1,24 +1,21 @@
 import './style.css';
 import { html, css, LitElement } from 'lit';
-import Navigo from 'navigo';
-// Legacy components kept available; layout now rendered via views/layout
-// import './components/AppNavbar';
-// import './components/AppDrawer';
+import { appRouter } from './core/router/AppRouter';
+import { metaService } from './core/services/MetaService';
 import './components/SearchModal';
 import { syncContent, getCountsFromManifest } from './data/loader';
 import { getDataset, getBySlug, type Entry, type Talent } from './data/repo';
 import { searchAll } from './data/search';
-import { renderHome } from './views/home';
-import { renderCategoryList, renderCategoryDetail, renderSimplePage } from './views/lists';
-import { renderLineages, renderLineageDetail } from './views/lineages';
-import { renderClasses, renderClassDetail } from './views/classes';
-import { renderSearchPage, renderResult as renderSearchResult } from './views/search';
-import { renderTalents, renderTalentDetail, type TalentFilters } from './views/talents';
-import { renderSpells, type SpellsFilters, renderSpellDetail } from './views/spells';
-import { renderLayout } from './views/layout';
+import { renderHome } from './features/home/HomeView';
+import { renderCategoryList, renderCategoryDetail, renderSimplePage } from './features/backgrounds/views/BackgroundsView';
+import { renderLineages, renderLineageDetail } from './features/lineages/views/LineagesView';
+import { renderClasses, renderClassDetail } from './features/classes/views/ClassesView';
+import { renderSearchPage, renderResult as renderSearchResult } from './features/search/views/SearchView';
+import { renderTalents, renderTalentDetail, type TalentFilters } from './features/talents/views/TalentsView';
+import { renderSpells, type SpellsFilters, renderSpellDetail } from './features/spells/views/SpellsView';
+import { renderLayout } from './core/ui/Layout';
 
 export class AppRoot extends LitElement {
-  // Render into light DOM so Tailwind/DaisyUI global styles apply
   protected createRenderRoot() { return this; }
   static styles = css`
     :host { display: block; }
@@ -41,7 +38,6 @@ export class AppRoot extends LitElement {
     sidebarOpen: { state: true }
   } as any;
 
-  private router = new Navigo('/');
   declare private route: { name: string; params?: Record<string, string> };
   declare private updateReady: boolean;
   declare private updatedCategories: string[];
@@ -85,59 +81,28 @@ export class AppRoot extends LitElement {
       const savedTheme = localStorage.getItem('theme');
       if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
     } catch { }
-    this.router
-      .on('/', () => this.setRoute('home'))
-      .on('/intro', () => this.setRoute('intro'))
-      .on('/spellcasting', () => this.setRoute('spellcasting'))
-      .on('/classes', () => this.setRoute('classes'))
-      .on('/talents', () => this.setRoute('talents'))
-      .on('/lineages', () => this.setRoute('lineages'))
-      .on('/backgrounds', () => this.setRoute('backgrounds'))
-      .on('/spells', () => this.setRoute('spells'))
-      .on('/spells/:slug', (match) => {
-        console.info('[router] match spell', match);
-        this.setRoute('spell', match?.data || match?.params || undefined);
+
+    appRouter
+      .on('/', () => this.setRoute('home'), { title: 'Главная' })
+      .on('/intro', () => this.setRoute('intro'), { title: 'Введение' })
+      .on('/spellcasting', () => this.setRoute('spellcasting'), { title: 'Заклинательство' })
+      .on('/classes', () => this.setRoute('classes'), { title: 'Классы' })
+      .on('/talents', () => this.setRoute('talents'), { title: 'Таланты' })
+      .on('/lineages', () => this.setRoute('lineages'), { title: 'Происхождения' })
+      .on('/backgrounds', () => this.setRoute('backgrounds'), { title: 'Предыстории' })
+      .on('/spells', () => this.setRoute('spells'), { title: 'Заклинания' })
+      .on('/spells/:slug', (params) => {
+        this.setRoute('spell', params);
       })
-      .on('/talents/:slug', (match) => this.setRoute('talent', match?.data || match?.params || undefined))
-      .on('/classes/:slug', (match) => this.setRoute('class', match?.data || match?.params || undefined))
-      .on('/lineages/:slug', (match) => this.setRoute('lineage', match?.data || match?.params || undefined))
-      .on('/backgrounds/:slug', (match) => this.setRoute('background', match?.data || match?.params || undefined))
-      .on('/search', () => this.setRoute('search'))
+      .on('/talents/:slug', (params) => this.setRoute('talent', params))
+      .on('/classes/:slug', (params) => this.setRoute('class', params))
+      .on('/lineages/:slug', (params) => this.setRoute('lineage', params))
+      .on('/backgrounds/:slug', (params) => this.setRoute('background', params))
+      .on('/search', () => this.setRoute('search'), { title: 'Поиск' })
       .notFound(() => this.setRoute('notfound'))
       .resolve();
-
-    //Fallback for deep links if Navigo doesn't populate params on first load
-    const path = (globalThis as any)?.location?.pathname || '';
-    if (path.startsWith('/spells/')) {
-      const slug = decodeURIComponent(path.split('/')[2] || '');
-      if (slug) {
-        console.info('[router] fallback parse spell slug from location', slug);
-        this.setRoute('spell', { slug });
-      }
-    }
-    else if (path.startsWith('/classes/')) {
-      const slug = decodeURIComponent(path.split('/')[2] || '');
-      if (slug) {
-        console.info('[router] fallback parse class slug from location', slug);
-        this.setRoute('class', { slug });
-      }
-    }
-    //else if (path.startsWith('/talents/')) {
-    //   const slug = decodeURIComponent(path.split('/')[2] || '');
-    //   if (slug) {
-    //     this.setRoute('talent', { slug });
-    //   }
-    // } else if (path.startsWith('/lineages/')) {
-    //   const slug = decodeURIComponent(path.split('/')[2] || '');
-    //   if (slug) {
-    //     this.setRoute('lineage', { slug });
-    //   }
-    // } else if (path.startsWith('/backgrounds/')) {
-    //   const slug = decodeURIComponent(path.split('/')[2] || '');
-    //   if (slug) {
-    //     this.setRoute('background', { slug });
-    //   }
-    // }
+    
+    appRouter.setupLinkDelegation();
 
     // Kick off content sync (network-first)
     this.sync();
@@ -145,7 +110,7 @@ export class AppRoot extends LitElement {
     // Handle search events from navbar
     this.addEventListener('do-search', (e: Event) => {
       const q = (e as CustomEvent).detail?.q as string;
-      if (q) this.router.navigate(`/search?q=${encodeURIComponent(q)}`);
+      if (q) appRouter.navigate(`/search?q=${encodeURIComponent(q)}`);
     });
 
     // Open modal from icon
@@ -155,7 +120,6 @@ export class AppRoot extends LitElement {
     window.addEventListener('keydown', this.onKeydown);
 
     // Register service worker
-    // Register service worker only in production build; in dev, /sw.js does not exist
     if (import.meta.env.PROD && 'serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js', { type: 'module' });
@@ -260,7 +224,7 @@ export class AppRoot extends LitElement {
       counts: this.counts,
       sidebarOpen: this.sidebarOpen,
       onToggleSidebar: () => (this.sidebarOpen = !this.sidebarOpen),
-      onSearch: (q) => { if (q) this.router.navigate(`/search?q=${encodeURIComponent(q)}`); },
+      onSearch: (q) => { if (q) appRouter.navigate(`/search?q=${encodeURIComponent(q)}`); },
       breadcrumbs: crumbs
     })}
       <search-modal .open=${this.searchOpen} @navigate=${(e: Event) => this.onNavigateFromModal(e)}></search-modal>
@@ -320,6 +284,14 @@ export class AppRoot extends LitElement {
     this.currentItem = undefined;
     const fromList = this.lists[category]?.find(x => x.slug === slug);
     this.currentItem = fromList ?? await getBySlug(category, slug);
+    
+    // SEO Update for Dynamic Pages
+    if (this.currentItem) {
+      metaService.update({
+        title: this.currentItem.name,
+        description: this.currentItem.description ? this.currentItem.description.replace(/<[^>]*>/g, '').slice(0, 150) + '...' : undefined,
+      });
+    }
   }
 
   private rememberScroll(category: 'classes' | 'lineages' | 'backgrounds' | 'talents' | 'spells') {
@@ -361,12 +333,10 @@ export class AppRoot extends LitElement {
   }
 
   private async loadSpells() {
-    console.info('[spells] loadSpells()');
     this.parseSpellsFiltersFromLocation();
     if (!this.spells) {
       const data = await getDataset('spells');
       this.spells = data as any;
-      console.info('[spells] loaded spells:', this.spells?.length ?? 0);
       const y = this.listScroll['spells'];
       if (typeof y === 'number') queueMicrotask(() => window.scrollTo({ top: y }));
     }
@@ -444,6 +414,14 @@ export class AppRoot extends LitElement {
     this.currentItem = undefined;
     const fromList = this.talents?.find(x => x.slug === slug);
     this.currentItem = fromList ?? await getBySlug('talents', slug);
+    
+    // SEO
+    if (this.currentItem) {
+      metaService.update({
+        title: this.currentItem.name,
+        description: (this.currentItem as any).description ? (this.currentItem as any).description.replace(/<[^>]*>/g, '').slice(0, 150) + '...' : undefined,
+      });
+    }
   }
 
 
@@ -504,7 +482,7 @@ export class AppRoot extends LitElement {
 
   private onNavigateFromModal(e: Event) {
     const href = (e as CustomEvent).detail?.href as string;
-    if (href) this.router.navigate(href);
+    if (href) appRouter.navigate(href);
     this.searchOpen = false;
   }
 
@@ -520,16 +498,20 @@ export class AppRoot extends LitElement {
   };
 
   private async loadSpellDetail(slug: string) {
-    console.info('[spell] loadSpellDetail()', slug);
     this.currentItem = undefined;
     const fromList = this.spells?.find(x => x.slug === slug);
     if (fromList) {
-      console.info('[spell] found in list');
       this.currentItem = fromList;
     } else {
-      console.info('[spell] fetching from storage');
       this.currentItem = await getBySlug('spells', slug);
-      console.info('[spell] fetched item?', !!this.currentItem);
+    }
+    
+    // SEO
+    if (this.currentItem) {
+      metaService.update({
+        title: this.currentItem.name,
+        description: this.currentItem.description ? this.currentItem.description.replace(/<[^>]*>/g, '').slice(0, 150) + '...' : undefined
+      });
     }
   }
 

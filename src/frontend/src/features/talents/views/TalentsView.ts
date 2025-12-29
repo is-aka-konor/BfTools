@@ -1,6 +1,6 @@
 import { html, type TemplateResult } from 'lit';
-import type { Talent } from '../data/repo';
-import { loadingSpinner, sourceBadges } from './ui';
+import type { Talent } from '../../../data/repo';
+import { loadingSpinner, sourceBadges } from '../../../core/ui/ui-utils';
 
 export interface TalentFilters { magical: boolean; martial: boolean; src: Set<string>; q?: string; }
 

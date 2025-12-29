@@ -1,6 +1,6 @@
 import { html, type TemplateResult } from 'lit';
-import type { Entry } from '../data/repo';
-import { loadingSpinner, shell, sourceBadges } from './ui';
+import type { Entry } from '../../../data/repo';
+import { loadingSpinner, shell, sourceBadges } from '../../../core/ui/ui-utils';
 
 export function renderCategoryList(
   items: Entry[] | undefined,

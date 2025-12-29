@@ -1,6 +1,6 @@
 import { html, type TemplateResult } from 'lit';
-import type { ClassEntry } from '../data/repo';
-import { loadingSpinner, sourceBadges } from './ui';
+import type { ClassEntry } from '../../../data/repo';
+import { loadingSpinner, sourceBadges } from '../../../core/ui/ui-utils';
 
 export interface ClassesRenderOpts {
   onOpenItem?: (entry: ClassEntry) => void;

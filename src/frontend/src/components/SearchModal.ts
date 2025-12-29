@@ -12,6 +12,11 @@ export class SearchModal extends LitElement {
     results: { state: true },
     searching: { state: true },
   } as any;
+
+  declare open: boolean;
+  declare q: string;
+  declare results: Array<{ doc: any; score: number }>;
+  declare searching: boolean;
   // dynamic properties initialized in constructor
   constructor() {
     super();

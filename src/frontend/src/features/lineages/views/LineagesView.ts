@@ -1,5 +1,5 @@
 import { html, type TemplateResult } from 'lit';
-import { loadingSpinner, sourceBadges } from './ui';
+import { loadingSpinner, sourceBadges } from '../../../core/ui/ui-utils';
 
 export function renderLineages(
     items: any[] | undefined,
