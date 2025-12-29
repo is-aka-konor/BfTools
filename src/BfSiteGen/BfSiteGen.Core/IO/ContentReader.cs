@@ -31,6 +31,7 @@ public sealed class ContentReader : IContentReader
         LoadMany(Path.Combine(dataRoot, "spells"), result, Deserialize<SpellDto>, result.Spells, "spells");
         LoadMany(Path.Combine(dataRoot, "backgrounds"), result, Deserialize<BackgroundDto>, result.Backgrounds, "backgrounds");
         LoadMany(Path.Combine(dataRoot, "classes"), result, Deserialize<ClassDto>, result.Classes, "classes");
+        LoadMany(Path.Combine(dataRoot, "subclasses"), result, Deserialize<SubclassDto>, result.Subclasses, "subclasses");
         LoadMany(Path.Combine(dataRoot, "lineages"), result, Deserialize<LineageDto>, result.Lineages, "lineages");
 
         return result;
@@ -109,6 +110,16 @@ public sealed class ContentReader : IContentReader
                 {
                     if (string.IsNullOrWhiteSpace(c.HitDie))
                         result.Errors.Add(new ValidationError(category, file, c.Slug, "hitDie", "Missing class 'hitDie'."));
+                }
+                break;
+            }
+            case "subclasses":
+            {
+                var s = entity as SubclassDto;
+                if (s != null)
+                {
+                    if (string.IsNullOrWhiteSpace(s.ParentClassSlug))
+                        result.Errors.Add(new ValidationError(category, file, s.Slug, "parentClassSlug", "Missing subclass 'parentClassSlug'."));
                 }
                 break;
             }

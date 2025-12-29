@@ -81,6 +81,7 @@ void RunConvert()
     var runner = new PipelineRunner(log, new FileMarkdownLoader(), 
         p => new YamlLoader<MappingConfig>().Load(p), [
         ("classes", new Bfmd.Extractors.ClassesExtractor()),
+        ("subclasses", new Bfmd.Extractors.SubclassesExtractor()),
         ("backgrounds", new Bfmd.Extractors.BackgroundsExtractor()),
         ("lineages", new Bfmd.Extractors.LineagesExtractor()),
         ("talents", new Bfmd.Extractors.TalentsExtractor()),
@@ -95,11 +96,12 @@ void RunConvert()
             return Directory.Exists(dir) ? Directory.EnumerateFiles(dir, "*.json").Count() : 0;
         }
         var classes = Count("classes");
+        var subclasses = Count("subclasses");
         var backgrounds = Count("backgrounds");
         var lineages = Count("lineages");
         var talents = Count("talents");
         var spells = Count("spells");
-        AnsiConsole.MarkupLine($"[green]Done[/] → data: classes={classes}, backgrounds={backgrounds}, lineages={lineages}, talents={talents}, spells={spells}");
+        AnsiConsole.MarkupLine($"[green]Done[/] → data: classes={classes}, subclasses={subclasses}, backgrounds={backgrounds}, lineages={lineages}, talents={talents}, spells={spells}");
         var manifest = Path.Combine(output, "manifest.json");
         if (File.Exists(manifest)) AnsiConsole.MarkupLine($"Manifest: [blue]{manifest}[/]");
     }
@@ -129,7 +131,7 @@ void RunValidate()
             catch (Exception ex) { errors.Add($"{file}: {ex.Message}"); }
         }
     }
-    foreach (var t in new[] { "classes", "backgrounds", "lineages", "talents" }) CheckDir(t);
+    foreach (var t in new[] { "classes", "subclasses", "backgrounds", "lineages", "talents" }) CheckDir(t);
     if (errors.Count == 0) AnsiConsole.MarkupLine("[green]Validation passed[/]");
     else { AnsiConsole.MarkupLine($"[red]{errors.Count} errors[/]"); foreach (var e in errors) AnsiConsole.WriteLine(e); }
 }

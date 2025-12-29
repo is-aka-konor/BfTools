@@ -32,6 +32,9 @@ public static class HtmlExtensions
     public static string ToHtml(this LineageDto l, IMarkdownRenderer renderer)
         => renderer.RenderBlock(l.Description ?? string.Empty);
 
+    public static string ToHtml(this SubclassDto s, IMarkdownRenderer renderer)
+        => renderer.RenderBlock(s.Description ?? string.Empty);
+
     public static string ToHtml(this SpellDto s, IMarkdownRenderer renderer)
     {
         // Build markdown on the fly from structured fields when Effect is present; fallback to Description

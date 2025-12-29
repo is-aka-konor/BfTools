@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -5,7 +6,7 @@ namespace Bfmd.Core.Services;
 
 public static class SlugService
 {
-    private static readonly Dictionary<string, string> Cache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, string> Cache = new(StringComparer.OrdinalIgnoreCase);
 
     private static readonly Dictionary<char, string> Map = new()
     {
@@ -22,10 +23,7 @@ public static class SlugService
 
     public static string From(string name, string cacheKey)
     {
-        if (Cache.TryGetValue(cacheKey, out var cached)) return cached;
-        var s = Normalize(name);
-        Cache[cacheKey] = s;
-        return s;
+        return Cache.GetOrAdd(cacheKey, _ => Normalize(name));
     }
 
     private static string Normalize(string input)
@@ -43,4 +41,3 @@ public static class SlugService
         return collapsed.Trim('-');
     }
 }
-

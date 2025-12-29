@@ -61,6 +61,15 @@ public class ClassesExtractor : IExtractor
             }
 
             yield return cls;
+
+            var classSlug = !string.IsNullOrWhiteSpace(cls.Slug)
+                ? cls.Slug
+                : SlugService.From(title!, cacheKey: title!);
+            var subclassList = ExtractSubclassesFromDocument(doc, content, classSlug, path, classHeader).ToList();
+            if (subclassList.Count > 0)
+                cls.Subclasses = subclassList;
+            foreach (var sub in subclassList)
+                yield return sub;
         }
     }
 
@@ -109,6 +118,24 @@ public class ClassesExtractor : IExtractor
                 continue;
             }
             if (b is HeadingBlock hb && hb.Level <= start.Level) break;
+            blocks.Add(b);
+        }
+        return blocks;
+    }
+
+    internal static List<Block> GetSectionBlocksUntil(MarkdownDocument doc, HeadingBlock? start, Func<Block, bool> stopPredicate)
+    {
+        var blocks = new List<Block>();
+        if (start == null) return blocks;
+        bool within = false;
+        foreach (var b in doc)
+        {
+            if (!within)
+            {
+                if (ReferenceEquals(b, start)) within = true;
+                continue;
+            }
+            if (stopPredicate(b)) break;
             blocks.Add(b);
         }
         return blocks;
@@ -474,7 +501,7 @@ public class ClassesExtractor : IExtractor
         { "воин", "fighter" },
         { "механик", "mechanist" },
         { "следопыт", "ranger" },
-        { "разбойник", "rogue" },
+        { "плут", "rogue" },
         { "волшебник", "wizard" },
         { "варвар", "barbarian" },
         { "паладин", "paladin" },
@@ -483,4 +510,112 @@ public class ClassesExtractor : IExtractor
         { "монах", "monk" },
         { "друид", "druid" }
     };
+
+    internal static IEnumerable<SubclassDto> ExtractSubclassesFromDocument(
+        MarkdownDocument doc,
+        string content,
+        string parentClassSlug,
+        string sourceFile,
+        HeadingBlock? parentHeader)
+    {
+        var parentStart = parentHeader?.Span.Start ?? -1;
+        var headings = doc.Descendants().OfType<HeadingBlock>()
+            .Where(h => parentStart < 0 || h.Span.Start > parentStart)
+            .ToList();
+
+        foreach (var h in headings)
+        {
+            var subclassName = TryGetSubclassName(h);
+            if (string.IsNullOrWhiteSpace(subclassName)) continue;
+
+            var blocks = GetSectionBlocksUntil(doc, h, b => IsSubclassSectionTerminator(b, h.Level));
+            var desc = SectionMarkdown(doc, content, h, blocks);
+            var features = ExtractSubclassFeatures(content, blocks, h.Level + 1);
+
+            yield return new SubclassDto
+            {
+                Type = "subclass",
+                Name = subclassName,
+                Slug = BuildSubclassSlug(parentClassSlug, subclassName),
+                ParentClassSlug = parentClassSlug,
+                Description = desc,
+                Features = features,
+                SourceFile = sourceFile
+            };
+        }
+    }
+
+    internal static string? TryGetSubclassName(HeadingBlock heading)
+    {
+        var text = InlineToText(heading.Inline);
+        var m = Regex.Match(text, "^\\s*ПОДКЛАСС\\s*:\\s*(.+)$", RegexOptions.IgnoreCase);
+        return m.Success ? m.Groups[1].Value.Trim() : null;
+    }
+
+    internal static string BuildSubclassSlug(string parentClassSlug, string subclassName)
+    {
+        var baseSlug = SlugService.From(subclassName, cacheKey: subclassName);
+        return string.IsNullOrWhiteSpace(parentClassSlug) ? baseSlug : $"{parentClassSlug}-{baseSlug}";
+    }
+
+    internal static bool IsSubclassSectionTerminator(Block b, int headingLevel)
+        => b is ThematicBreakBlock || (b is HeadingBlock hb && hb.Level <= headingLevel);
+
+    internal static List<SubclassFeatureDto> ExtractSubclassFeatures(string content, List<Block> blocks, int featureHeadingLevel)
+    {
+        var features = new List<SubclassFeatureDto>();
+        var headings = blocks.OfType<HeadingBlock>().Where(h => h.Level == featureHeadingLevel).ToList();
+        for (int i = 0; i < headings.Count; i++)
+        {
+            var h = headings[i];
+            var next = i + 1 < headings.Count ? headings[i + 1] : null;
+            var until = new List<Block>();
+            bool within = false;
+            foreach (var b in blocks)
+            {
+                if (!within)
+                {
+                    if (ReferenceEquals(b, h)) within = true;
+                    continue;
+                }
+                if (next != null && ReferenceEquals(b, next)) break;
+                if (b is HeadingBlock hb && hb.Level <= h.Level) break;
+                until.Add(b);
+            }
+
+            var name = InlineToText(h.Inline);
+            if (name.Contains("ПРОГРЕССИЯ", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+            var desc = BlocksToMarkdown(content, until);
+            var level = ParseFeatureLevel(name);
+            if (level == 0)
+            {
+                var firstPara = until.OfType<ParagraphBlock>().FirstOrDefault();
+                if (firstPara != null)
+                {
+                    var ptext = InlineToText(firstPara.Inline);
+                    level = ParseFeatureLevel(ptext);
+                }
+            }
+            if (level == 0)
+            {
+                continue;
+            }
+            features.Add(new SubclassFeatureDto
+            {
+                Level = level,
+                Name = name,
+                Description = desc
+            });
+        }
+        return features;
+    }
+
+    internal static int ParseFeatureLevel(string header)
+    {
+        var m = Regex.Match(header, "(\\d+)");
+        return m.Success && int.TryParse(m.Groups[1].Value, out var n) ? n : 0;
+    }
 }

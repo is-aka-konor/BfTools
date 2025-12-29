@@ -10,11 +10,28 @@ public class BackgroundExtractorTests
     public void BackgroundsExtractor_ShouldParseFirstEntry_WhenGivenBackgroundsMarkdown()
     {
         var repoRoot = FindRepoRoot();
-        var path = Path.Combine(repoRoot, "input", "backgrounds", "backgrounds.md");
+        var path = Path.Combine(repoRoot, "input", "bfrd", "backgrounds", "backgrounds.md");
+        if (!File.Exists(path))
+        {
+            path = Path.Combine(repoRoot, "input", "backgrounds", "backgrounds.md");
+        }
+        if (!File.Exists(path))
+        {
+            var candidates = Directory.EnumerateFiles(Path.Combine(repoRoot, "input"), "backgrounds.md", SearchOption.AllDirectories)
+                .Where(p => p.Contains(Path.Combine("backgrounds", "backgrounds.md"), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            path = candidates.FirstOrDefault() ?? path;
+        }
         Assert.True(File.Exists(path));
         var content = File.ReadAllText(path);
         var doc = MarkdownAst.Parse(content);
-        var src = new Bfmd.Core.Config.SourceItem { Abbr = "BFRD", Name = "Black Flag Reference Document", Version = "1.0", InputRoot = Path.Combine(repoRoot, "input") };
+        var src = new Bfmd.Core.Config.SourceItem
+        {
+            Abbr = "BFRD",
+            Name = "Black Flag Reference Document",
+            Version = "1.0",
+            InputRoot = Path.Combine(repoRoot, "input", "bfrd")
+        };
         var map = new YamlLoader<MappingConfig>().Load(Path.Combine(repoRoot, "config", "mapping.backgrounds.yaml"));
 
         var ex = new Bfmd.Extractors.BackgroundsExtractor();

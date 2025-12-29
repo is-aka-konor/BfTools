@@ -116,6 +116,7 @@ public class PipelineRunner : IPipeline
                     ClassDto c => new Validation.ClassDtoValidator().Validate(c),
                     BackgroundDto b => new Validation.BackgroundDtoValidator().Validate(b),
                     LineageDto l => new Validation.LineageDtoValidator().Validate(l),
+                    SubclassDto s => new Validation.SubclassDtoValidator().Validate(s),
                     _ => new Validation.ValidationResult()
                 };
                 if (!vr.IsValid)
@@ -139,34 +140,62 @@ public class PipelineRunner : IPipeline
                 catch (Exception ex) { errors.Add($"Serialize {e.Id}: {ex.Message}"); }
             }
 
-            // Write per-type index (lightweight)
-            try
-            {
-                var byType = entities.GroupBy(e => e.Type);
-                foreach (var grp in byType)
-                {
-                    var list = grp.Select(e => new
-                    {
-                        e.Id,
-                        e.Slug,
-                        e.Name,
-                        src = new { abbr = e.Src.Abbr, name = e.Src.Name },
-                        e.Summary,
-                        hitDie = (e as ClassDto)?.HitDie,
-                        primaryAbilities = (e as ClassDto)?.PrimaryAbilities,
-                        savingThrows = (e as ClassDto)?.SavingThrows,
-                        concept = (e as BackgroundDto)?.Concept,
-                        size = (e as LineageDto)?.Size,
-                        speed = (e as LineageDto)?.Speed,
-                        circle = (e as SpellDto)?.Circle,
-                        school = (e as SpellDto)?.School
-                    }).ToList();
-                    var idxPath = Path.Combine(paths.Out, "index", $"{TypeToFolder(grp.Key)}.index.json");
-                    JsonWriter.WriteAsync(list, idxPath).GetAwaiter().GetResult();
-                }
             }
-            catch (Exception ex) { errors.Add($"Index write failed: {ex.Message}"); }
+
+        // Attach subclasses to classes after all steps (supports standalone subclass files)
+        try
+        {
+            var subclassesByClass = allEntities
+                .OfType<SubclassDto>()
+                .GroupBy(s => s.ParentClassSlug, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
+
+            foreach (var c in allEntities.OfType<ClassDto>())
+            {
+                if (!subclassesByClass.TryGetValue(c.Slug, out var list)) continue;
+                c.Subclasses = list
+                    .GroupBy(s => s.Slug, StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.First())
+                    .OrderBy(s => s.Slug, StringComparer.Ordinal)
+                    .ToList();
+
+                var classPath = Path.Combine(paths.Out, "data", TypeToFolder(c.Type), $"{c.Slug}.json");
+                JsonWriter.WriteAsync(c, classPath).GetAwaiter().GetResult();
+            }
         }
+        catch (Exception ex)
+        {
+            errors.Add($"Subclass merge failed: {ex.Message}");
+        }
+
+        // Write per-type index (lightweight)
+        try
+        {
+            var byType = allEntities.GroupBy(e => e.Type, StringComparer.OrdinalIgnoreCase);
+            foreach (var grp in byType)
+            {
+                var list = grp.Select(e => new
+                {
+                    e.Id,
+                    e.Slug,
+                    e.Name,
+                    src = new { abbr = e.Src.Abbr, name = e.Src.Name },
+                    e.Summary,
+                    hitDie = (e as ClassDto)?.HitDie,
+                    primaryAbilities = (e as ClassDto)?.PrimaryAbilities,
+                    savingThrows = (e as ClassDto)?.SavingThrows,
+                    parentClassSlug = (e as SubclassDto)?.ParentClassSlug,
+                    concept = (e as BackgroundDto)?.Concept,
+                    size = (e as LineageDto)?.Size,
+                    speed = (e as LineageDto)?.Speed,
+                    circle = (e as SpellDto)?.Circle,
+                    school = (e as SpellDto)?.School
+                }).ToList();
+                var idxPath = Path.Combine(paths.Out, "index", $"{TypeToFolder(grp.Key)}.index.json");
+                JsonWriter.WriteAsync(list, idxPath).GetAwaiter().GetResult();
+            }
+        }
+        catch (Exception ex) { errors.Add($"Index write failed: {ex.Message}"); }
 
         // Manifest
         try
@@ -174,6 +203,7 @@ public class PipelineRunner : IPipeline
             var counts = new
             {
                 classes = allEntities.Count(e => e is ClassDto),
+                subclasses = allEntities.Count(e => e is SubclassDto),
                 backgrounds = allEntities.Count(e => e is BackgroundDto),
                 lineages = allEntities.Count(e => e is LineageDto),
                 talents = allEntities.Count(e => e is TalentDto),
@@ -218,6 +248,7 @@ public class PipelineRunner : IPipeline
     private static string TypeToFolder(string type) => type switch
     {
         "class" => "classes",
+        "subclass" => "subclasses",
         "background" => "backgrounds",
         "lineage" => "lineages",
         "spell" => "spells",

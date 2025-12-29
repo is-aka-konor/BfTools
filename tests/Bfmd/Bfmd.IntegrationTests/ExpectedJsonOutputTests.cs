@@ -127,5 +127,68 @@ public class ExpectedJsonOutputTests
         Assert.Contains("Вы сводили концы", tdesc);
     }
 
+    [Fact]
+    public void Convert_ShouldAttachSubclasses_ToClassJson()
+    {
+        var cwd = Directory.GetCurrentDirectory();
+        var inputRoot = cwd;
+        var outputRoot = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var configRoot = Path.Combine(cwd, "config");
+
+        var sources = new YamlLoader<SourcesConfig>().Load(Path.Combine(configRoot, "sources.yaml"));
+        var pipe = new PipelineConfig
+        {
+            Steps =
+            [
+                new PipelineStepConfig
+                {
+                    Type = "classes",
+                    Input = "input/bfrd/classes",
+                    Mapping = "mapping.classes.yaml",
+                    Enabled = true
+                },
+                new PipelineStepConfig
+                {
+                    Type = "subclasses",
+                    Input = "input/tovpg1/subclasses",
+                    Mapping = "mapping.subclasses.yaml",
+                    Enabled = true
+                }
+            ]
+        };
+
+        var runner = new PipelineRunner(NullLogger.Instance, new FileMarkdownLoader(), p => new YamlLoader<MappingConfig>().Load(p),
+        [
+            ("classes", new Extractors.ClassesExtractor()),
+            ("subclasses", new Extractors.SubclassesExtractor())
+        ]);
+
+        try
+        {
+            var code = runner.Run(pipe, sources, (inputRoot, outputRoot, configRoot));
+            Assert.Equal(0, code);
+
+            var classPath = Path.Combine(outputRoot, "data", "classes", "wizard.json");
+            Assert.True(File.Exists(classPath), "Expected wizard.json to be generated");
+
+            using var doc = JsonDocument.Parse(File.ReadAllText(classPath));
+            var root = doc.RootElement;
+            Assert.True(root.TryGetProperty("subclasses", out var subclasses));
+            Assert.True(subclasses.GetArrayLength() > 0);
+            var first = subclasses.EnumerateArray().First();
+            Assert.True(first.TryGetProperty("parentClassSlug", out var parent));
+            Assert.Equal("wizard", parent.GetString());
+            Assert.True(first.TryGetProperty("features", out var features));
+            Assert.True(features.GetArrayLength() > 0);
+            var feature = features.EnumerateArray().First();
+            Assert.True(feature.TryGetProperty("level", out _));
+            Assert.True(feature.TryGetProperty("name", out _));
+        }
+        finally
+        {
+            try { Directory.Delete(outputRoot, true); } catch { }
+        }
+    }
+
     // no-op helper removed; using test working directory with copied inputs/config
 }

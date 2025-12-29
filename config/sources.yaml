@@ -4,4 +4,10 @@ sources:
     version: "1.0"
     url: https://bfrd.net/
     license: Open RPG Creative License (ORC)
-    inputRoot: input
+    inputRoot: input/bfrd
+  - abbr: ToVPG1
+    name: Руководство для игрока том 1
+    version: "1.0"
+    url: https://localhost/
+    license: Материалы для первичного ознакомления
+    inputRoot: input/tovpg1

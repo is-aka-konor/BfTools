@@ -92,6 +92,27 @@ public class BackgroundsExtractor : IExtractor
                         }
                     }
                 }
+                else if (block is ParagraphBlock p)
+                {
+                    var text = InlineToText(p.Inline);
+                    if (string.IsNullOrWhiteSpace(text)) continue;
+                    var lines = text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                    foreach (var line in lines)
+                    {
+                        if (HeaderTextMatches(line, map.SkillsHeaders) && bg.SkillProficiencies.From.Count == 0 && bg.SkillProficiencies.Granted.Count == 0)
+                        {
+                            bg.SkillProficiencies = ParseSkillsPick(line);
+                        }
+                        else if (HeaderTextMatches(line, map.EquipmentHeaders) && bg.Equipment.Count == 0)
+                        {
+                            bg.Equipment = ParseEquipment(line);
+                        }
+                        else if (line.Contains("Дополнительные", StringComparison.OrdinalIgnoreCase) && bg.Additional.Count == 0)
+                        {
+                            bg.Additional = ParseAdditional(line);
+                        }
+                    }
+                }
             }
 
             bg.SkillProficiencies ??= new SkillsPickDto { Choose = 0, From = new(), Granted = new() };

@@ -7,7 +7,7 @@ public static class RouteStubGenerator
     public static void Generate(ContentLoadResult load, string distRoot)
     {
         // Base category routes
-        var bases = new[] { "spells", "talents", "classes", "lineages", "backgrounds", "intro", "spellcasting" };
+        var bases = new[] { "spells", "talents", "classes", "subclasses", "lineages", "backgrounds", "intro", "spellcasting" };
         foreach (var b in bases)
             WriteStub(Path.Combine(distRoot, b, "index.html"));
 
@@ -15,6 +15,7 @@ public static class RouteStubGenerator
         foreach (var s in load.Spells) WriteStub(Path.Combine(distRoot, "spells", s.Slug, "index.html"));
         foreach (var t in load.Talents) WriteStub(Path.Combine(distRoot, "talents", t.Slug, "index.html"));
         foreach (var c in load.Classes) WriteStub(Path.Combine(distRoot, "classes", c.Slug, "index.html"));
+        foreach (var s in load.Subclasses) WriteStub(Path.Combine(distRoot, "subclasses", s.Slug, "index.html"));
         foreach (var l in load.Lineages) WriteStub(Path.Combine(distRoot, "lineages", l.Slug, "index.html"));
         foreach (var b in load.Backgrounds) WriteStub(Path.Combine(distRoot, "backgrounds", b.Slug, "index.html"));
     }

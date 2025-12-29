@@ -1,30 +1,42 @@
 steps:
   - type: classes
-    input: input/classes
+    input: input/bfrd/classes
     mapping: mapping.classes.yaml
     outputData: output/data/classes
     outputIndex: output/index/classes.index.json
     enabled: true
+  - type: subclasses
+    input: input/tovpg1/subclasses
+    mapping: mapping.subclasses.yaml
+    outputData: output/data/subclasses
+    outputIndex: output/index/subclasses.index.json
+    enabled: true
   - type: backgrounds
-    input: input/backgrounds
+    input: input/bfrd/backgrounds
+    mapping: mapping.backgrounds.yaml
+    outputData: output/data/backgrounds
+    outputIndex: output/index/backgrounds.index.json
+    enabled: true
+  - type: backgrounds
+    input: input/tovpg1/backgrounds
     mapping: mapping.backgrounds.yaml
     outputData: output/data/backgrounds
     outputIndex: output/index/backgrounds.index.json
     enabled: true
   - type: talents
-    input: input/talents
+    input: input/bfrd/talents
     mapping: mapping.talents.yaml
     outputData: output/data/talents
     outputIndex: output/index/talents.index.json
     enabled: true
   - type: lineages
-    input: input/lineages
+    input: input/bfrd/lineages
     mapping: mapping.lineages.yaml
     outputData: output/data/lineages
     outputIndex: output/index/lineages.index.json
     enabled: true
   - type: spells
-    input: input/spells
+    input: input/bfrd/spells
     mapping: mapping.spells.yaml
     outputData: output/data/spells
     outputIndex: output/index/spells.index.json

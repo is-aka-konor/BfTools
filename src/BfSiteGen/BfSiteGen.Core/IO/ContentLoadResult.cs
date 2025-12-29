@@ -10,5 +10,6 @@ public sealed class ContentLoadResult
     public List<TalentDto> Talents { get; } = new();
     public List<BackgroundDto> Backgrounds { get; } = new();
     public List<ClassDto> Classes { get; } = new();
+    public List<SubclassDto> Subclasses { get; } = new();
     public List<LineageDto> Lineages { get; } = new();
 }

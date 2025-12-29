@@ -202,8 +202,39 @@ public static class CanonicalJson
             w.WriteEndArray();
         }
         if (c.Features is { Count: > 0 }) { w.WritePropertyName("features"); w.WriteStartArray(); foreach (var f in c.Features) w.WriteStringValue(f); w.WriteEndArray(); }
-        if (c.Subclasses is { Count: > 0 }) { w.WritePropertyName("subclasses"); w.WriteStartArray(); foreach (var f in c.Subclasses) w.WriteStringValue(f); w.WriteEndArray(); }
+        if (c.Subclasses is { Count: > 0 })
+        {
+            w.WritePropertyName("subclasses");
+            w.WriteStartArray();
+            foreach (var s in c.Subclasses) WriteCanonicalSubclass(w, s);
+            w.WriteEndArray();
+        }
         WriteSrc(w, c.Src);
+        w.WriteEndObject();
+    }
+
+    public static void WriteCanonicalSubclass(Utf8JsonWriter w, SubclassDto s)
+    {
+        w.WriteStartObject();
+        if (s.Description is not null) w.WriteString("description", s.Description);
+        w.WriteString("name", s.Name);
+        w.WriteString("slug", s.Slug);
+        w.WriteString("parentClassSlug", s.ParentClassSlug);
+        if (s.Features is { Count: > 0 })
+        {
+            w.WritePropertyName("features");
+            w.WriteStartArray();
+            foreach (var f in s.Features.OrderBy(l => l.Level).ThenBy(l => l.Name, StringComparer.Ordinal))
+            {
+                w.WriteStartObject();
+                if (f.Description is not null) w.WriteString("description", f.Description);
+                w.WriteNumber("level", f.Level);
+                w.WriteString("name", f.Name);
+                w.WriteEndObject();
+            }
+            w.WriteEndArray();
+        }
+        WriteSrc(w, s.Src);
         w.WriteEndObject();
     }
 

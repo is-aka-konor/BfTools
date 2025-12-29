@@ -9,7 +9,18 @@ public class LineagesExtractorTests
     private static (string content, Markdig.Syntax.MarkdownDocument doc, MappingConfig map, string repo) Load()
     {
         var repo = FindRepoRoot();
-        var path = Path.Combine(repo, "input", "lineages", "lineage.md");
+        var path = Path.Combine(repo, "input", "bfrd", "lineages", "lineage.md");
+        if (!File.Exists(path))
+        {
+            path = Path.Combine(repo, "input", "lineages", "lineage.md");
+        }
+        if (!File.Exists(path))
+        {
+            var candidates = Directory.EnumerateFiles(Path.Combine(repo, "input"), "lineage.md", SearchOption.AllDirectories)
+                .Where(p => p.Contains(Path.Combine("lineages", "lineage.md"), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            path = candidates.FirstOrDefault() ?? path;
+        }
         var content = File.ReadAllText(path);
         var doc = MarkdownAst.Parse(content);
         var map = new YamlLoader<MappingConfig>().Load(Path.Combine(repo, "config", "mapping.lineages.yaml"));
@@ -20,7 +31,7 @@ public class LineagesExtractorTests
     public void LineagesExtractor_ShouldParseBasicFields_WhenGivenLineagesMarkdown()
     {
         var (content, doc, map, repo) = Load();
-        var list = LineagesExtractor.ParseLineages(doc, content, map, Path.Combine(repo, "input", "lineages", "lineage.md")).ToList();
+        var list = LineagesExtractor.ParseLineages(doc, content, map, Path.Combine(repo, "input", "bfrd", "lineages", "lineage.md")).ToList();
         Assert.True(list.Count >= 4);
 
         var dwarf = list.First(l => l.Name.Contains("ДВОРФ", StringComparison.OrdinalIgnoreCase));
@@ -42,7 +53,7 @@ public class LineagesExtractorTests
     public void LineagesExtractor_ShouldPopulateDescription_WithSectionMarkdown()
     {
         var (content, doc, map, repo) = Load();
-        var list = LineagesExtractor.ParseLineages(doc, content, map, Path.Combine(repo, "input", "lineages", "lineage.md")).ToList();
+        var list = LineagesExtractor.ParseLineages(doc, content, map, Path.Combine(repo, "input", "bfrd", "lineages", "lineage.md")).ToList();
         Assert.True(list.Count > 0);
         foreach (var lin in list)
         {

@@ -11,7 +11,18 @@ public class BackgroundsExtractorUnitTests
     private static (string content, MarkdownDocument doc, MappingConfig map) LoadBackgroundsDoc()
     {
         var repo = FindRepoRoot();
-        var path = Path.Combine(repo, "input", "backgrounds", "backgrounds.md");
+        var path = Path.Combine(repo, "input", "bfrd", "backgrounds", "backgrounds.md");
+        if (!File.Exists(path))
+        {
+            path = Path.Combine(repo, "input", "backgrounds", "backgrounds.md");
+        }
+        if (!File.Exists(path))
+        {
+            var candidates = Directory.EnumerateFiles(Path.Combine(repo, "input"), "backgrounds.md", SearchOption.AllDirectories)
+                .Where(p => p.Contains(Path.Combine("backgrounds", "backgrounds.md"), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            path = candidates.FirstOrDefault() ?? path;
+        }
         var content = File.ReadAllText(path);
         var doc = MarkdownAst.Parse(content);
         var map = new YamlLoader<MappingConfig>().Load(Path.Combine(repo, "config", "mapping.backgrounds.yaml"));

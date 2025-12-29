@@ -9,7 +9,18 @@ public class ClassesProgressionTests
     private static (string content, Markdig.Syntax.MarkdownDocument doc, MappingConfig map) Load(string file)
     {
         var root = FindRepoRoot();
-        var path = Path.Combine(root, "input", "classes", file);
+        var path = Path.Combine(root, "input", "bfrd", "classes", file);
+        if (!File.Exists(path))
+        {
+            path = Path.Combine(root, "input", "classes", file);
+        }
+        if (!File.Exists(path))
+        {
+            var candidates = Directory.EnumerateFiles(Path.Combine(root, "input"), file, SearchOption.AllDirectories)
+                .Where(p => p.Contains(Path.Combine("classes", file), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            path = candidates.FirstOrDefault() ?? path;
+        }
         var content = File.ReadAllText(path);
         var doc = MarkdownAst.Parse(content);
         var map = new YamlLoader<MappingConfig>().Load(Path.Combine(root, "config", "mapping.classes.yaml"));

@@ -12,12 +12,23 @@ public class ClassesExtractorTests
         var repoRoot = Directory.GetCurrentDirectory();
         while (!string.IsNullOrEmpty(repoRoot) && !File.Exists(Path.Combine(repoRoot, "BfTools.sln")))
             repoRoot = Path.GetDirectoryName(repoRoot)!;
-        var path = Path.Combine(repoRoot, "input", "classes", "fighter.md");
+        var path = Path.Combine(repoRoot, "input", "bfrd", "classes", "fighter.md");
+        if (!File.Exists(path))
+        {
+            path = Path.Combine(repoRoot, "input", "classes", "fighter.md");
+        }
+        if (!File.Exists(path))
+        {
+            var candidates = Directory.EnumerateFiles(Path.Combine(repoRoot, "input"), "fighter.md", SearchOption.AllDirectories)
+                .Where(p => p.Contains(Path.Combine("classes", "fighter.md"), StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            path = candidates.FirstOrDefault() ?? path;
+        }
         Assert.True(File.Exists(path));
 
         var content = File.ReadAllText(path);
         var doc = MarkdownAst.Parse(content);
-        var src = new SourceItem { Abbr = "SRC", Name = "Src", Version = "1", InputRoot = Path.Combine(repoRoot, "input") };
+        var src = new SourceItem { Abbr = "SRC", Name = "Src", Version = "1", InputRoot = Path.Combine(repoRoot, "input", "bfrd") };
         var map = new YamlLoader<MappingConfig>().Load(Path.Combine(repoRoot, "config", "mapping.classes.yaml"));
         var ex = new Bfmd.Extractors.ClassesExtractor();
 

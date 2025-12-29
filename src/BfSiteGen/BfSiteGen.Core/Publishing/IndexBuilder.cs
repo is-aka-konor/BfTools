@@ -12,7 +12,7 @@ public sealed class IndexBuilder
         public string[] Fields { get; init; } = new[] { "name", "description" };
         public Dictionary<string, double> Boost { get; init; } = new() { { "name", 3.0 }, { "description", 1.0 } };
         public double? Fuzzy { get; init; } = 0.2; // MiniSearch fuzzy ratio
-        public string[] StoreFields { get; init; } = new[] { "slug", "category", "sources", "circle", "school", "isRitual", "type" };
+        public string[] StoreFields { get; init; } = new[] { "slug", "category", "sources", "circle", "school", "isRitual", "type", "parentClassSlug" };
     }
 
     private readonly IndexConfig _config;
@@ -33,6 +33,7 @@ public sealed class IndexBuilder
         map["spells"] = BuildForCategory(indexDir, "spells", load.Spells.OrderBy(s => s.Slug, StringComparer.Ordinal), WriteSpellDoc);
         map["talents"] = BuildForCategory(indexDir, "talents", load.Talents.OrderBy(t => t.Slug, StringComparer.Ordinal), WriteTalentDoc);
         map["backgrounds"] = BuildForCategory(indexDir, "backgrounds", load.Backgrounds.OrderBy(b => b.Slug, StringComparer.Ordinal), WriteBackgroundDoc);
+        map["subclasses"] = BuildForCategory(indexDir, "subclasses", load.Subclasses.OrderBy(s => s.Slug, StringComparer.Ordinal), WriteSubclassDoc);
         map["classes"] = BuildForCategory(indexDir, "classes", load.Classes.OrderBy(c => c.Slug, StringComparer.Ordinal), WriteClassDoc);
         map["lineages"] = BuildForCategory(indexDir, "lineages", load.Lineages.OrderBy(l => l.Slug, StringComparer.Ordinal), WriteLineageDoc);
 
@@ -149,6 +150,14 @@ public sealed class IndexBuilder
     {
         var html = _markdown.ToHtml(c.Description ?? string.Empty);
         WriteCommonDocStart(w, category, c, html, c.Src);
+        w.WriteEndObject();
+    }
+
+    private void WriteSubclassDoc(Utf8JsonWriter w, string category, SubclassDto s)
+    {
+        var html = _markdown.ToHtml(s.Description ?? string.Empty);
+        WriteCommonDocStart(w, category, s, html, s.Src);
+        w.WriteString("parentClassSlug", s.ParentClassSlug);
         w.WriteEndObject();
     }
 

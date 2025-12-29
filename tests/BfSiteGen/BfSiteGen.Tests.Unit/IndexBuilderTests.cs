@@ -35,7 +35,7 @@ public class IndexBuilderTests
             Assert.Equal("talents", first.GetProperty("category").GetString());
             Assert.Equal("tal1", first.GetProperty("slug").GetString());
             Assert.Equal("Mage Hand", first.GetProperty("name").GetString());
-            Assert.True(first.TryGetProperty("isRitual", out _));
+            Assert.False(first.TryGetProperty("isRitual", out _));
         }
         finally
         {

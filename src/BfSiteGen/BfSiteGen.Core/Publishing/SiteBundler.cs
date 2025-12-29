@@ -11,6 +11,7 @@ namespace BfSiteGen.Core.Publishing;
 public sealed partial class SiteBundler
 {
     private readonly IContentReader _reader;
+    private Dictionary<string, List<SubclassDto>> _subclassesByClass = new(StringComparer.OrdinalIgnoreCase);
 
     public SiteBundler(IContentReader reader)
     {
@@ -41,6 +42,14 @@ public sealed partial class SiteBundler
         var backgroundsSorted = load.Backgrounds.OrderBy(b => b.Slug, StringComparer.Ordinal).ToList();
         var (backgroundsHash, backgroundsCount) = WriteCategory(dataDir, "backgrounds", backgroundsSorted, WriteBackground);
         categories["backgrounds"] = (backgroundsHash, backgroundsCount);
+
+        // Subclasses
+        var subclassesSorted = load.Subclasses.OrderBy(s => s.Slug, StringComparer.Ordinal).ToList();
+        _subclassesByClass = subclassesSorted
+            .GroupBy(s => s.ParentClassSlug, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.OrdinalIgnoreCase);
+        var (subclassesHash, subclassesCount) = WriteCategory(dataDir, "subclasses", subclassesSorted, WriteSubclass);
+        categories["subclasses"] = (subclassesHash, subclassesCount);
 
         // Classes
         var classesSorted = load.Classes.OrderBy(c => c.Slug, StringComparer.Ordinal).ToList();
@@ -85,6 +94,7 @@ public sealed partial class SiteBundler
             allSources.AddRange(talentsSorted.Select(t => t.Src));
             allSources.AddRange(spellsSorted.Select(s => s.Src));
             allSources.AddRange(backgroundsSorted.Select(b => b.Src));
+            allSources.AddRange(subclassesSorted.Select(s => s.Src));
             allSources.AddRange(classesSorted.Select(c => c.Src));
             allSources.AddRange(lineagesSorted.Select(l => l.Src));
             var distinct = allSources
@@ -301,7 +311,47 @@ partial class SiteBundler
         WriteSources(w, c.Src);
         // startingEquipment as array
         if (c.StartingEquipment.Items is { Count: > 0 }) { w.WritePropertyName("startingEquipment"); w.WriteStartArray(); foreach (var it in c.StartingEquipment.Items) w.WriteStringValue(it); w.WriteEndArray(); }
-        if (c.Subclasses is { Count: > 0 }) { w.WritePropertyName("subclasses"); w.WriteStartArray(); foreach (var s in c.Subclasses) w.WriteStringValue(s); w.WriteEndArray(); }
+        var subclasses = c.Subclasses is { Count: > 0 }
+            ? c.Subclasses
+            : (_subclassesByClass.TryGetValue(c.Slug, out var grouped) ? grouped : null);
+        if (subclasses is { Count: > 0 })
+        {
+            w.WritePropertyName("subclasses");
+            w.WriteStartArray();
+            foreach (var s in subclasses) WriteSubclassObject(w, s, r);
+            w.WriteEndArray();
+        }
+        w.WriteEndObject();
+    }
+
+    private void WriteSubclass(Utf8JsonWriter w, SubclassDto s)
+    {
+        var r = new MarkdownRenderer();
+        WriteSubclassObject(w, s, r);
+    }
+
+    private static void WriteSubclassObject(Utf8JsonWriter w, SubclassDto s, MarkdownRenderer r)
+    {
+        w.WriteStartObject();
+        w.WriteString("description", s.ToHtml(r));
+        if (s.Features is { Count: > 0 })
+        {
+            w.WritePropertyName("features");
+            w.WriteStartArray();
+            foreach (var f in s.Features.OrderBy(l => l.Level).ThenBy(l => l.Name, StringComparer.Ordinal))
+            {
+                w.WriteStartObject();
+                if (!string.IsNullOrWhiteSpace(f.Description)) w.WriteString("description", r.RenderBlock(f.Description));
+                w.WriteNumber("level", f.Level);
+                w.WriteString("name", f.Name);
+                w.WriteEndObject();
+            }
+            w.WriteEndArray();
+        }
+        w.WriteString("name", s.Name);
+        w.WriteString("parentClassSlug", s.ParentClassSlug);
+        w.WriteString("slug", s.Slug);
+        WriteSources(w, s.Src);
         w.WriteEndObject();
     }
 
