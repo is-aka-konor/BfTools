@@ -154,7 +154,7 @@ export function renderTalentDetail(
       </section>
 
       <div style="margin-top: var(--space-xl); text-align: center;">
-        <a class="btn btn--accent-outline" href="${backHref}" data-navigo @click=${() => onBack()}>← Вернуться к талантам</a>
+        <a class="btn-back" href="${backHref}" data-navigo @click=${() => onBack()}>← Вернуться к талантам</a>
       </div>
     </div>
   `;

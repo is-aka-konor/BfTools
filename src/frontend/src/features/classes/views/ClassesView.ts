@@ -126,10 +126,6 @@ function renderClassCard(item: ClassEntry, onOpen: (entry: ClassEntry) => void):
   const weapons = joinList(prof.weapons) ?? '—';
   const tools = joinList(prof.tools) ?? '—';
   const skillSummary = buildSkillSummary(prof.skills) ?? '—';
-  const levelFeatures = pickLevelFeatures(item.levels);
-  const equipment = (item.startingEquipment ?? []).slice(0, 3);
-  const description = buildDescriptionExcerpt(item.description ?? '');
-  const subclasses = extractSubclasses(item.description ?? '');
   const icon = pickClassIcon(item.slug, item.name);
 
   return html`
@@ -157,40 +153,23 @@ function renderClassCard(item: ClassEntry, onOpen: (entry: ClassEntry) => void):
         ${renderStat('Спасброски', saves)}
       </div>
 
-      ${description ? html`
-        <div class="class-description">${description}</div>
-      ` : null}
-
-      ${levelFeatures.length ? html`
+      ${item.features?.length ? html`
         <div class="class-features">
-          <h4>Особенности 1 уровня</h4>
+          <h4>Особенности класса:</h4>
           <div class="feature-list">
-            ${levelFeatures.map(f => html`<span class="feature-tag">${f}</span>`)}
+            ${item.features.map(f => html`<span class="feature-tag">${f.name}</span>`)}
           </div>
         </div>
       ` : null}
 
-      ${subclasses.length ? html`
+      ${item.subclasses?.length ? html`
         <div class="class-features">
-          <h4>Подклассы</h4>
+          <h4>Подклассы:</h4>
           <div class="feature-list">
-            ${subclasses.map(sc => html`<span class="feature-tag">${sc}</span>`)}
+            ${item.subclasses.map(sc => html`<span class="feature-tag">${sc.name}</span>`)}
           </div>
         </div>
       ` : null}
-
-      ${equipment.length ? html`
-        <div class="class-equipment">
-          <h4>Стартовое снаряжение</h4>
-          <ul>
-            ${equipment.map(eq => html`<li>${eq}</li>`)}
-          </ul>
-        </div>
-      ` : null}
-
-      <div class="class-footer">
-        <span class="class-link">Подробнее →</span>
-      </div>
     </a>
   `;
 }
@@ -212,12 +191,6 @@ function buildSkillSummary(skills?: { granted?: string[]; choose?: number; from?
   return parts.length ? parts.join('. ') : undefined;
 }
 
-function pickLevelFeatures(levels?: Array<{ level: number; features?: string[] }>): string[] {
-  if (!levels || levels.length === 0) return [];
-  const levelOne = levels.find(l => l.level === 1) ?? levels[0];
-  return (levelOne.features ?? []).slice(0, 3);
-}
-
 function renderStat(label: string, value: string | undefined): TemplateResult {
   if (!value || value.trim().length === 0) {
     return html``;
@@ -228,41 +201,6 @@ function renderStat(label: string, value: string | undefined): TemplateResult {
       <span class="stat-value">${value}</span>
     </div>
   `;
-}
-
-function buildDescriptionExcerpt(description: string): string | undefined {
-  if (!description) return undefined;
-  const text = stripHtml(description).replace(/\s+/g, ' ').trim();
-  if (!text) return undefined;
-  return text.length > 220 ? `${text.slice(0, 220)}…` : text;
-}
-
-function stripHtml(input: string): string {
-  return input.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-function extractSubclasses(description: string): string[] {
-  if (!description) return [];
-  const matches = new Set<string>();
-  const plain = description
-    .replace(/<[^>]+>/g, '\n')
-    .split(/\n+/)
-    .map(line => line.trim())
-    .filter(Boolean);
-  for (const line of plain) {
-    const normalized = line.replace(/^#+\s*/, '');
-    const m = normalized.match(/^ПОДКЛАСС:?\s*(.+)$/i);
-    if (m?.[1]) {
-      matches.add(capitalize(m[1]));
-    }
-  }
-  return Array.from(matches).slice(0, 4);
-}
-
-function capitalize(value: string): string {
-  const trimmed = value.trim();
-  if (!trimmed) return value;
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }
 
 function pickClassIcon(slug: string | undefined, name: string | undefined): string {

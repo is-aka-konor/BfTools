@@ -187,7 +187,7 @@
 .prose h2 {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-semibold);
-  margin-top: 1.5em;
+  margin-top: 0.5em;
 }
 
 .prose h3 {
@@ -1497,17 +1497,21 @@ select.form-control option {
 }
 
 .class-icon {
-  font-size: 1.75rem;
+  font-size: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .class-name {
+  font-family: 'Cinzel', serif;
   font-size: var(--font-size-2xl);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent-primary);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-top: 2px;
   line-height: 1;
 }
 
@@ -1685,6 +1689,14 @@ select.form-control option {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-xs);
+}
+
+.feature-tag {
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--accent-primary);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: 6px;
+  font-size: var(--font-size-xs);
 }
 
 .class-description-section {

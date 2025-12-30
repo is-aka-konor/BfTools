@@ -83,7 +83,7 @@ export function renderCategoryDetail(
       </section>
 
       <div style="margin-top: var(--space-xl); text-align: center;">
-        <a class="btn btn--accent-outline" href="/${category}" data-navigo @click=${() => onBack()}>← Вернуться ${backTo}</a>
+        <a class="btn-back" href="/${category}" data-navigo @click=${() => onBack()}>← Вернуться ${backTo}</a>
       </div>
     </div>
   `;
