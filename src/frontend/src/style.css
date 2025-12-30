@@ -58,6 +58,12 @@
   --color-surface: var(--color-cream-100);
   --color-text: var(--color-slate-900);
   --color-text-secondary: var(--color-slate-500);
+  
+  /* New Semantic Tokens for Dark Fantasy Theme */
+  --accent-primary: #d4af37; /* Metallic Gold */
+  --mystical-primary: #9d4edd; /* Deep Purple */
+  --mystical-secondary: #c77dff; /* Lighter Purple/Lavender for H3 */
+
   --color-primary: var(--color-teal-500);
   --color-primary-hover: var(--color-teal-600);
   --color-primary-active: var(--color-teal-700);
@@ -167,51 +173,72 @@
 .prose h2,
 .prose h3,
 .prose h4,
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
 .prose h5,
 .prose h6 {
-  font-family: 'Cinzel', serif;
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
-  color: var(--accent-primary);
-  line-height: var(--line-height-tight);
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  line-height: 1.2;
 }
 
 .prose h1 {
   font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-bold);
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-8);
-  margin-top: 2em;
+  font-weight: 800;
+  color: var(--accent-primary); /* Gold */
+  letter-spacing: -0.02em;
 }
 
 .prose h2 {
+  font-family: 'Cinzel', serif;
   font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  margin-top: 0.5em;
+  font-weight: 700;
+  color: var(--accent-primary); /* Gold */
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.3em;
+  margin-top: 2em;
 }
 
-.prose h3 {
+.prose h3,
+.class-feature-item h3,
+.class-subclass-item h3 {
   font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-primary);
+  font-weight: 700;
+  color: var(--mystical-secondary); /* Purple/Lavender */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 1.5em;
 }
 
 .prose h4 {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--accent-primary); /* Gold */
+  margin-top: 1.5em;
+  letter-spacing: 0.02em;
 }
 
 .prose h5 {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-secondary);
-  opacity: 0.9;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--mystical-primary); /* Purple */
+  margin-top: 1.2em;
+  font-style: italic;
+  opacity: 1;
 }
+
+/* Ensure table headers inside prose also match if they exist, or globally */
+.prose th,
+.class-table th {
+  color: var(--accent-primary);
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+
 
 .prose h6 {
   font-size: var(--font-size-xs);
@@ -406,7 +433,11 @@
   --color-success: var(--color-teal-500);
   --color-warning: var(--color-orange-500);
   --color-info: var(--color-slate-500);
+  --color-info: var(--color-slate-500);
   --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+
+  --accent-primary: #d4af37; /* Gold */
+  --mystical-primary: #9d4edd; /* Purple */
 
   /* RGB versions for light mode */
   --color-success-rgb: var(--color-teal-500-rgb);
@@ -447,7 +478,7 @@ h6 {
   margin: 0;
   font-weight: var(--font-weight-semibold);
   line-height: var(--line-height-tight);
-  color: var(--color-text);
+  /* color: var(--color-text);  Removed to prevent overriding specific styles */
   letter-spacing: var(--letter-spacing-tight);
 }
 
@@ -1601,6 +1632,8 @@ select.form-control option {
   gap: var(--space-lg);
   margin-bottom: var(--space-2xl);
 }
+
+
 
 .class-progression-section {
   margin-bottom: var(--space-2xl);

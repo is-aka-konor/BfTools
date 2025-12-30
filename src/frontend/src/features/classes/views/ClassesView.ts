@@ -105,10 +105,40 @@ export function renderClassDetail(
         </section>
       ` : null}
 
-      <section class="class-description-section">
-        <h2 class="class-section-title">Описание</h2>
-        <div class="prose" .innerHTML=${item.description ?? ''}></div>
-      </section>
+      ${(item.features?.length || item.progressInfo?.length) ? html`
+        <section class="class-features-section" style="margin-bottom: var(--space-2xl);">
+          <h2 class="class-section-title">Классовые Умения</h2>
+          <div class="flex flex-col gap-6">
+            ${(() => {
+              const allFeatures = [
+                ...(item.features || []),
+                ...(item.progressInfo || [])
+              ].sort((a, b) => (a.level || 0) - (b.level || 0));
+
+              return allFeatures.map(f => html`
+                <div class="class-feature-item">
+                  <h3 class="text-xl font-bold m-0 mb-2">${f.name}</h3>
+                  <div class="prose text-base-content/80" .innerHTML=${f.description}></div>
+                </div>
+              `);
+            })()}
+          </div>
+        </section>
+      ` : null}
+
+      ${item.subclasses?.length ? html`
+        <section class="class-subclasses-section">
+          <h2 class="class-section-title">Подклассы</h2>
+          <div class="flex flex-col gap-8">
+            ${item.subclasses.map(sc => html`
+              <div class="class-subclass-item">
+                 <h3 class="text-2xl font-bold text-accent mb-4 border-b border-white/10 pb-2">${sc.name}</h3>
+                 <div class="prose text-base-content/80" .innerHTML=${sc.description}></div>
+              </div>
+            `)}
+          </div>
+        </section>
+      ` : null}
 
       <div style="margin-top: var(--space-xl); text-align: center;">
         <a class="btn btn--accent-outline" href="/classes" data-navigo @click=${onBack}>← Вернуться к списку классов</a>
