@@ -79,6 +79,22 @@ public class ExpectedJsonOutputTests
             var tools = prof.GetProperty("tools").EnumerateArray().Select(e => e.GetString()).ToList();
             Assert.NotEmpty(tools);
         }
+
+        // Spot-check Barbarian for feature objects
+        var barbarian = Path.Combine(classesDir, "barbarian.json");
+        if (File.Exists(barbarian))
+        {
+            var json = File.ReadAllText(barbarian);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            Assert.True(root.TryGetProperty("features", out var features));
+            Assert.True(features.GetArrayLength() > 0);
+            var feature = features.EnumerateArray().First();
+            Assert.True(feature.TryGetProperty("name", out _));
+            Assert.True(feature.TryGetProperty("level", out _));
+            Assert.True(root.TryGetProperty("progressInfo", out var progressInfo));
+            Assert.True(progressInfo.GetArrayLength() > 0);
+        }
     }
 
     [Fact]

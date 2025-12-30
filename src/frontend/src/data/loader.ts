@@ -45,13 +45,13 @@ export async function syncContent(baseUrl = ''): Promise<SyncResult> {
     // Dataset
     const dataUrl = `${baseUrl}/data/${cat}-${info.hash}.json`;
     const data = await fetchJson<any[]>(dataUrl);
-    await db.datasets.put({ key: `${cat}:${info.hash}`, category: cat, hash: info.hash, data, ts: Date.now() });
+    await db.datasets.put({ key: cat, category: cat, hash: info.hash, data, ts: Date.now() });
 
     // Index
     if (info.indexHash) {
       const idxUrl = `${baseUrl}/index/${cat}-${info.indexHash}.minisearch.json`;
       const index = await fetchJson<any>(idxUrl);
-      await db.indexes.put({ key: `${cat}:${info.indexHash}`, category: cat, hash: info.indexHash, index, ts: Date.now() });
+      await db.indexes.put({ key: cat, category: cat, hash: info.indexHash, index, ts: Date.now() });
     }
   }
 

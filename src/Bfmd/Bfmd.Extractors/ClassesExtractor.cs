@@ -5,6 +5,7 @@ using BfCommon.Domain.Models;
 using Bfmd.Core.Pipeline;
 using Bfmd.Core.Services;
 using Markdig.Syntax;
+using Serilog;
 
 namespace Bfmd.Extractors;
 
@@ -18,6 +19,15 @@ public class ClassesExtractor : IExtractor
             if (string.IsNullOrWhiteSpace(title)) continue;
             var sectionBlocks = GetSectionBlocks(doc, classHeader);
             var desc = SectionMarkdown(doc, content, classHeader, sectionBlocks);
+            var featureHeadingLevel = (classHeader?.Level ?? 2) + 1;
+            try
+            {
+                LogInvalidClassHeaders(sectionBlocks, featureHeadingLevel, title!, path);
+            }
+            catch
+            {
+                // ignore logging issues to keep extraction resilient
+            }
             
             var cls = new ClassDto
             {
@@ -54,6 +64,17 @@ public class ClassesExtractor : IExtractor
                     var row = cls.Levels.FirstOrDefault(r => r.Level == lvl);
                     if (row != null) row.Features = feats;
                 }
+            }
+            catch
+            {
+                // ignore parsing errors to keep extraction resilient
+            }
+
+            try
+            {
+                var (features, progression) = ExtractClassFeatures(content, sectionBlocks, featureHeadingLevel);
+                cls.Features = features;
+                cls.ProgressInfo = progression;
             }
             catch
             {
@@ -564,10 +585,112 @@ public class ClassesExtractor : IExtractor
     internal static bool IsSubclassSectionTerminator(Block b, int headingLevel)
         => b is ThematicBreakBlock || (b is HeadingBlock hb && hb.Level <= headingLevel);
 
-    internal static (List<SubclassFeatureDto> features, List<SubclassFeatureDto> progression) ExtractSubclassFeatures(string content, List<Block> blocks, int featureHeadingLevel)
+    internal static (List<FeatureDto> features, List<FeatureDto> progression) ExtractClassFeatures(string content, List<Block> blocks, int featureHeadingLevel)
     {
-        var features = new List<SubclassFeatureDto>();
-        var progression = new List<SubclassFeatureDto>();
+        var features = new List<FeatureDto>();
+        var progression = new List<FeatureDto>();
+        var classFeaturesHeader = blocks.OfType<HeadingBlock>()
+            .FirstOrDefault(h => h.Level == featureHeadingLevel && IsClassFeaturesHeaderLine(InlineToText(h.Inline)));
+        if (classFeaturesHeader == null) return (features, progression);
+
+        var scopeBlocks = GetBlocksAfterHeader(blocks, classFeaturesHeader);
+        var featureLevel = classFeaturesHeader.Level + 1;
+        var headings = scopeBlocks.OfType<HeadingBlock>().Where(h => h.Level == featureLevel).ToList();
+        for (int i = 0; i < headings.Count; i++)
+        {
+            var h = headings[i];
+            var headerText = InlineToText(h.Inline);
+            var next = i + 1 < headings.Count ? headings[i + 1] : null;
+            var until = new List<Block>();
+            bool within = false;
+            foreach (var b in scopeBlocks)
+            {
+                if (!within)
+                {
+                    if (ReferenceEquals(b, h)) within = true;
+                    continue;
+                }
+                if (next != null && ReferenceEquals(b, next)) break;
+                if (b is HeadingBlock hb && hb.Level <= h.Level) break;
+                until.Add(b);
+            }
+
+            var name = InlineToText(h.Inline);
+            var desc = BlocksToMarkdown(content, until);
+            var level = ParseFeatureLevel(name);
+            if (level == 0)
+            {
+                var firstPara = until.OfType<ParagraphBlock>().FirstOrDefault();
+                if (firstPara != null)
+                {
+                    var ptext = InlineToText(firstPara.Inline);
+                    level = ParseFeatureLevel(ptext);
+                }
+            }
+            if (level > 0)
+            {
+                features.Add(new FeatureDto
+                {
+                    Level = level,
+                    Name = name,
+                    Description = desc
+                });
+            }
+            else
+            {
+                progression.Add(new FeatureDto
+                {
+                    Level = null,
+                    Name = name,
+                    Description = desc
+                });
+            }
+        }
+        return (features, progression);
+    }
+
+    internal static List<Block> GetBlocksAfterHeader(List<Block> blocks, HeadingBlock header)
+    {
+        var result = new List<Block>();
+        bool within = false;
+        foreach (var b in blocks)
+        {
+            if (!within)
+            {
+                if (ReferenceEquals(b, header)) within = true;
+                continue;
+            }
+            if (b is HeadingBlock hb && hb.Level <= header.Level) break;
+            result.Add(b);
+        }
+        return result;
+    }
+
+    internal static bool IsSubclassHeaderLine(string headerText)
+        => Regex.IsMatch(headerText, "^\\s*ПОДКЛАСС\\s*:\\s*", RegexOptions.IgnoreCase);
+
+    internal static bool IsClassFeaturesHeaderLine(string headerText)
+        => headerText.Contains("КЛАССОВЫЕ УМЕНИЯ", StringComparison.OrdinalIgnoreCase);
+
+    internal static void LogInvalidClassHeaders(
+        IEnumerable<Block> blocks,
+        int featureHeadingLevel,
+        string className,
+        string sourceFile)
+    {
+        foreach (var h in blocks.OfType<HeadingBlock>().Where(h => h.Level == featureHeadingLevel))
+        {
+            var text = InlineToText(h.Inline);
+            if (IsSubclassHeaderLine(text) || IsClassFeaturesHeaderLine(text)) continue;
+            Log.Warning("Class header warning: {ClassName} {SourceFile} has unsupported H{Level} header: {Header}",
+                className, sourceFile, h.Level, text);
+        }
+    }
+
+    internal static (List<FeatureDto> features, List<FeatureDto> progression) ExtractSubclassFeatures(string content, List<Block> blocks, int featureHeadingLevel)
+    {
+        var features = new List<FeatureDto>();
+        var progression = new List<FeatureDto>();
         var headings = blocks.OfType<HeadingBlock>().Where(h => h.Level == featureHeadingLevel).ToList();
         for (int i = 0; i < headings.Count; i++)
         {
@@ -601,7 +724,7 @@ public class ClassesExtractor : IExtractor
             }
             if (level > 0)
             {
-                features.Add(new SubclassFeatureDto
+                features.Add(new FeatureDto
                 {
                     Level = level,
                     Name = name,
@@ -610,7 +733,7 @@ public class ClassesExtractor : IExtractor
             }
             else
             {
-                progression.Add(new SubclassFeatureDto
+                progression.Add(new FeatureDto
                 {
                     Level = null,
                     Name = name,

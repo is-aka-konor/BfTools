@@ -8,7 +8,8 @@ public class ClassDto : BaseEntity
     public ProficienciesDto Proficiencies { get; set; } = new();
     public StartingEquipmentDto StartingEquipment { get; set; } = new();
     public List<LevelRowDto> Levels { get; set; } = new();
-    public List<string> Features { get; set; } = new();
+    public List<FeatureDto> Features { get; set; } = new();
+    public List<FeatureDto> ProgressInfo { get; set; } = new();
     public List<SubclassDto> Subclasses { get; set; } = new();
 }
 

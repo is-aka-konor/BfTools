@@ -22,7 +22,8 @@ export async function searchAll(query: string, opts?: { fuzzy?: boolean; combine
   const docs: SearchDoc[] = [];
   for (const [cat, { indexHash }] of Object.entries(active)) {
     if (!indexHash) continue;
-    const row = await db.indexes.get(`${cat}:${indexHash}`);
+    // Index is now keyed by category only
+    const row = await db.indexes.get(cat);
     if (!row) continue;
     const idx = row.index as { options: any; documents: SearchDoc[] };
     // Merge docs with category already embedded in each doc

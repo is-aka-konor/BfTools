@@ -1,27 +1,27 @@
 # BfSiteGen – Static Site Bundler
 
-BfSiteGen takes the extracted content (DTO JSONs) and produces a fully self‑contained static site folder with:
+BfSiteGen takes the extracted content (DTO JSONs) and produces a static site data bundle with:
 
 - Immutable, hashed data bundles per category under `data/`
 - Prebuilt search indexes under `index/`
 - A site manifest (`site-manifest.json`) describing versions/counts
 - Deep‑link route stubs for static hosts
-- Copied SPA assets (index.html, JS/CSS, icons) – ready to open locally or deploy
-- Optional ZIP package for distribution
+- Optional copied SPA assets (index.html, JS/CSS, icons) when using Publish
+- Optional ZIP package for distribution (Publish)
 
 This document describes the step‑by‑step generation process, expected outputs after each step, and how to run it locally.
 
 ## Prerequisites
 
 - .NET SDK 9+
-- Frontend built once via Vite (Node.js 18+)
+- Frontend built once via Vite (Node.js 18+) only if you plan to Publish
   - `cd src/frontend && npm ci && npm run build`
 
 The content DTO JSONs are expected to exist under `output/data/<category>/*.json`. These are usually produced by the `Bfmd` extractors pipeline.
 
 ## Quick Start
 
-1) Build the frontend (one‑time or when assets change)
+1) Build the frontend (one‑time or when assets change, only for Publish)
 
 ```
 cd src/frontend
@@ -29,7 +29,7 @@ npm ci
 npm run build
 ```
 
-2) Generate the site
+2) Generate data bundles and indexes (data‑only)
 
 ```
 dotnet run --project src/BfSiteGen/BfSiteGen.Cli -- [outputRoot] [distRoot]
@@ -37,14 +37,15 @@ dotnet run --project src/BfSiteGen/BfSiteGen.Cli -- [outputRoot] [distRoot]
 
 - `outputRoot` (default: `output`) – where category JSONs live (input)
 - `distRoot`   (default: `dist-site`) – where the static site is emitted (output)
+- The CLI clears `distRoot` before writing to avoid stale artifacts.
 
-3) Optional: Package as a ZIP
+3) Optional: Publish with SPA assets + ZIP
 
 ```
 dotnet run --project src/BfSiteGen/BfSiteGen.Cli -- [outputRoot] [distRoot] --publish
 ```
 
-This creates `site-bundle-<build>.zip` in the working directory.
+This copies SPA assets into `distRoot/` and creates `site-bundle-<build>.zip` in the working directory.
 
 ## Step‑by‑Step Pipeline
 
@@ -101,7 +102,7 @@ Notes:
   - plus base category stubs (e.g. `distRoot/spells/index.html`)
 - Operation: emit tiny HTML files that load `index.html` and bootstrap the SPA at the deep route. They try multiple relative locations so they work on `file://` and static hosting.
 
-### 5) Copy Frontend Assets
+### 5) Copy Frontend Assets (Publish only)
 
 - Source: `src/frontend/dist` (built via `npm run build`)
 - Target: `distRoot/`
@@ -175,4 +176,3 @@ dotnet run --project src/BfSiteGen/BfSiteGen.Cli -- [outputRoot] [distRoot] [--p
 ---
 
 BfSiteGen is designed to keep memory usage low via streaming writers and to avoid duplicating markdown and HTML. All HTML is generated on demand at write‑time; data files remain compact and deterministic.
-

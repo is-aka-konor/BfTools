@@ -267,7 +267,34 @@ partial class SiteBundler
         w.WriteStartObject();
         // Alphabetical properties
         w.WriteString("description", c.ToHtml(r));
-        if (c.Features is { Count: > 0 }) { w.WritePropertyName("features"); w.WriteStartArray(); foreach (var f in c.Features) w.WriteStringValue(f); w.WriteEndArray(); }
+        if (c.Features is { Count: > 0 })
+        {
+            w.WritePropertyName("features");
+            w.WriteStartArray();
+            foreach (var f in c.Features.OrderBy(l => l.Level).ThenBy(l => l.Name, StringComparer.Ordinal))
+            {
+                w.WriteStartObject();
+                if (!string.IsNullOrWhiteSpace(f.Description)) w.WriteString("description", r.RenderBlock(f.Description));
+                if (f.Level.HasValue) w.WriteNumber("level", f.Level.Value);
+                w.WriteString("name", f.Name);
+                w.WriteEndObject();
+            }
+            w.WriteEndArray();
+        }
+        if (c.ProgressInfo is { Count: > 0 })
+        {
+            w.WritePropertyName("progressInfo");
+            w.WriteStartArray();
+            foreach (var f in c.ProgressInfo.OrderBy(l => l.Name, StringComparer.Ordinal))
+            {
+                w.WriteStartObject();
+                if (!string.IsNullOrWhiteSpace(f.Description)) w.WriteString("description", r.RenderBlock(f.Description));
+                if (f.Level.HasValue) w.WriteNumber("level", f.Level.Value);
+                w.WriteString("name", f.Name);
+                w.WriteEndObject();
+            }
+            w.WriteEndArray();
+        }
         w.WriteString("hitDie", c.HitDie);
         if (c.Levels is { Count: > 0 })
         {

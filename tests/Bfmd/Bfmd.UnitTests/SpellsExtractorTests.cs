@@ -9,6 +9,8 @@ public class SpellsExtractorTests
     [Theory]
     [InlineData("## Развеивание магии | Dispel Magic", "Развеивание магии", "Dispel Magic")]
     [InlineData("## Божественное благоволение | Divine Favor", "Божественное благоволение", "Divine Favor")]
+    [InlineData("## Драконье дыхание/Dragon Breath | Dragon Breath", "Драконье дыхание Dragon Breath", "Dragon Breath")]
+    [InlineData("## Огненный шар | Fireball/FB", "Огненный шар", "Fireball-FB")]
     public void TryParseHeaderParts_ShouldExtractNameAndSlug_WhenHeadingHasPipe(string h2Line, string expectedName, string expectedSlug)
     {
         var doc = Markdown.Parse(h2Line);

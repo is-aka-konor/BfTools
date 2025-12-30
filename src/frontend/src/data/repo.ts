@@ -26,15 +26,15 @@ export interface ClassEntry extends Entry {
   };
   startingEquipment?: string[];
   levels?: Array<{ level: number; proficiencyBonus?: string; features?: string[] }>;
+  features?: Array<{ name: string; description: string; level?: number }>;
+  progressInfo?: Array<{ name: string; description: string; level?: number }>;
+  subclasses?: Array<{ name: string; description: string; slug?: string }>;
 }
 
 export async function getDataset(category: string): Promise<Entry[]> {
   console.info(`Received a call to get Category data for: ${category}`);
-  const active = (await db.meta.get('active'))?.value as Record<string, { hash: string }> | undefined;
-  const h = active?.[category]?.hash;
-  console.info(`Got hash: ${h}`);
-  if (!h) return [];
-  const row = await db.datasets.get(`${category}:${h}`);
+  // Data is now keyed by category only in syncContent
+  const row = await db.datasets.get(category);
   console.info(`Trying to pull data for the Row:${row}`);
   return (row?.data ?? []) as Entry[];
 }

@@ -94,9 +94,24 @@ public class SpellsExtractor : IExtractor
         if (string.IsNullOrWhiteSpace(text)) return false;
         var split = text.Split('|', 2, StringSplitOptions.TrimEntries);
         if (split.Length < 2) return false;
-        name = split[0].Trim();
-        slug = split[1].Trim();
+        name = SanitizeName(split[0].Trim());
+        slug = SanitizeSlug(split[1].Trim());
         return !string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(slug);
+    }
+
+    internal static string SanitizeName(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        var cleaned = value.Replace("/", " ").Replace("\\", " ");
+        return Regex.Replace(cleaned, "\\s+", " ").Trim();
+    }
+
+    internal static string SanitizeSlug(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return string.Empty;
+        var cleaned = value.Replace("/", "-").Replace("\\", "-");
+        cleaned = Regex.Replace(cleaned, "-{2,}", "-");
+        return cleaned.Trim(' ', '-');
     }
 
     internal static (int circle, bool hasCircle, List<string> traditions, string school, string casting, string range, string components, string duration, List<string> effect, bool? isRitual)

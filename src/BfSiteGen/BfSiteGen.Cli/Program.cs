@@ -13,6 +13,11 @@ builder.Services.AddSingleton<IContentReader, ContentReader>();
 builder.Services.AddSingleton<SiteBundler>();
 var host = builder.Build();
 
+if (args.Length > 0)
+{
+    return RunCommand(args, host.Services.GetRequiredService<SiteBundler>());
+}
+
 while (true)
 {
     var choice = AnsiConsole.Prompt(new SelectionPrompt<string>()
@@ -44,6 +49,49 @@ while (true)
     RunBuild(host.Services.GetRequiredService<SiteBundler>(), outputRoot, distRoot, publish);
 }
 
+return 0;
+
+static int RunCommand(string[] args, SiteBundler bundler)
+{
+    var command = args[0].ToLowerInvariant();
+    var outputRoot = GetArg(args, "--input") ?? ResolveDefaultOutput();
+    var distRoot = GetArg(args, "--dist") ?? ResolveDefaultDist();
+
+    switch (command)
+    {
+        case "build":
+            RunBuild(bundler, outputRoot, distRoot, publish: false);
+            return 0;
+        case "publish":
+            RunBuild(bundler, outputRoot, distRoot, publish: true);
+            return 0;
+        case "clean":
+            RunClean(distRoot);
+            return 0;
+        default:
+            Console.WriteLine($"Unknown command '{args[0]}'. Supported: build, publish, clean");
+            return 1;
+    }
+}
+
+static string ResolveDefaultOutput()
+{
+    #if DEBUG
+    return "../../../../../../output";
+    #else
+    return "output";
+    #endif
+}
+
+static string ResolveDefaultDist()
+{
+    #if DEBUG
+    return "../../../../../../dist-site";
+    #else
+    return "dist-site";
+    #endif
+}
+
 static void RunBuild(SiteBundler bundler, string outputRoot, string distRoot, bool publish)
 {
     AnsiConsole.MarkupLine($"[grey]Input:[/] [blue]{outputRoot}[/]  [grey]Dist:[/] [blue]{distRoot}[/]");
@@ -55,14 +103,27 @@ static void RunBuild(SiteBundler bundler, string outputRoot, string distRoot, bo
         AnsiConsole.MarkupLine("[grey]  dotnet run --project src/Bfmd/Bfmd.Cli --[/] then choose [bold]Convert[/].");
         return;
     }
-    // Early SPA presence hint (pre-copy)
-    var rootCwd = Directory.GetCurrentDirectory();
-    var spaIndex = FindFileUpwards(rootCwd, Path.Combine("src","frontend","dist","index.html"));
-    if (spaIndex is null)
+    // Clean dist output to avoid stale bundles/assets
+    if (Directory.Exists(distRoot))
     {
-        AnsiConsole.MarkupLine("[yellow]SPA assets not found[/]: src/frontend/dist/index.html");
-        AnsiConsole.MarkupLine("Suggestion: build the SPA assets:");
-        AnsiConsole.MarkupLine("[grey]  cd src/frontend && npm ci && npm run build[/]");
+        try { Directory.Delete(distRoot, recursive: true); }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]Failed to clean dist folder[/]: {ex.Message}");
+            return;
+        }
+    }
+    if (publish)
+    {
+        // Early SPA presence hint (pre-copy)
+        var rootCwd = Directory.GetCurrentDirectory();
+        var spaIndex = FindFileUpwards(rootCwd, Path.Combine("src","frontend","dist","index.html"));
+        if (spaIndex is null)
+        {
+            AnsiConsole.MarkupLine("[yellow]SPA assets not found[/]: src/frontend/dist/index.html");
+            AnsiConsole.MarkupLine("Suggestion: build the SPA assets:");
+            AnsiConsole.MarkupLine("[grey]  cd src/frontend && npm ci && npm run build[/]");
+        }
     }
     AnsiConsole.Status()
         .Start("Building bundles...", _ =>
@@ -75,34 +136,37 @@ static void RunBuild(SiteBundler bundler, string outputRoot, string distRoot, bo
                     var idx = res.Indexes.TryGetValue(kv.Key, out var ih) ? ih.hash : "-";
                     AnsiConsole.MarkupLine($"[green]•[/] {kv.Key}: hash=[blue]{kv.Value.hash}[/] index=[blue]{idx}[/] count=[yellow]{kv.Value.count}[/]");
                 }
-                // Copy frontend assets
-                var root = Directory.GetCurrentDirectory();
-                var frontendDist = FindFileUpwards(root, Path.Combine("src","frontend","dist","index.html"));
-                if (frontendDist != null)
+                if (publish)
                 {
-                    var frontendDir = Path.GetDirectoryName(frontendDist)!;
-                    AnsiConsole.MarkupLine($"[grey]Copy assets from[/] {frontendDir}");
-                    CopyDirectory(frontendDir, distRoot);
-                    var indexPath = Path.Combine(distRoot, "index.html");
-                    if (File.Exists(indexPath))
+                    // Copy frontend assets
+                    var root = Directory.GetCurrentDirectory();
+                    var frontendDist = FindFileUpwards(root, Path.Combine("src","frontend","dist","index.html"));
+                    if (frontendDist != null)
                     {
-                        var txt = File.ReadAllText(indexPath);
-                        txt = txt.Replace(" src=\"/assets/", " src=\"assets/")
-                                 .Replace(" href=\"/assets/", " href=\"assets/");
-                        File.WriteAllText(indexPath, txt);
-                        AnsiConsole.MarkupLine("[grey]Rewrote asset URLs in index.html[/]");
+                        var frontendDir = Path.GetDirectoryName(frontendDist)!;
+                        AnsiConsole.MarkupLine($"[grey]Copy assets from[/] {frontendDir}");
+                        CopyDirectory(frontendDir, distRoot);
+                        var indexPath = Path.Combine(distRoot, "index.html");
+                        if (File.Exists(indexPath))
+                        {
+                            var txt = File.ReadAllText(indexPath);
+                            txt = txt.Replace(" src=\"/assets/", " src=\"assets/")
+                                     .Replace(" href=\"/assets/", " href=\"assets/");
+                            File.WriteAllText(indexPath, txt);
+                            AnsiConsole.MarkupLine("[grey]Rewrote asset URLs in index.html[/]");
+                        }
+                        // Validate copied assets exist
+                        if (!File.Exists(Path.Combine(distRoot, "index.html")) || !Directory.Exists(Path.Combine(distRoot, "assets")))
+                        {
+                            AnsiConsole.MarkupLine("[yellow]Warning[/]: SPA assets copy appears incomplete.");
+                        }
                     }
-                    // Validate copied assets exist
-                    if (!File.Exists(Path.Combine(distRoot, "index.html")) || !Directory.Exists(Path.Combine(distRoot, "assets")))
+                    else
                     {
-                        AnsiConsole.MarkupLine("[yellow]Warning[/]: SPA assets copy appears incomplete.");
+                        AnsiConsole.MarkupLine("[yellow]Warning[/]: Frontend dist not found (src/frontend/dist). Skipping asset copy.");
+                        AnsiConsole.MarkupLine("Suggestion: build the SPA assets:");
+                        AnsiConsole.MarkupLine("[grey]  cd src/frontend && npm ci && npm run build[/]");
                     }
-                }
-                else
-                {
-                    AnsiConsole.MarkupLine("[yellow]Warning[/]: Frontend dist not found (src/frontend/dist). Skipping asset copy.");
-                    AnsiConsole.MarkupLine("Suggestion: build the SPA assets:");
-                    AnsiConsole.MarkupLine("[grey]  cd src/frontend && npm ci && npm run build[/]");
                 }
 
                 if (publish)
@@ -193,4 +257,14 @@ static string CreateZip(string distRoot)
     if (File.Exists(zipDest)) File.Delete(zipDest);
     System.IO.Compression.ZipFile.CreateFromDirectory(distRoot, zipDest, System.IO.Compression.CompressionLevel.Optimal, includeBaseDirectory: false);
     return zipDest;
+}
+
+static string? GetArg(string[] args, string name)
+{
+    for (int i = 0; i < args.Length - 1; i++)
+    {
+        if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase))
+            return args[i + 1];
+    }
+    return null;
 }

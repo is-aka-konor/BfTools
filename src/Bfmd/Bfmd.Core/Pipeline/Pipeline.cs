@@ -46,7 +46,7 @@ public class PipelineRunner : IPipeline
                 var absStep = Path.GetFullPath(step.Input);
                 var absIn = Path.GetFullPath(paths.In);
                 inputPath = absStep.StartsWith(absIn, StringComparison.OrdinalIgnoreCase)
-                    ? step.Input
+                    ? absStep
                     : Path.Combine(paths.In, step.Input);
             }
             var files = Directory.Exists(inputPath)
@@ -123,6 +123,31 @@ public class PipelineRunner : IPipeline
                 {
                     foreach (var f in vr.Errors) errors.Add($"{e.Type}/{e.Slug}: {f.PropertyName} - {f.ErrorMessage}");
                 }
+            }
+
+            // Deduplicate subclasses across sources by (parentClassSlug, slug)
+            if (entities.Any(e => e is SubclassDto))
+            {
+                var existingSubclassKeys = new HashSet<string>(
+                    allEntities.OfType<SubclassDto>().Select(SubclassKey),
+                    StringComparer.OrdinalIgnoreCase);
+                var deduped = new List<BaseEntity>(entities.Count);
+                foreach (var e in entities)
+                {
+                    if (e is not SubclassDto s)
+                    {
+                        deduped.Add(e);
+                        continue;
+                    }
+                    var key = SubclassKey(s);
+                    if (!existingSubclassKeys.Add(key))
+                    {
+                        warnings.Add($"subclasses: duplicate '{s.ParentClassSlug}/{s.Slug}' from '{s.SourceFile}' ignored");
+                        continue;
+                    }
+                    deduped.Add(e);
+                }
+                entities = deduped;
             }
 
             allEntities.AddRange(entities);
@@ -255,4 +280,6 @@ public class PipelineRunner : IPipeline
         "talent" => "talents",
         _ => type
     };
+
+    private static string SubclassKey(SubclassDto s) => $"{s.ParentClassSlug}:{s.Slug}";
 }
