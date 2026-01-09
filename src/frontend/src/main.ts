@@ -226,15 +226,19 @@ export class AppRoot extends LitElement {
       sidebarOpen: this.sidebarOpen,
       onToggleSidebar: (val?: boolean) => (this.sidebarOpen = typeof val === 'boolean' ? val : !this.sidebarOpen),
       onSearch: (q) => { if (q) appRouter.navigate(`/search?q=${encodeURIComponent(q)}`); },
-      breadcrumbs: crumbs
+      breadcrumbs: crumbs,
+      notification: this.updateReady ? html`
+        <div class="alert alert-info shadow-lg flex-row gap-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div class="flex-1">
+            <span class="font-bold">Доступно обновление!</span>
+            <div class="text-xs opacity-70">${this.updatedCategories.length > 0 ? `Изменения: ${this.updatedCategories.join(', ')}` : 'Новая версия приложения готова к использованию.'}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" @click=${() => location.reload()}>Обновить</button>
+        </div>
+      ` : undefined
     })}
       <search-modal .open=${this.searchOpen} @navigate=${(e: Event) => this.onNavigateFromModal(e)}></search-modal>
-      ${this.updateReady ? html`<div class="toast toast-bottom toast-center">
-        <div class="alert alert-info">
-          <span>${this.updatedCategories.length > 0 ? `New content available (${this.updatedCategories.join(', ')})` : 'New version available'}.</span>
-          <button class="btn btn-sm ml-2" @click=${() => location.reload()}>Reload</button>
-        </div>
-      </div>` : null}
     `;
   }
 

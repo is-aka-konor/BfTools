@@ -11,3 +11,9 @@ sources:
     url: https://localhost/
     license: Материалы для первичного ознакомления
     inputRoot: input/tovpg1
+  - abbr: ToVPG2
+    name: Руководство для игрока том 2
+    version: "1.0"
+    url: https://localhost/
+    license: Материалы для первичного ознакомления
+    inputRoot: input/tovpg2

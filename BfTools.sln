@@ -106,6 +106,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "talents", "talents", "{2D3E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tovpg1", "tovpg1", "{1A6B2B63-DB35-4E83-9E74-45ED8B312E0D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tovpg2", "tovpg2", "{7D8A9B0C-1234-4F56-8A9B-0C1D2E3F4A5B}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backgrounds", "backgrounds", "{3E4F5061-7283-4D9E-0F1A-4B5C6D7E8F90}"
 	ProjectSection(SolutionItems) = preProject
 		input\tovpg1\backgrounds\backgrounds_tovpg.md = input\tovpg1\backgrounds\backgrounds_tovpg.md
@@ -128,6 +130,28 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "subclasses", "subclasses", 
 		input\tovpg1\subclasses\wizard_subclasses.md = input\tovpg1\subclasses\wizard_subclasses.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "boons", "boons", "{8E9F0A1B-2345-4C67-8D9E-0A1B2C3D4E5F}"
+	ProjectSection(SolutionItems) = preProject
+		input\tovpg2\boons\barbarian_boons.md = input\tovpg2\boons\barbarian_boons.md
+		input\tovpg2\boons\bard_boons.md = input\tovpg2\boons\bard_boons.md
+		input\tovpg2\boons\cleric_boons.md = input\tovpg2\boons\cleric_boons.md
+		input\tovpg2\boons\druid_boons.md = input\tovpg2\boons\druid_boons.md
+		input\tovpg2\boons\fighter_boons.md = input\tovpg2\boons\fighter_boons.md
+		input\tovpg2\boons\mechanist_boons.md = input\tovpg2\boons\mechanist_boons.md
+		input\tovpg2\boons\monk_boons.md = input\tovpg2\boons\monk_boons.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "subclasses", "subclasses", "{9F0A1B2C-3456-4D78-9E0F-1B2C3D4E5F60}"
+	ProjectSection(SolutionItems) = preProject
+		input\tovpg2\subclasses\barbarian_subclasses.md = input\tovpg2\subclasses\barbarian_subclasses.md
+		input\tovpg2\subclasses\bard_subclasses.md = input\tovpg2\subclasses\bard_subclasses.md
+		input\tovpg2\subclasses\cleric_subclasses.md = input\tovpg2\subclasses\cleric_subclasses.md
+		input\tovpg2\subclasses\druid_subclasses.md = input\tovpg2\subclasses\druid_subclasses.md
+		input\tovpg2\subclasses\fighter_subclasses.md = input\tovpg2\subclasses\fighter_subclasses.md
+		input\tovpg2\subclasses\mechanist_subclasses.md = input\tovpg2\subclasses\mechanist_subclasses.md
+		input\tovpg2\subclasses\monk_subclasses.md = input\tovpg2\subclasses\monk_subclasses.md
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BfSiteGen", "BfSiteGen", "{88AAA888-1111-2222-3333-444444444444}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BfSiteGen.Core", "src\BfSiteGen\BfSiteGen.Core\BfSiteGen.Core.csproj", "{5E3D2A4B-8F73-4F5A-9E5A-6B1F3E0C1A2B}"
@@ -145,6 +169,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BfCommon.Domain", "src\BfCommon\BfCommon.Domain\BfCommon.Domain.csproj", "{D583CB2F-2DD4-40A9-8111-27E00436CF37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BfSiteGen.WebDemo", "src\BfSiteGen\BfSiteGen.WebDemo\BfSiteGen.WebDemo.csproj", "{5492FF70-A1C5-4C6D-A238-068B62ACA827}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tovpg2", "tovpg2", "{5D2FC191-8D3D-4CC3-B9C4-A43DEDED7201}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -207,6 +233,7 @@ Global
 		{F3C91235-8961-4E3A-9427-B31D461CD728} = {6379BB80-AE79-4EE9-919B-376CB51B6863}
 		{8B7C9621-6D30-4F08-9D1C-3D86C7A61E1C} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
 		{1A6B2B63-DB35-4E83-9E74-45ED8B312E0D} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
+		{7D8A9B0C-1234-4F56-8A9B-0C1D2E3F4A5B} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
 		{A9B1D2C3-5F6A-4B7E-8D91-2D9F2F49B6C1} = {8B7C9621-6D30-4F08-9D1C-3D86C7A61E1C}
 		{B34E1C21-59BD-4D43-8D5A-76B0CE3E93C0} = {8B7C9621-6D30-4F08-9D1C-3D86C7A61E1C}
 		{C1E2037A-6D61-4E8C-9B1C-9E8A8617A9F2} = {8B7C9621-6D30-4F08-9D1C-3D86C7A61E1C}
@@ -218,6 +245,8 @@ Global
 		{2D3E4F50-6172-4C8D-9E0F-3A4B5C6D7E8F} = {8B7C9621-6D30-4F08-9D1C-3D86C7A61E1C}
 		{3E4F5061-7283-4D9E-0F1A-4B5C6D7E8F90} = {1A6B2B63-DB35-4E83-9E74-45ED8B312E0D}
 		{4F506172-8394-4E0F-1A2B-5C6D7E8F9012} = {1A6B2B63-DB35-4E83-9E74-45ED8B312E0D}
+		{8E9F0A1B-2345-4C67-8D9E-0A1B2C3D4E5F} = {7D8A9B0C-1234-4F56-8A9B-0C1D2E3F4A5B}
+		{9F0A1B2C-3456-4D78-9E0F-1B2C3D4E5F60} = {7D8A9B0C-1234-4F56-8A9B-0C1D2E3F4A5B}
 		{88AAA888-1111-2222-3333-444444444444} = {CC31C5D9-F8EE-4076-8E0C-B35541D6CDEB}
 		{5E3D2A4B-8F73-4F5A-9E5A-6B1F3E0C1A2B} = {88AAA888-1111-2222-3333-444444444444}
 		{3B2A1C4D-7E68-49D1-8C3F-2A4B5C6D7E8F} = {88AAA888-1111-2222-3333-444444444444}
@@ -227,5 +256,6 @@ Global
 		{8700137E-2EF4-4F36-BCB8-E8D8AA7DF989} = {CC31C5D9-F8EE-4076-8E0C-B35541D6CDEB}
 		{D583CB2F-2DD4-40A9-8111-27E00436CF37} = {8700137E-2EF4-4F36-BCB8-E8D8AA7DF989}
 		{5492FF70-A1C5-4C6D-A238-068B62ACA827} = {88AAA888-1111-2222-3333-444444444444}
+		{5D2FC191-8D3D-4CC3-B9C4-A43DEDED7201} = {29B64B28-8634-4C88-BD54-31ED5EF36E57}
 	EndGlobalSection
 EndGlobal

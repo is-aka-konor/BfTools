@@ -8,6 +8,7 @@ export interface LayoutParams {
   onToggleSidebar: (val?: boolean) => void;
   onSearch: (q: string) => void;
   breadcrumbs?: Array<{ label: string; href?: string }>;
+  notification?: TemplateResult;
 }
 
 export function renderLayout(p: LayoutParams): TemplateResult {
@@ -68,6 +69,7 @@ export function renderLayout(p: LayoutParams): TemplateResult {
       : html`<span class="breadcrumb-item">${routeName}</span>`
     }
       </nav>
+      ${p.notification ? html`<div class="update-notification">${p.notification}</div>` : null}
       ${routeName === 'home' ? html`
         <section class="hero">
           <div class="hero-content">

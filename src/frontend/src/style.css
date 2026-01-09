@@ -1666,20 +1666,33 @@ select.form-control option {
   --direction: left;
 }
 
-.class-table-container {
+.class-table-container,
+.prose .table-wrapper {
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  overflow: hidden;
+  overflow: hidden; /* Rounds the corners */
   margin-top: var(--space-md);
+  overflow-x: auto; /* Scroll horizontally */
+  max-width: 100%; /* Prevent breaking parent layout */
+}
+
+/* Make embedded tables scrollable even without a wrapper */
+.prose table {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .class-table {
   width: 100%;
   border-collapse: collapse;
+  /* Main table usually fits better, but let container handle scroll */
 }
 
-.class-table th {
+.class-table th,
+.prose table th {
   background: var(--bg-card);
   color: var(--accent-primary);
   font-weight: 700;
@@ -1689,20 +1702,42 @@ select.form-control option {
   padding: var(--space-md);
   text-align: left;
   border-bottom: 2px solid var(--border-color);
+  white-space: nowrap; /* Keep headers single line if possible */
 }
 
-.class-table td {
+.class-table td,
+.prose table td {
   padding: var(--space-md);
   border-bottom: 1px solid var(--border-color);
   font-size: var(--font-size-sm);
+  white-space: normal; /* Allow text wrapping */
+  max-width: 75vw; /* Mobile constraint */
 }
 
-.class-table tr:last-child td {
+@media (min-width: 768px) {
+  .class-table td,
+  .prose table td {
+    max-width: 50vw; /* Tablet constraint */
+  }
+}
+
+@media (min-width: 1024px) {
+  .class-table td,
+  .prose table td {
+    max-width: 25vw; /* Desktop constraint */
+  }
+}
+
+.class-table tr:last-child td,
+.prose table tr:last-child td {
   border-bottom: none;
 }
 
-.class-table tr:hover {
-  background: rgba(251, 191, 36, 0.05);
+/* Ensure zebra striping or hover if desired, keeping it consistent */
+.class-table tr:hover td,
+.prose table tr:hover td {
+  background: var(--bg-secondary-hover);
+  background: rgba(251, 191, 36, 0.05); /* Match Gold hover */
 }
 
 .level-badge {

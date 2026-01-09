@@ -11,6 +11,12 @@ steps:
     outputData: output/data/subclasses
     outputIndex: output/index/subclasses.index.json
     enabled: true
+  - type: subclasses
+    input: input/tovpg2/subclasses
+    mapping: mapping.subclasses.yaml
+    outputData: output/data/subclasses
+    outputIndex: output/index/subclasses.index.json
+    enabled: true
   - type: backgrounds
     input: input/bfrd/backgrounds
     mapping: mapping.backgrounds.yaml
