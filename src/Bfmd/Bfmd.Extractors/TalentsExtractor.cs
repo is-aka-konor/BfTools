@@ -11,7 +11,7 @@ namespace Bfmd.Extractors;
 // Assumptions:
 // - BaseEntity, SourceItem, MappingConfig, TalentDto, SourceRef (or equivalent) already exist in your solution.
 // - TalentDto : BaseEntity and has at least:
-//     string Category, string? Requirement, List<string> Benefits, string Description
+//     string Category, string? Requirement, Dictionary<string, List<string>> TalentFeatures, string Description
 // - MappingConfig has at least: Dictionary<string,string> Regexes, Dictionary<string,string> Synonyms,
 //   and optionally List<string> CollectionRootHeaders (or similar; handled gracefully if absent).
 public class TalentsExtractor : IExtractor
@@ -31,10 +31,6 @@ public class TalentsExtractor : IExtractor
             map?.Regexes,
             "requirementLineRegex",
             astFallback: @"^\s*(?:\*\s*)?(?:\*\*)?Требовани[её](?:\*\*)?[:：]\s*(.+)$");
-        var rxBenefit       = CompileWithAstFallback(
-            map?.Regexes,
-            "benefitBulletRegex",
-            astFallback: @"^(?!\s*(?:\*\s*)?(?:\*\*)?Требован[её](?:\*\*)?[:：]).+\S.*$");
         var rxListSplit     = Compile(map?.Regexes, "listSplitRegex",       @"(?:,|;|\s+и\s+|\s+или\s+)", RegexOptions.IgnoreCase);
 
         var rxBenefitIntro  = CompileMany(map?.Regexes, prefix: "benefitIntro");
@@ -79,7 +75,8 @@ public class TalentsExtractor : IExtractor
                         var name = text.Trim();
 
                         // Parse structured fields inside this entry block-range
-                        var (requirement, benefits) = ParseRequirementAndBenefits(entryBlocks, rxRequirement, rxBenefit, rxBenefitIntro);
+                        var requirement = ParseRequirement(entryBlocks, rxRequirement, rxBenefitIntro);
+                        var talentFeatures = ParseTalentFeatures(entryBlocks, rxRequirement, rxBenefitIntro, !string.IsNullOrWhiteSpace(requirement));
 
                         // Extract full raw markdown for rendering using precise spans
                         string descriptionMd = ExtractRawMarkdown(doc, content, hb);
@@ -91,7 +88,7 @@ public class TalentsExtractor : IExtractor
                             Name = name,
                             Category = currentCategory ?? "Общее",
                             Requirement = string.IsNullOrWhiteSpace(requirement) ? "" : requirement.Trim(),
-                            Benefits = benefits,
+                            TalentFeatures = talentFeatures,
                             Description = descriptionMd,
                             SourceFile = path,
                             Src = new SourceRef
@@ -120,31 +117,18 @@ public class TalentsExtractor : IExtractor
     }
 
     // ------------- Parsing helpers -------------
-    internal static (string? requirement, List<string> benefits) ParseRequirementAndBenefits(
+    internal static string? ParseRequirement(
         List<Block> entryBlocks,
         Regex rxRequirement,
-        Regex rxBenefit,
         List<Regex> rxBenefitIntro)
     {
         string? requirement = null;
-        var benefits = new List<string>();
 
         foreach (var lb in entryBlocks.OfType<ListBlock>())
         {
             foreach (var li in GetListItems(lb))
             {
-                var para = li.Descendants<ParagraphBlock>().FirstOrDefault();
-                string line;
-                if (para != null)
-                {
-                    line = NormalizeSpaces(InlineToText(para.Inline)).Trim();
-                }
-                else
-                {
-                    var sb = new StringBuilder();
-                    foreach (var lit in li.Descendants<LiteralInline>()) sb.Append(lit.Content.ToString());
-                    line = NormalizeSpaces(sb.ToString()).Trim();
-                }
+                var line = GetListItemText(li);
 
                 // Пропускаем вводные строки «Вы получаете следующие преимущества:»
                 if (rxBenefitIntro.Any(rx => rx.IsMatch(line)))
@@ -155,7 +139,10 @@ public class TalentsExtractor : IExtractor
                 if (mReq.Success)
                 {
                     var val = mReq.Groups.Count > 1 ? mReq.Groups[1].Value : string.Empty;
-                    if (!string.IsNullOrWhiteSpace(val)) requirement ??= val.Trim();
+                    if (!string.IsNullOrWhiteSpace(val))
+                    {
+                        requirement ??= val.Trim();
+                    }
                     continue;
                 }
                 // Fallback: plain starts-with detection and colon split
@@ -164,26 +151,82 @@ public class TalentsExtractor : IExtractor
                     var sep = line.IndexOf(':');
                     if (sep < 0) sep = line.IndexOf('：');
                     var val = sep >= 0 ? line[(sep + 1)..] : string.Empty;
-                    if (!string.IsNullOrWhiteSpace(val)) requirement ??= val.Trim();
+                    if (!string.IsNullOrWhiteSpace(val))
+                    {
+                        requirement ??= val.Trim();
+                    }
                     continue;
-                }
-
-                // Benefit via provided regex (with lenient fallback)
-                var mBen = rxBenefit.Match(line);
-                if (mBen.Success)
-                {
-                    var val = mBen.Groups.Count > 1 ? mBen.Groups[1].Value : line;
-                    val = val.Trim();
-                    if (val.Length > 0) benefits.Add(val);
-                }
-                else if (!line.StartsWith("требован", StringComparison.OrdinalIgnoreCase))
-                {
-                    benefits.Add(line);
                 }
             }
         }
 
-        return (requirement, benefits);
+        return requirement;
+    }
+
+    internal static Dictionary<string, List<string>> ParseTalentFeatures(
+        List<Block> entryBlocks,
+        Regex rxRequirement,
+        List<Regex> rxBenefitIntro,
+        bool hasRequirement)
+    {
+        var features = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        var pendingParagraphs = new List<string>();
+        var capture = !hasRequirement;
+
+        foreach (var block in entryBlocks)
+        {
+            if (block is HeadingBlock) continue;
+
+            if (block is ParagraphBlock pb)
+            {
+                if (!capture) continue;
+                var text = NormalizeSpaces(InlineToText(pb.Inline)).Trim();
+                if (!string.IsNullOrWhiteSpace(text))
+                    pendingParagraphs.Add(text);
+                continue;
+            }
+
+            if (block is ListBlock lb)
+            {
+                var listItems = new List<string>();
+                foreach (var li in GetListItems(lb))
+                {
+                    var line = GetListItemText(li);
+                    if (rxBenefitIntro.Any(rx => rx.IsMatch(line)))
+                        continue;
+
+                    if (rxRequirement.IsMatch(line) || line.StartsWith("требован", StringComparison.OrdinalIgnoreCase))
+                    {
+                        capture = true;
+                        continue;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(line))
+                        listItems.Add(line);
+                }
+
+                if (capture && listItems.Count > 0)
+                {
+                    var key = string.Join("\n\n", pendingParagraphs).Trim();
+                    if (!string.IsNullOrWhiteSpace(key))
+                        features[key] = listItems;
+                    pendingParagraphs.Clear();
+                }
+            }
+        }
+
+        return features;
+    }
+
+    private static string GetListItemText(ListItemBlock li)
+    {
+        var para = li.Descendants<ParagraphBlock>().FirstOrDefault();
+        if (para != null)
+            return NormalizeSpaces(InlineToText(para.Inline)).Trim();
+
+        var sb = new StringBuilder();
+        foreach (var lit in li.Descendants<LiteralInline>()) sb.Append(lit.Content.ToString());
+        return NormalizeSpaces(sb.ToString()).Trim();
     }
 
     internal static (int startIdx, int endIdx) FindScopeBounds(List<Block> blocks, List<string> rootHeaders, int level)

@@ -73,18 +73,24 @@ public static class CanonicalJson
     public static void WriteCanonicalTalent(Utf8JsonWriter w, TalentDto t)
     {
         w.WriteStartObject();
-        if (t.Benefits is { Count: > 0 })
-        {
-            w.WritePropertyName("benefits");
-            w.WriteStartArray();
-            foreach (var b in t.Benefits) w.WriteStringValue(b);
-            w.WriteEndArray();
-        }
         w.WriteString("category", t.Category);
         w.WriteString("description", t.Description);
         w.WriteString("name", t.Name);
         w.WriteString("slug", t.Slug);
         w.WriteString("requirement", t.Requirement);
+        if (t.TalentFeatures is { Count: > 0 })
+        {
+            w.WritePropertyName("talentFeatures");
+            w.WriteStartObject();
+            foreach (var kv in t.TalentFeatures.OrderBy(k => k.Key, StringComparer.Ordinal))
+            {
+                w.WritePropertyName(kv.Key);
+                w.WriteStartArray();
+                foreach (var item in kv.Value) w.WriteStringValue(item);
+                w.WriteEndArray();
+            }
+            w.WriteEndObject();
+        }
         WriteSrc(w, t.Src);
         w.WriteEndObject();
     }

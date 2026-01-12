@@ -25,7 +25,7 @@ public class TalentsExtractorUnitTests
     }
 
     [Fact]
-    public void ParseRequirementAndBenefits_ShouldExtractRequirementAndBullets()
+    public void ParseRequirement_ShouldExtractRequirement()
     {
         var md = string.Join('\n', new[]
         {
@@ -37,10 +37,8 @@ public class TalentsExtractorUnitTests
         var blocks = doc.ToList();
         // AST-friendly patterns: paragraph text has no bullet '*' and no emphasis markers
         var rxReq = new Regex(@"требован[её][^:：]*[:：]\s*(.+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        var rxBen = new Regex(@"^(?!\s*требован[её][^:：]*[:：]).+\S.*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        var (req, bens) = TalentsExtractor.ParseRequirementAndBenefits(blocks, rxReq, rxBen, new List<Regex>());
+        var req = TalentsExtractor.ParseRequirement(blocks, rxReq, new List<Regex>());
         Assert.Equal("ИНТ 13 или выше", req);
-        Assert.Equal(new[] { "Бонус 1", "Бонус 2" }, bens);
     }
 
     [Fact]

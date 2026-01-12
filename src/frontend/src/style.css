@@ -202,8 +202,7 @@
 }
 
 .prose h3,
-.class-feature-item h3,
-.class-subclass-item h3 {
+.class-feature-item h3 {
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--mystical-secondary); /* Purple/Lavender */
@@ -212,9 +211,23 @@
   margin-top: 1.5em;
 }
 
+.class-subclass-item h3 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--accent-primary); /* Gold */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 1.5em;
+}
+
+.class-subclass-item .prose h3,
+.class-subclass-item .prose h4 {
+  color: var(--mystical-secondary); /* Purple/Lavender */
+}
+
 .prose h4 {
   font-size: var(--font-size-lg);
-  font-weight: 700;
+  font-weight: 400;
   color: var(--accent-primary); /* Gold */
   margin-top: 1.5em;
   letter-spacing: 0.02em;
@@ -222,7 +235,7 @@
 
 .prose h5 {
   font-size: var(--font-size-base);
-  font-weight: 700;
+  font-weight: 400;
   color: var(--mystical-primary); /* Purple */
   margin-top: 1.2em;
   font-style: italic;

@@ -19,21 +19,17 @@ public class RendererEntitiesTests
     }
 
     [Fact]
-    public void TalentHtml_RendersBenefitsAsList()
+    public void TalentHtml_RendersDescriptionOnly()
     {
         var t = new TalentDto
         {
             Name = "Talent",
-            Description = "Intro paragraph.",
-            Benefits = new List<string> { "First benefit", "Second benefit" }
+            Description = "Intro paragraph."
         };
         var r = new MarkdownRenderer();
         var html = t.ToHtml(r);
         Assert.Contains("<p", html);
-        Assert.Contains("<ul", html);
-        Assert.Contains("<li", html);
-        Assert.Contains("First benefit", html);
-        Assert.Contains("Second benefit", html);
+        Assert.Contains("Intro paragraph.", html);
         Assert.DoesNotContain("<script", html);
     }
 

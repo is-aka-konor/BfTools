@@ -132,8 +132,7 @@ public sealed class IndexBuilder
 
     private void WriteTalentDoc(Utf8JsonWriter w, string category, TalentDto t)
     {
-        var extra = (t.Benefits is { Count: > 0 }) ? ("\n\n" + string.Join("\n", t.Benefits.Select(b => "* " + b))) : string.Empty;
-        var html = _markdown.ToHtml((t.Description ?? string.Empty) + extra);
+        var html = _markdown.ToHtml(t.Description ?? string.Empty);
         WriteCommonDocStart(w, category, t, html, t.Src);
         w.WriteString("type", t.Category);
         w.WriteEndObject();

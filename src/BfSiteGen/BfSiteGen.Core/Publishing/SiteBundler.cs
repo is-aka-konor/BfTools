@@ -208,11 +208,23 @@ partial class SiteBundler
     {
         var r = new MarkdownRenderer();
         w.WriteStartObject();
-        if (t.Benefits is { Count: > 0 }) { w.WritePropertyName("benefits"); w.WriteStartArray(); foreach (var b in t.Benefits) w.WriteStringValue(b); w.WriteEndArray(); }
         if (!string.IsNullOrWhiteSpace(t.Category)) w.WriteString("category", t.Category);
         w.WriteString("description", t.ToHtml(r));
         w.WriteString("name", t.Name);
         if (!string.IsNullOrWhiteSpace(t.Requirement)) w.WriteString("requirement", t.Requirement);
+        if (t.TalentFeatures is { Count: > 0 })
+        {
+            w.WritePropertyName("talentFeatures");
+            w.WriteStartObject();
+            foreach (var kv in t.TalentFeatures.OrderBy(k => k.Key, StringComparer.Ordinal))
+            {
+                w.WritePropertyName(kv.Key);
+                w.WriteStartArray();
+                foreach (var item in kv.Value) w.WriteStringValue(item);
+                w.WriteEndArray();
+            }
+            w.WriteEndObject();
+        }
         w.WriteString("slug", t.Slug);
         WriteSources(w, t.Src);
         w.WriteEndObject();

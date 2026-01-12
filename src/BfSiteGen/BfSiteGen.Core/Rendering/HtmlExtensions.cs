@@ -1,4 +1,3 @@
-using System.Text;
 using BfCommon.Domain.Models;
 using BfSiteGen.Core.Services;
 
@@ -8,19 +7,7 @@ public static class HtmlExtensions
 {
     public static string ToHtml(this TalentDto t, IMarkdownRenderer renderer)
     {
-        var md = t.Description ?? string.Empty;
-        if (t.Benefits is { Count: > 0 })
-        {
-            var sb = new StringBuilder();
-            sb.Append(md);
-            if (!string.IsNullOrWhiteSpace(md)) sb.Append("\n\n");
-            foreach (var b in t.Benefits)
-            {
-                sb.Append("* ").Append(b).Append('\n');
-            }
-            md = sb.ToString();
-        }
-        return renderer.RenderBlock(md);
+        return renderer.RenderBlock(t.Description ?? string.Empty);
     }
 
     public static string ToHtml(this BackgroundDto b, IMarkdownRenderer renderer)

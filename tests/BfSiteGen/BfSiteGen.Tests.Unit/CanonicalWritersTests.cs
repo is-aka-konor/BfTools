@@ -33,7 +33,7 @@ public class CanonicalWritersTests
         load.Talents.Add(new TalentDto
         {
             Slug = "t1", Name = "Talent One", Category = "Magical",
-            Description = "Intro.\n\nText.", Benefits = new() { "B1" },
+            Description = "Intro.\n\nText.",
             Src = new SourceRef { Abbr = "BF", Name = "Black Flag" }
         });
 
@@ -48,7 +48,6 @@ public class CanonicalWritersTests
             var first = LoadFirstItem(dist, "talents", hash);
 
             // Schema keys present
-            Assert.True(first.TryGetProperty("benefits", out _));
             Assert.True(first.TryGetProperty("category", out _));
             Assert.True(first.TryGetProperty("description", out var desc));
             Assert.Contains("<p", desc.GetString());

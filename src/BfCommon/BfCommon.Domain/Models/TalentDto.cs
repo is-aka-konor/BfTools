@@ -13,7 +13,7 @@ public class TalentDto : BaseEntity
     public string Requirement { get; init; } = string.Empty;
 
     /// <summary>
-    /// Full list of parsed bullet-point features (advantages, mechanics).
+    /// Paragraph-to-bullets mapping for structured talent features.
     /// </summary>
-    public List<string> Benefits { get; init; } = new();
+    public Dictionary<string, List<string>> TalentFeatures { get; init; } = new(StringComparer.Ordinal);
 }

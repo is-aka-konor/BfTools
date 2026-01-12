@@ -9,6 +9,9 @@ export interface Entry {
 
 export interface Talent extends Entry {
   type: string;
+  category?: string;
+  requirement?: string;
+  talentFeatures?: Record<string, string[]>;
 }
 
 export interface ClassEntry extends Entry {
