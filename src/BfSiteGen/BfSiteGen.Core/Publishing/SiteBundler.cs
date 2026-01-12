@@ -167,18 +167,20 @@ partial class SiteBundler
         }
 
         // Compute hash streaming from file to avoid full in-memory bytes
+        string hex;
         using var sha = SHA256.Create();
         using (var fs = File.OpenRead(tmp))
         {
             var hash = sha.ComputeHash(fs);
             var sb = new StringBuilder(hash.Length * 2);
             foreach (var b in hash) sb.Append(b.ToString("x2"));
-            var hex = sb.ToString();
-            var finalPath = Path.Combine(dataDir, $"{category}-{hex}.json");
-            if (File.Exists(finalPath)) File.Delete(finalPath);
-            File.Move(tmp, finalPath);
-            return (hex, items.Count);
+            hex = sb.ToString();
         }
+
+        var finalPath = Path.Combine(dataDir, $"{category}-{hex}.json");
+        if (File.Exists(finalPath)) File.Delete(finalPath);
+        File.Move(tmp, finalPath);
+        return (hex, items.Count);
     }
 
     private void WriteSpell(Utf8JsonWriter w, SpellDto s)

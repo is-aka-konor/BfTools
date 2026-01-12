@@ -9,6 +9,7 @@
     "full-preview": "[ -f ../../src/Bfmd/Bfmd.Cli/bin/Debug/net10.0/Bfmd.Cli.dll ] && [ -f ../../src/BfSiteGen/BfSiteGen.Cli/bin/Debug/net10.0/BfSiteGen.Cli.dll ] || (echo \"Missing CLI build artifacts. Run: dotnet build BfTools.sln -c Debug\" && exit 1); (cd ../.. && dotnet run --project src/Bfmd/Bfmd.Cli --no-build -- convert --input input --output output --config config && dotnet run --project src/BfSiteGen/BfSiteGen.Cli --no-build -- build --input output --dist dist-site) && npm run mac-preview",
     "preview": "vite preview",
     "mac-preview": "npm run build && (rsync -a --delete --exclude 'index.html' --exclude 'assets/**' ../../dist-site/ ./dist/ || (rm -rf ./dist/data ./dist/index ./dist/site-manifest.json && cp -R ../../dist-site/* ./dist/)) && npm run preview",
+    "win-preview": "npm run build && powershell -NoProfile -Command \"$ErrorActionPreference='Stop'; $src='../../dist-site'; $dest='./dist'; if (!(Test-Path $dest)) { New-Item -ItemType Directory -Path $dest | Out-Null }; $items=@('data','index','site-manifest.json'); foreach ($item in $items) { $destPath = Join-Path $dest $item; if (Test-Path $destPath) { Remove-Item $destPath -Recurse -Force -ErrorAction SilentlyContinue }; $srcPath = Join-Path $src $item; if (Test-Path $srcPath) { Copy-Item $srcPath $dest -Recurse -Force } }\" && npm run preview",
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest",
     "test:e2e": "node scripts/run-playwright.js",
