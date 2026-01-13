@@ -44,7 +44,7 @@ graph TD
 1.  **Sync Phase**: On app load, `syncContent()` (in `loader.ts`) checks `site-manifest.json` for new hashes.
 2.  **Storage**: Updated categories are fetched as JSON and stored in **IndexedDB** via **Dexie**.
 3.  **Consumption**: Features (e.g., Spells) query the DB using the `Repo` utilities.
-4.  **UI**: Lit components render the data, applying global styles from Tailwind CSS and DaisyUI.
+4.  **UI**: Lit components render the data, applying global styles from `style.css`.
 
 ---
 
@@ -71,6 +71,4 @@ Every route must be registered in `appRouter` (within `main.ts`) with appropriat
 
 ### 4. UI Consistency
 
--   **Rule**: Use **DaisyUI** classes (e.g., `btn`, `card`, `alert`) wherever possible.
--   **Rule**: Only use plain Tailwind classes for spacing, layout, and micro-adjustments not covered by DaisyUI.
 -   **Rule**: Components must work **offline**. Test by disabling the network in DevTools.

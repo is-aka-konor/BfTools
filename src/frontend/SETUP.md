@@ -62,7 +62,7 @@ npm run test:e2e
 
 ## Development Workflow
 
-1.  **Style Guide**: We use **Tailwind CSS v4** with the Vite plugin. Configuration is handled in `tailwind.config.ts`.
+1.  **Style Guide**: Custom styles live in `src/style.css`. Update shared tokens and utility classes there before adding component-specific CSS.
 2.  **Components**: Use **Lit** for building web components. Avoid adding large external JS libraries.
 3.  **Sync Data**: If you are working on data extraction (backend), ensure you update the `site-manifest.json` so the frontend can detect changes.
 4.  **Preview Build**:

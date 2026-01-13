@@ -22,10 +22,10 @@ src/frontend/
 │  ├─ views/           # Pure rendering helpers for each route
 │  ├─ main.ts          # AppRoot element + router + state orchestration
 │  ├─ sw.ts            # Service worker entry (built to /sw.js)
-│  └─ style.css        # Tailwind layers + design tokens
+│  └─ style.css        # Custom styles + design tokens
 ├─ tests/              # Vitest unit tests + Playwright e2e harness
 ├─ public/             # Static assets served as-is by Vite
-├─ vite.config.ts      # Vite + Tailwind setup and custom SW entry
+├─ vite.config.ts      # Vite config and custom SW entry
 └─ package.json        # Scripts and dependency definitions
 ```
 
@@ -98,8 +98,8 @@ What to remember:
 - `AppRoot` uses a separate `searchAll` helper when rendering the dedicated `/search` route, which allows advanced fuzzy matching and URL-driven queries.
 
 ## Styling & Design System
-- Tailwind v4 + DaisyUI provide the base component styles (`src/main.css`). The file defines custom design tokens (colours, spacing, shadows) and Tailwind layers that keep the look consistent.
-- Most Lit templates rely on DaisyUI utility classes (`btn`, `card`, `badge`). When you compose new UI, prefer those primitives over bespoke CSS.
+- Styling is custom CSS defined in `src/style.css`. It defines design tokens (colours, spacing, shadows) and shared classes that keep the look consistent.
+- When you compose new UI, reuse tokens and shared classes from `src/style.css` before introducing new bespoke styles.
 - Global typography and layout tokens live in `src/style.css`; it sets CSS variables for both light and dark themes. Theme toggling is handled in `AppNavbar` by toggling `data-theme` and persisting it to `localStorage`.
 
 ## Service Worker & Offline Behaviour
@@ -136,7 +136,7 @@ Common gotchas:
    - Stored documents already include category/name/tags—extend those structures in the backend if you need new filters.
 
 4. **Adjust styling**
-   - Prefer updating Tailwind layers in `src/main.css` or global tokens in `src/style.css`.
+   - Prefer updating shared tokens and utilities in `src/style.css`.
    - For component-specific tweaks, keep styles close to the Lit component for clarity.
 
 ## Troubleshooting

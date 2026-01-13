@@ -14,7 +14,7 @@ DoD: SW registered; expected cache entries exist; strategies behave as designed.
 
 FT-10 — Visual Regression (Optional but Recommended)
 
-Goal: Catch DaisyUI/theming regressions.
+Goal: Catch theme/styling regressions from `src/style.css`.
 Inputs: Playwright screenshot assertions.
 Steps:
 

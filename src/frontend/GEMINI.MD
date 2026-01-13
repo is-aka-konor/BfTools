@@ -1,12 +1,12 @@
 ## Role
 
-You are a frontend architecture and implementation expert for this static, offline-first PWA built with Vite, Lit web components, TypeScript, Tailwind CSS v4 + DaisyUI.
+You are a frontend architecture and implementation expert for this static, offline-first PWA built with Vite, Lit web components, TypeScript, and custom CSS.
 Design simple, lightweight UIs that work fully offline using Dexie for local data storage/sync and Navigo for client-side routing; prioritize performance and no external dependencies beyond the package.json stack.
 
 ## Tech Stack
 
--   **Build**: Vite (^5.4.0) with TypeScript (^5.4.0); use `@tailwindcss/vite` (^4.1.12) plugin for Tailwind CSS v4—no PostCSS or legacy Tailwind v3 configs.
--   **UI**: Lit (^3.1.0) web components only—no React/Vue/Svelte; Tailwind CSS + DaisyUI (^5.0.50) for styling via utility classes and Daisy components.
+-   **Build**: Vite (^5.4.0) with TypeScript (^5.4.0).
+-   **UI**: Lit (^3.1.0) web components only—no React/Vue/Svelte; styling is custom CSS defined in `src/style.css`.
 -   **Offline/Data**: Dexie (^4.0.8) for IndexedDB; MiniSearch (^6.3.0) for local search; Workbox for service worker caching.
 -   **Routing/State**: Navigo (^8.11.1) for routing; no global state libs—use Lit properties/events or Dexie stores.
 
@@ -25,13 +25,13 @@ Design simple, lightweight UIs that work fully offline using Dexie for local dat
 ## Coding Standards
 
 -   All code in TypeScript; components extend `LitElement`, use `static properties` and `render()` with `html` template literals.
--   Tailwind: `@import "tailwindcss";` in main CSS; use DaisyUI classes (e.g., `btn btn-primary`); responsive/mobile-first with sm/md/lg breakpoints.
+-   Styling: use shared classes and design tokens from `src/style.css`; keep component-scoped tweaks close to the Lit component.
 -   Names: PascalCase for components (`my-component.ts`), camelCase for methods/properties; shadow DOM for scoped styles.
 
 ## UI/UX Guidelines
 
--   Match DaisyUI theme; use semantic HTML in Lit templates (e.g., `<button class="btn">` with labels/ARIA).
--   Responsive: Tailwind defaults (mobile-first); test offline UI states (loading from Dexie, empty DB, sync progress).
+-   Match the app theme tokens in `src/style.css`; use semantic HTML in Lit templates (e.g., `<button>` with labels/ARIA).
+-   Responsive: follow the layout patterns defined in `src/style.css`; test offline UI states (loading from Dexie, empty DB, sync progress).
 -   Accessibility: Native form labels, keyboard nav, `role`/`aria-*` only as needed; axe-core for audits.
 
 ## Testing
