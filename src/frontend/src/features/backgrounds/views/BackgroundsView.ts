@@ -26,7 +26,7 @@ export function renderCategoryList(
             <div class="resource-header">
               <h3 class="resource-name">${it.name}</h3>
             </div>
-            <div style="margin-top: auto; display: flex; justify-content: flex-end;">
+            <div class="resource-footer">
               ${sourceBadges(it.sources)}
             </div>
           </a>
@@ -63,7 +63,7 @@ export function renderCategoryDetail(
         <div class="class-detail-icon">📜</div>
         <h1 class="class-detail-title">${item.name}</h1>
         <div class="class-detail-subtitle">${categoryTitle}</div>
-        <div style="margin-top: var(--space-md);">${sourceBadges(item.sources)}</div>
+        <div class="detail-badges">${sourceBadges(item.sources)}</div>
       </header>
 
       <section class="class-meta-grid">
@@ -77,13 +77,13 @@ export function renderCategoryDetail(
         </div>
       </section>
 
-      <section class="class-description-section" style="border-left-color: var(--mystical-primary);">
+      <section class="class-description-section">
         <h2 class="class-section-title">Описание</h2>
         <div class="prose" .innerHTML=${item.description ?? ''}></div>
       </section>
 
-      <div style="margin-top: var(--space-xl); text-align: center;">
-        <a class="btn-back" href="/${category}" data-navigo @click=${() => onBack()}>← Вернуться ${backTo}</a>
+      <div class="detail-actions">
+        <a class="link-back" href="/${category}" data-navigo @click=${() => onBack()}>← Вернуться ${backTo}</a>
       </div>
     </div>
   `;

@@ -48,24 +48,23 @@ export function renderTalents(
         <h1>Таланты</h1>
         <div class="page-controls">
           <div class="filters">
-            <label class="label cursor-pointer gap-2">
-              <span style="font-size: var(--font-size-sm); color: var(--text-secondary);">Магические</span>
-              <input type="checkbox" class="toggle toggle-sm" 
+            <label class="filter-toggle">
+              <span class="filter-toggle__label">Магические</span>
+              <input type="checkbox" class="ui-toggle" 
                 .checked=${filters.magical} 
                 @change=${(e: Event) => opts.updateTalentFilters({ magical: (e.target as HTMLInputElement).checked })} />
             </label>
-            <label class="label cursor-pointer gap-2">
-              <span style="font-size: var(--font-size-sm); color: var(--text-secondary);">Воинские</span>
-              <input type="checkbox" class="toggle toggle-sm" 
+            <label class="filter-toggle">
+              <span class="filter-toggle__label">Воинские</span>
+              <input type="checkbox" class="ui-toggle" 
                 .checked=${filters.martial} 
                 @change=${(e: Event) => opts.updateTalentFilters({ martial: (e.target as HTMLInputElement).checked })} />
             </label>
             
-            <div style="display: flex; gap: 4px; align-items: center;">
+            <div class="filter-chips">
               ${allSources.map(s => html`
-                <button class="btn btn--sm ${selectedSrc.has(s.abbr) ? 'btn--accent-outline' : 'btn--outline'}" 
+                <button class="ui-btn ui-btn--sm ${selectedSrc.has(s.abbr) ? 'ui-btn--accent-outline' : 'ui-btn--outline'} filter-chip" 
                         title=${s.name}
-                        style="padding: 2px 8px; font-size: 10px; min-height: 0; height: auto;"
                         @click=${() => {
       const next = new Set(selectedSrc);
       if (next.has(s.abbr)) next.delete(s.abbr); else next.add(s.abbr);
@@ -98,12 +97,12 @@ export function renderTalents(
             <a href="/talents/${it.slug}" data-navigo class="resource-card" @click=${() => opts.rememberScroll()}>
               <div class="resource-header">
                 <h3 class="resource-name">${it.name}</h3>
-                <div style="display: flex; gap: 4px; align-items: flex-start; flex-wrap: wrap; justify-content: flex-end;">
-                  ${isMagical ? html`<span class="badge--magical">Магия</span>` : null}
-                  ${isMartial ? html`<span class="badge--martial">Воин</span>` : null}
+                <div class="resource-badges">
+                  ${isMagical ? html`<span class="ui-badge ui-badge--sm ui-badge--magical">Магия</span>` : null}
+                  ${isMartial ? html`<span class="ui-badge ui-badge--sm ui-badge--martial">Воин</span>` : null}
                 </div>
               </div>
-              <div style="margin-top: auto; display: flex; justify-content: flex-end;">
+              <div class="resource-footer">
                 ${sourceBadges(it.sources)}
               </div>
             </a>
@@ -134,7 +133,7 @@ export function renderTalentDetail(
         <div class="class-detail-icon">🎖️</div>
         <h1 class="class-detail-title">${item.name}</h1>
         <div class="class-detail-subtitle">Талант</div>
-        <div style="margin-top: var(--space-md);">${sourceBadges(item.sources)}</div>
+        <div class="detail-badges">${sourceBadges(item.sources)}</div>
       </header>
 
       <section class="class-meta-grid">
@@ -148,13 +147,13 @@ export function renderTalentDetail(
         </div>
       </section>
 
-      <section class="class-description-section" style="border-left-color: var(--mystical-primary);">
+      <section class="class-description-section">
         <h2 class="class-section-title">Описание</h2>
         <div class="prose" .innerHTML=${(item as any).description ?? ''}></div>
       </section>
 
-      <div style="margin-top: var(--space-xl); text-align: center;">
-        <a class="btn-back" href="${backHref}" data-navigo @click=${() => onBack()}>← Вернуться к талантам</a>
+      <div class="detail-actions">
+        <a class="link-back" href="${backHref}" data-navigo @click=${() => onBack()}>← Вернуться к талантам</a>
       </div>
     </div>
   `;

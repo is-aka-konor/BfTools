@@ -95,42 +95,48 @@ export class SearchModal extends LitElement {
   render() {
     return html`
       ${this.open ? html`
-        <div class="modal modal-open" @keydown=${this.onKeydown}>
-          <div class="modal-box max-w-3xl">
-            <form method="dialog">
-              <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" @click=${() => this.hide()}>✕</button>
-            </form>
-            <h3 class="font-bold text-lg mb-2">Search</h3>
-            <label class="input input-bordered flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor"><path d="M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg>
-              <input name="q" type="search" class="grow" placeholder="Type to search…" .value=${this.q} @input=${(e: Event) => this.onInput(e)} />
-            </label>
+        <div class="ui-modal" @keydown=${this.onKeydown}>
+          <div class="ui-modal__dialog" role="dialog" aria-modal="true">
+            <div class="ui-modal__header">
+              <h3 class="ui-modal__title">Search</h3>
+              <button class="ui-btn ui-btn--ghost ui-btn--icon" @click=${() => this.hide()} aria-label="Close search">✕</button>
+            </div>
+            <div class="ui-modal__body">
+              <label class="ui-field">
+                <svg xmlns="http://www.w3.org/2000/svg" class="ui-field__icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10 2a8 8 0 105.293 14.293l4.707 4.707 1.414-1.414-4.707-4.707A8 8 0 0010 2zm0 2a6 6 0 110 12 6 6 0 010-12z"/></svg>
+                <input name="q" type="search" class="ui-field__input" placeholder="Type to search…" .value=${this.q} @input=${(e: Event) => this.onInput(e)} />
+              </label>
 
-            ${this.searching ? html`<div class="mt-4"><span class="loading loading-spinner"></span></div>` : nothing}
+              ${this.searching ? html`<div class="ui-modal__status"><span class="ui-spinner"></span></div>` : nothing}
 
-            ${Object.entries(this.grouped()).length > 0 ? html`
-              <div class="mt-4 space-y-4 max-h-96 overflow-auto">
-                ${Object.entries(this.grouped()).map(([cat, items]) => html`
-                  <div>
-                    <div class="text-sm opacity-70 mb-1">${cat}</div>
-                    <div class="flex flex-col gap-2">
-                      ${items.map(r => html`
-                        <button class="app-card card text-left" @click=${() => this.navigateTo(r.doc)}>
-                          <div class="card-body p-3">
-                            <div class="flex items-center gap-2">
-                              <div class="font-medium">${r.doc.name}</div>
-                              <div class="flex gap-1 flex-wrap">
-                                ${r.doc.sources?.map((s: any) => html`<div class="tooltip" data-tip=${s.name}><span class="badge badge-outline badge-sm">${s.abbr}</span></div>`)}
+              ${Object.entries(this.grouped()).length > 0 ? html`
+                <div class="result-groups">
+                  ${Object.entries(this.grouped()).map(([cat, items]) => html`
+                    <div class="result-group">
+                      <div class="result-group__title">${cat}</div>
+                      <div class="result-list result-list--compact">
+                        ${items.map(r => html`
+                          <button class="ui-card ui-card--interactive result-item" @click=${() => this.navigateTo(r.doc)}>
+                            <div class="ui-card__body">
+                              <div class="result-item__header">
+                                <div class="result-item__name">${r.doc.name}</div>
+                                <div class="result-item__badges">
+                                  ${r.doc.sources?.map((s: any) => html`
+                                    <div class="ui-tooltip" data-tip=${s.name}>
+                                      <span class="ui-badge ui-badge--outline ui-badge--sm ui-badge--source">${s.abbr}</span>
+                                    </div>
+                                  `)}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </button>
-                      `)}
+                          </button>
+                        `)}
+                      </div>
                     </div>
-                  </div>
-                `)}
-              </div>
-            ` : (this.q ? html`<p class="opacity-70 mt-4">Nothing found.</p>` : nothing)}
+                  `)}
+                </div>
+              ` : (this.q ? html`<p class="text-muted">Nothing found.</p>` : nothing)}
+            </div>
           </div>
         </div>
       ` : nothing}

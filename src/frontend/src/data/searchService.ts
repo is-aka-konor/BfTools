@@ -26,8 +26,8 @@ class SearchService {
     const docs: SearchDoc[] = [];
     for (const [cat, { indexHash }] of Object.entries(active)) {
       if (!indexHash) continue;
-      const row = await db.indexes.get(`${cat}:${indexHash}`);
-      if (!row) continue;
+      const row = await db.indexes.get(cat);
+      if (!row || row.hash !== indexHash) continue;
       const idx = row.index as { documents: SearchDoc[] };
       docs.push(...idx.documents);
     }

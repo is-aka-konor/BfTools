@@ -43,7 +43,7 @@ export function renderClassDetail(
         <div class="class-detail-icon">${icon}</div>
         <h1 class="class-detail-title">${item.name}</h1>
         <div class="class-detail-subtitle">Класс Героя</div>
-        <div style="margin-top: var(--space-md);">${sourceBadges(item.sources)}</div>
+        <div class="detail-badges">${sourceBadges(item.sources)}</div>
       </header>
 
       <section class="class-meta-grid">
@@ -80,16 +80,16 @@ export function renderClassDetail(
             <table class="class-table">
               <thead>
                 <tr>
-                  <th style="width: 60px; text-align: center;">Ур.</th>
-                  <th style="width: 80px; text-align: center;">БМ</th>
-                  <th>Умения Класса</th>
+                  <th class="class-table__cell class-table__cell--center class-table__cell--level">Ур.</th>
+                  <th class="class-table__cell class-table__cell--center class-table__cell--bonus">БМ</th>
+                  <th class="class-table__cell">Умения Класса</th>
                 </tr>
               </thead>
               <tbody>
                 ${item.levels.map(l => html`
                   <tr>
-                    <td style="text-align: center;"><span class="level-badge">${l.level}</span></td>
-                    <td style="text-align: center; font-family: var(--font-mono); opacity: 0.8;">
+                    <td class="class-table__cell class-table__cell--center class-table__cell--level"><span class="level-badge">${l.level}</span></td>
+                    <td class="class-table__cell class-table__cell--center class-table__cell--bonus class-table__bonus">
                       ${l.proficiencyBonus ?? `+${Math.floor((l.level - 1) / 4) + 2}`}
                     </td>
                     <td>
@@ -106,9 +106,9 @@ export function renderClassDetail(
       ` : null}
 
       ${(item.features?.length || item.progressInfo?.length) ? html`
-        <section class="class-features-section" style="margin-bottom: var(--space-2xl);">
+        <section class="class-features-section">
           <h2 class="class-section-title">Классовые Умения</h2>
-          <div class="flex flex-col gap-6">
+          <div class="stack stack--lg">
             ${(() => {
               const allFeatures = [
                 ...(item.features || []),
@@ -117,8 +117,8 @@ export function renderClassDetail(
 
               return allFeatures.map(f => html`
                 <div class="class-feature-item">
-                  <h3 class="text-xl font-bold m-0 mb-2">${f.name}</h3>
-                  <div class="prose text-base-content/80" .innerHTML=${f.description}></div>
+                  <h3 class="feature-title">${f.name}</h3>
+                  <div class="prose prose--muted" .innerHTML=${f.description}></div>
                 </div>
               `);
             })()}
@@ -129,19 +129,19 @@ export function renderClassDetail(
       ${item.subclasses?.length ? html`
         <section class="class-subclasses-section">
           <h2 class="class-section-title">Подклассы</h2>
-          <div class="flex flex-col gap-8">
+          <div class="stack stack--xl">
             ${item.subclasses.map(sc => html`
               <div class="class-subclass-item">
-                 <h3 class="text-2xl font-bold text-accent mb-4 border-b border-white/10 pb-2">${sc.name}</h3>
-                 <div class="prose text-base-content/80" .innerHTML=${sc.description}></div>
+                 <h3 class="subclass-title">${sc.name}</h3>
+                 <div class="prose prose--muted" .innerHTML=${sc.description}></div>
               </div>
             `)}
           </div>
         </section>
       ` : null}
 
-      <div style="margin-top: var(--space-xl); text-align: center;">
-        <a class="btn btn--accent-outline" href="/classes" data-navigo @click=${onBack}>← Вернуться к списку классов</a>
+      <div class="detail-actions">
+        <a class="ui-btn ui-btn--accent-outline" href="/classes" data-navigo @click=${onBack}>← Вернуться к списку классов</a>
       </div>
     </div>
   `;
@@ -160,7 +160,7 @@ function renderClassCard(item: ClassEntry, onOpen: (entry: ClassEntry) => void):
 
   return html`
     <a
-      class="class-card block"
+      class="class-card"
       href="/classes/${item.slug}"
       data-navigo
       @click=${() => onOpen(item)}

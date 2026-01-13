@@ -228,13 +228,13 @@ export class AppRoot extends LitElement {
       onSearch: (q) => { if (q) appRouter.navigate(`/search?q=${encodeURIComponent(q)}`); },
       breadcrumbs: crumbs,
       notification: this.updateReady ? html`
-        <div class="alert alert-info shadow-lg flex-row gap-4">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <div class="flex-1">
-            <span class="font-bold">Доступно обновление!</span>
-            <div class="text-xs opacity-70">${this.updatedCategories.length > 0 ? `Изменения: ${this.updatedCategories.join(', ')}` : 'Новая версия приложения готова к использованию.'}</div>
+        <div class="ui-alert ui-alert--info">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="ui-alert__icon" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          <div class="ui-alert__body">
+            <span class="ui-alert__title">Доступно обновление!</span>
+            <div class="ui-alert__meta">${this.updatedCategories.length > 0 ? `Изменения: ${this.updatedCategories.join(', ')}` : 'Новая версия приложения готова к использованию.'}</div>
           </div>
-          <button class="btn btn-sm btn-ghost" @click=${() => location.reload()}>Обновить</button>
+          <button class="ui-btn ui-btn--ghost ui-btn--sm" @click=${() => location.reload()}>Обновить</button>
         </div>
       ` : undefined
     })}

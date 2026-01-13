@@ -27,16 +27,16 @@ export function renderLineages(
                 ${it.size ? html`<div><strong>Размер:</strong> ${it.size}</div>` : ''}
                 ${it.speed ? html`<div><strong>Скорость:</strong> ${it.speed} ft</div>` : ''}
                 ${ageTrait ? html`
-                  <div class="mt-1">
+                  <div class="resource-meta__item">
                     <strong>Возраст:</strong> 
-                    <span style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; opacity: 0.8;">
+                    <span class="line-clamp-2 text-subtle">
                       ${ageTrait.description}
                     </span>
                   </div>
                 ` : ''}
               </div>
 
-              <div style="margin-top: auto; display: flex; justify-content: flex-end;">
+              <div class="resource-footer">
                 ${sourceBadges(it.sources)}
               </div>
             </a>
@@ -61,7 +61,7 @@ export function renderLineageDetail(
         <div class="class-detail-icon">🛡️</div>
         <h1 class="class-detail-title">${item.name}</h1>
         <div class="class-detail-subtitle">Происхождение</div>
-        <div style="margin-top: var(--space-md);">${sourceBadges(item.sources)}</div>
+        <div class="detail-badges">${sourceBadges(item.sources)}</div>
       </header>
 
       <section class="class-meta-grid">
@@ -79,13 +79,13 @@ export function renderLineageDetail(
         </div>
       </section>
 
-      <section class="class-description-section" style="border-left-color: var(--mystical-primary);">
+      <section class="class-description-section">
         <h2 class="class-section-title">Описание</h2>
         <div class="prose" .innerHTML=${item.description ?? ''}></div>
       </section>
 
-      <div style="margin-top: var(--space-xl); text-align: center;">
-        <a class="btn btn--accent-outline" href="/lineages" data-navigo @click=${() => onBack()}>← Вернуться к происхождениям</a>
+      <div class="detail-actions">
+        <a class="ui-btn ui-btn--accent-outline" href="/lineages" data-navigo @click=${() => onBack()}>← Вернуться к происхождениям</a>
       </div>
     </div>
   `;

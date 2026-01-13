@@ -118,7 +118,7 @@ export function renderSpellDetail(
       <div class="spell-detail">
         <div class="spell-detail-header">
           <h1 class="spell-detail-title">${item.name}</h1>
-          <div style="color: var(--text-secondary); font-size: var(--font-size-lg);">
+          <div class="spell-detail-subtitle">
             ${school ? school : ''}${(school && typeof level === 'number') ? ', ' : ''}${typeof level === 'number' ? (level === 0 ? 'Заговор' : `${level} уровень`) : ''}${(item as any).isRitual ? ' (ритуал)' : ''}
           </div>
         </div>
@@ -164,15 +164,15 @@ export function renderSpellDetail(
           </div>
         ` : null}
 
-        <div style="margin-top: var(--space-xl); text-align: center;">
-          <a class="btn btn--accent-outline" href="/spells" data-navigo>← Вернуться к заклинаниям</a>
+        <div class="detail-actions">
+          <a class="ui-btn ui-btn--accent-outline" href="/spells" data-navigo>← Вернуться к заклинаниям</a>
         </div>
       </div>
 
       ${related.length > 0 ? html`
-        <div style="margin-top: var(--space-2xl);">
-          <h3 style="margin-bottom: var(--space-lg); color: var(--accent-primary);">Похожие заклинания</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-md);">
+        <div class="related-section">
+          <h3 class="related-section__title">Похожие заклинания</h3>
+          <div class="related-grid">
             ${related.map((s: any) => html`
               <a class="spell-card" href="/spells/${s.slug}" data-navigo>
                 <div class="spell-header">
