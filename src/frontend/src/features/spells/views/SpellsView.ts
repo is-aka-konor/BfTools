@@ -76,18 +76,20 @@ export function renderSpells(
             <p>Попробуйте изменить фильтры поиска</p>
           </div>
         ` : filtered.map(it => html`
-          <a href="/spells/${(it as any).slug}" data-navigo class="spell-card" @click=${() => opts.rememberScroll()}>
-            <div class="spell-header">
-              <h3 class="spell-name">${(it as any).name}</h3>
-              <span class="spell-level">${(it as any).circle === 0 ? 'Заговор' : `${(it as any).circle} ур.`}</span>
+          <a href="/spells/${(it as any).slug}" data-navigo class="list-card" @click=${() => opts.rememberScroll()}>
+            <div class="list-card-header">
+              <h3 class="list-card-name">${(it as any).name}</h3>
+              <div class="resource-badges">
+                ${(it as any).isRitual ? html`<span class="spell-tag">Ритуал</span>` : null}
+                <span class="spell-level">${(it as any).circle === 0 ? 'Заговор' : `${(it as any).circle} ур.`}</span>
+              </div>
             </div>
-            ${((it as any).school) ? html`<div class="spell-school">${(it as any).school}${(it as any).isRitual ? ' (ритуал)' : ''}</div>` : null}
+            ${((it as any).school) ? html`<div class="spell-school">${(it as any).school}</div>` : null}
             ${((it as any).description) ? html`<div class="spell-description">${(it as any).description}</div>` : null}
-            <div class="spell-tags">
-              ${(it as any).isRitual ? html`<span class="spell-tag">Ритуал</span>` : null}
+            ${((it as any).classes || (it as any).circles) ? html`<div class="spell-classes">Классы: ${(((it as any).classes ?? (it as any).circles) as string[]).join(', ')}</div>` : null}
+            <div class="resource-footer">
               ${sourceBadges((it as any).sources)}
             </div>
-            ${((it as any).classes || (it as any).circles) ? html`<div class="spell-classes">Классы: ${(((it as any).classes ?? (it as any).circles) as string[]).join(', ')}</div>` : null}
           </a>
         `)}
       </div>
@@ -174,9 +176,9 @@ export function renderSpellDetail(
           <h3 class="related-section__title">Похожие заклинания</h3>
           <div class="related-grid">
             ${related.map((s: any) => html`
-              <a class="spell-card" href="/spells/${s.slug}" data-navigo>
-                <div class="spell-header">
-                  <h4 class="spell-name">${s.name}</h4>
+              <a class="list-card" href="/spells/${s.slug}" data-navigo>
+                <div class="list-card-header">
+                  <h4 class="list-card-name">${s.name}</h4>
                   <span class="spell-level">${typeof s.circle === 'number' ? `${s.circle} ур.` : ''}</span>
                 </div>
                 ${s.school ? html`<div class="spell-school">${s.school}</div>` : null}

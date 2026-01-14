@@ -2,25 +2,25 @@ import { html, type TemplateResult } from 'lit';
 import { loadingSpinner, sourceBadges } from '../../../core/ui/ui-utils';
 
 export function renderLineages(
-    items: any[] | undefined,
-    opts: { onOpenItem?: (it: any) => void } = {}
+  items: any[] | undefined,
+  opts: { onOpenItem?: (it: any) => void } = {}
 ): TemplateResult {
-    if (!items) return loadingSpinner();
-    const onOpen = opts.onOpenItem ?? (() => { });
+  if (!items) return loadingSpinner();
+  const onOpen = opts.onOpenItem ?? (() => { });
 
-    return html`
+  return html`
     <div id="lineagesPage" class="page active">
       <div class="page-header">
         <h1>Происхождения</h1>
       </div>
       <div class="resource-grid">
         ${items.map(it => {
-        const ageTrait = it.traits?.find((t: any) => t.name === 'Возраст');
+    const ageTrait = it.traits?.find((t: any) => t.name === 'Возраст');
 
-        return html`
-            <a href="/lineages/${it.slug}" data-navigo class="resource-card" @click=${() => onOpen(it)}>
-              <div class="resource-header">
-                <h3 class="resource-name">${it.name}</h3>
+    return html`
+            <a href="/lineages/${it.slug}" data-navigo class="list-card" @click=${() => onOpen(it)}>
+              <div class="list-card-header">
+                <h3 class="list-card-name">${it.name}</h3>
               </div>
               
               <div class="resource-meta">
@@ -41,21 +41,21 @@ export function renderLineages(
               </div>
             </a>
           `;
-    })}
+  })}
       </div>
     </div>
   `;
 }
 
 export function renderLineageDetail(
-    item: any | undefined,
-    slug: string | undefined,
-    opts: { onBackClick?: () => void } = {}
+  item: any | undefined,
+  slug: string | undefined,
+  opts: { onBackClick?: () => void } = {}
 ): TemplateResult {
-    if (!item || item.slug !== slug) return loadingSpinner();
-    const onBack = opts.onBackClick ?? (() => { });
+  if (!item || item.slug !== slug) return loadingSpinner();
+  const onBack = opts.onBackClick ?? (() => { });
 
-    return html`
+  return html`
     <div class="class-detail-page">
       <header class="class-detail-header">
         <div class="class-detail-icon">🛡️</div>

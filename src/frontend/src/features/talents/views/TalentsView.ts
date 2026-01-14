@@ -94,9 +94,9 @@ export function renderTalents(
       const isMartial = /(mart|воин)/i.test(raw);
 
       return html`
-            <a href="/talents/${it.slug}" data-navigo class="resource-card" @click=${() => opts.rememberScroll()}>
-              <div class="resource-header">
-                <h3 class="resource-name">${it.name}</h3>
+            <a href="/talents/${it.slug}" data-navigo class="list-card" @click=${() => opts.rememberScroll()}>
+              <div class="list-card-header">
+                <h3 class="list-card-name">${it.name}</h3>
                 <div class="resource-badges">
                   ${isMagical ? html`<span class="ui-badge ui-badge--sm ui-badge--magical">Магия</span>` : null}
                   ${isMartial ? html`<span class="ui-badge ui-badge--sm ui-badge--martial">Воин</span>` : null}

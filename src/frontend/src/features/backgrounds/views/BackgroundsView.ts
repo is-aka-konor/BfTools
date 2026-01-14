@@ -22,9 +22,9 @@ export function renderCategoryList(
       </div>
       <div class="resource-grid">
         ${items.map(it => html`
-          <a href="/${category}/${it.slug}" data-navigo class="resource-card" @click=${() => onOpen(it)}>
-            <div class="resource-header">
-              <h3 class="resource-name">${it.name}</h3>
+          <a href="/${category}/${it.slug}" data-navigo class="list-card" @click=${() => onOpen(it)}>
+            <div class="list-card-header">
+              <h3 class="list-card-name">${it.name}</h3>
             </div>
             <div class="resource-footer">
               ${sourceBadges(it.sources)}
